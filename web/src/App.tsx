@@ -75,7 +75,7 @@ export function App() {
         aoRetroceder={aoRetroceder}
         aoCancelar={aoCancelar}
       />
-      <p className="rodape">
+      <p className="rodape" style={{ display: 'none' }}>
         Protótipo visual · dados de demonstração em memória ·{' '}
         <span style={{ color: 'var(--taupe)' }}>Maluzices cozinha saudável</span>
       </p>
