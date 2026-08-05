@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { listarPedidos } from './api/pedidos';
+import { avancarPedido, cancelarPedido, ErroRequisicao, listarPedidos, retrocederPedido } from './api/pedidos';
 import { Indicadores } from './componentes/Indicadores';
 import { Quadro } from './componentes/Quadro';
 import { SpriteIcones } from './componentes/SpriteIcones';
@@ -29,6 +29,38 @@ export function App() {
 
   const pedidosVisiveis = pedidos.filter((p) => p.status !== 'CANCELADO');
 
+  function substituirPedido(pedido: Pedido) {
+    setPedidos((atual) => atual.map((p) => (p.id === pedido.id ? pedido : p)));
+  }
+
+  function mensagemDeErro(erro: unknown, padrao: string): string {
+    return erro instanceof ErroRequisicao ? erro.message : padrao;
+  }
+
+  async function aoAvancar(id: number) {
+    try {
+      substituirPedido(await avancarPedido(id));
+    } catch (erro) {
+      alert(mensagemDeErro(erro, 'Não foi possível avançar o pedido.'));
+    }
+  }
+
+  async function aoRetroceder(id: number) {
+    try {
+      substituirPedido(await retrocederPedido(id));
+    } catch (erro) {
+      alert(mensagemDeErro(erro, 'Não foi possível retroceder o pedido.'));
+    }
+  }
+
+  async function aoCancelar(id: number) {
+    try {
+      substituirPedido(await cancelarPedido(id));
+    } catch (erro) {
+      alert(mensagemDeErro(erro, 'Não foi possível cancelar o pedido.'));
+    }
+  }
+
   return (
     <>
       <SpriteIcones />
@@ -37,9 +69,9 @@ export function App() {
       <Quadro
         pedidos={pedidosVisiveis}
         carregando={carregando}
-        aoAvancar={() => {}}
-        aoRetroceder={() => {}}
-        aoCancelar={() => {}}
+        aoAvancar={aoAvancar}
+        aoRetroceder={aoRetroceder}
+        aoCancelar={aoCancelar}
       />
       <p className="rodape">
         Protótipo visual · dados de demonstração em memória ·{' '}
