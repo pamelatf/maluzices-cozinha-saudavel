@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { avancarPedido, cancelarPedido, ErroRequisicao, listarPedidos, retrocederPedido } from './api/pedidos';
 import { Indicadores } from './componentes/Indicadores';
+import { ModalNovoPedido } from './componentes/ModalNovoPedido';
 import { Quadro } from './componentes/Quadro';
 import { SpriteIcones } from './componentes/SpriteIcones';
 import { Topo } from './componentes/Topo';
@@ -9,6 +10,7 @@ import { Pedido } from './tipos';
 export function App() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [carregando, setCarregando] = useState(true);
+  const [modalAberto, setModalAberto] = useState(false);
 
   useEffect(() => {
     let cancelado = false;
@@ -64,7 +66,7 @@ export function App() {
   return (
     <>
       <SpriteIcones />
-      <Topo aoAbrirModal={() => {}} />
+      <Topo aoAbrirModal={() => setModalAberto(true)} />
       <Indicadores pedidos={pedidosVisiveis} />
       <Quadro
         pedidos={pedidosVisiveis}
@@ -77,6 +79,11 @@ export function App() {
         Protótipo visual · dados de demonstração em memória ·{' '}
         <span style={{ color: 'var(--taupe)' }}>Maluzices cozinha saudável</span>
       </p>
+      <ModalNovoPedido
+        aberto={modalAberto}
+        aoFechar={() => setModalAberto(false)}
+        aoRegistrarPedido={(pedido) => setPedidos((atual) => [pedido, ...atual])}
+      />
     </>
   );
 }
