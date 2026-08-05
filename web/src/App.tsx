@@ -1,3 +1,10 @@
+import { SpriteIcones } from './componentes/SpriteIcones';
+
 export function App() {
-  return <div>carregando…</div>;
+  return (
+    <>
+      <SpriteIcones />
+      <div>carregando…</div>
+    </>
+  );
 }
