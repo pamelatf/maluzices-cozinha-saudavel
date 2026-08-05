@@ -1,6 +1,6 @@
 import { ItemPedidoEntrada } from './tipos';
 
-function reaisParaCentavos(valor: number): number {
+export function reaisParaCentavos(valor: number): number {
   return Math.round(valor * 100);
 }
 
