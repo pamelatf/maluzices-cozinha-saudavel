@@ -1,0 +1,433 @@
+openapi: 3.0.3
+info:
+  title: API de Pedidos — Cozinha de Comida Saudável
+  description: >
+    API REST para uma atendente registrar pedidos de uma cozinha de comida
+    saudável e acompanhar o preparo até a entrega.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:2000
+    description: Ambiente local
+
+tags:
+  - name: Pedidos
+  - name: Sistema
+
+paths:
+  /pedidos:
+    post:
+      tags: [Pedidos]
+      summary: Cria um novo pedido
+      description: >
+        Cria um pedido com um ou mais itens. O pedido nasce sempre com status
+        `RECEBIDO`. O `valorTotal` é sempre calculado no servidor a partir dos
+        itens — qualquer `valorTotal` enviado no corpo é ignorado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PedidoInput'
+            example:
+              cliente: "Maria Souza"
+              observacao: "Sem cebola"
+              itens:
+                - nome: "Bowl de quinoa"
+                  quantidade: 2
+                  precoUnitario: 28.90
+                - nome: "Suco verde"
+                  quantidade: 1
+                  precoUnitario: 12.50
+      responses:
+        '201':
+          description: Pedido criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+              example:
+                id: 1
+                cliente: "Maria Souza"
+                observacao: "Sem cebola"
+                status: RECEBIDO
+                valorTotal: 70.30
+                criadoEm: "2026-08-04T13:00:00.000Z"
+                atualizadoEm: "2026-08-04T13:00:00.000Z"
+                itens:
+                  - id: 1
+                    nome: "Bowl de quinoa"
+                    quantidade: 2
+                    precoUnitario: 28.90
+                  - id: 2
+                    nome: "Suco verde"
+                    quantidade: 1
+                    precoUnitario: 12.50
+        '400':
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+              example:
+                erro:
+                  codigo: VALIDACAO
+                  mensagem: "Payload inválido."
+                  detalhes:
+                    - campo: "cliente"
+                      problema: "Campo obrigatório."
+                    - campo: "itens[0].quantidade"
+                      problema: "Deve ser um inteiro maior ou igual a 1."
+
+    get:
+      tags: [Pedidos]
+      summary: Lista pedidos
+      description: Lista todos os pedidos, com filtro opcional por status.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/StatusPedido'
+          description: Filtra os pedidos pelo status informado.
+      responses:
+        '200':
+          description: Lista de pedidos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pedido'
+        '400':
+          description: Status de filtro inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+              example:
+                erro:
+                  codigo: STATUS_INVALIDO
+                  mensagem: "Status 'FINALIZADO' não é válido."
+                  detalhes: []
+
+  /pedidos/resumo:
+    get:
+      tags: [Pedidos]
+      summary: Resumo de pedidos por status
+      description: Retorna a contagem de pedidos agrupada por cada status.
+      responses:
+        '200':
+          description: Contagem por status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResumoPedidos'
+              example:
+                RECEBIDO: 2
+                EM_PREPARO: 1
+                PRONTO: 1
+                ENTREGUE: 1
+                CANCELADO: 1
+
+  /pedidos/{id}:
+    parameters:
+      - $ref: '#/components/parameters/PedidoId'
+    get:
+      tags: [Pedidos]
+      summary: Busca um pedido pelo id
+      responses:
+        '200':
+          description: Pedido encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '404':
+          description: Pedido não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+              example:
+                erro:
+                  codigo: PEDIDO_NAO_ENCONTRADO
+                  mensagem: "Pedido 42 não existe."
+                  detalhes: []
+
+    delete:
+      tags: [Pedidos]
+      summary: Cancela um pedido
+      description: >
+        Cancela o pedido (transição para `CANCELADO`). Pedidos `ENTREGUE` ou já
+        `CANCELADO` não podem ser cancelados.
+      responses:
+        '200':
+          description: Pedido cancelado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '404':
+          description: Pedido não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+              example:
+                erro:
+                  codigo: PEDIDO_NAO_ENCONTRADO
+                  mensagem: "Pedido 42 não existe."
+                  detalhes: []
+        '409':
+          description: Pedido não pode ser cancelado no status atual
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+              example:
+                erro:
+                  codigo: TRANSICAO_INVALIDA
+                  mensagem: "Pedido 42 já está ENTREGUE e não pode ser cancelado."
+                  detalhes: []
+
+  /pedidos/{id}/status:
+    parameters:
+      - $ref: '#/components/parameters/PedidoId'
+    patch:
+      tags: [Pedidos]
+      summary: Avança ou retrocede o status do pedido
+      description: >
+        Avança uma casa (`RECEBIDO → EM_PREPARO → PRONTO → ENTREGUE`) ou
+        retrocede uma casa. `ENTREGUE` é estado final e não avança nem
+        retrocede.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcaoStatusInput'
+            example:
+              acao: AVANCAR
+      responses:
+        '200':
+          description: Pedido com status atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '400':
+          description: Ação inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+              example:
+                erro:
+                  codigo: VALIDACAO
+                  mensagem: "Payload inválido."
+                  detalhes:
+                    - campo: "acao"
+                      problema: "Deve ser 'AVANCAR' ou 'RETROCEDER'."
+        '404':
+          description: Pedido não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+              example:
+                erro:
+                  codigo: PEDIDO_NAO_ENCONTRADO
+                  mensagem: "Pedido 42 não existe."
+                  detalhes: []
+        '409':
+          description: Transição de status não permitida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroResponse'
+              example:
+                erro:
+                  codigo: TRANSICAO_INVALIDA
+                  mensagem: "Pedido 42 está ENTREGUE e não pode avançar."
+                  detalhes: []
+
+  /health:
+    get:
+      tags: [Sistema]
+      summary: Verifica se a API está no ar
+      responses:
+        '200':
+          description: API saudável
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+
+components:
+  parameters:
+    PedidoId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        example: 1
+      description: Id do pedido
+
+  schemas:
+    StatusPedido:
+      type: string
+      enum: [RECEBIDO, EM_PREPARO, PRONTO, ENTREGUE, CANCELADO]
+
+    AcaoStatus:
+      type: string
+      enum: [AVANCAR, RETROCEDER]
+
+    AcaoStatusInput:
+      type: object
+      required: [acao]
+      properties:
+        acao:
+          $ref: '#/components/schemas/AcaoStatus'
+
+    ItemPedidoInput:
+      type: object
+      required: [nome, quantidade, precoUnitario]
+      properties:
+        nome:
+          type: string
+          maxLength: 120
+          example: "Bowl de quinoa"
+        quantidade:
+          type: integer
+          minimum: 1
+          example: 2
+        precoUnitario:
+          type: number
+          format: double
+          exclusiveMinimum: 0
+          example: 28.90
+
+    ItemPedido:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        nome:
+          type: string
+          example: "Bowl de quinoa"
+        quantidade:
+          type: integer
+          example: 2
+        precoUnitario:
+          type: number
+          format: double
+          example: 28.90
+
+    PedidoInput:
+      type: object
+      required: [cliente, itens]
+      properties:
+        cliente:
+          type: string
+          minLength: 1
+          maxLength: 120
+          example: "Maria Souza"
+        observacao:
+          type: string
+          maxLength: 280
+          nullable: true
+          example: "Sem cebola"
+        itens:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ItemPedidoInput'
+
+    Pedido:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        cliente:
+          type: string
+          example: "Maria Souza"
+        observacao:
+          type: string
+          nullable: true
+          example: "Sem cebola"
+        status:
+          $ref: '#/components/schemas/StatusPedido'
+        valorTotal:
+          type: number
+          format: double
+          example: 70.30
+        criadoEm:
+          type: string
+          format: date-time
+        atualizadoEm:
+          type: string
+          format: date-time
+        itens:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemPedido'
+
+    ResumoPedidos:
+      type: object
+      description: Contagem de pedidos por status.
+      properties:
+        RECEBIDO:
+          type: integer
+          example: 2
+        EM_PREPARO:
+          type: integer
+          example: 1
+        PRONTO:
+          type: integer
+          example: 1
+        ENTREGUE:
+          type: integer
+          example: 1
+        CANCELADO:
+          type: integer
+          example: 1
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+
+    ErroDetalhe:
+      type: object
+      properties:
+        campo:
+          type: string
+          example: "cliente"
+        problema:
+          type: string
+          example: "Campo obrigatório."
+
+    ErroResponse:
+      type: object
+      properties:
+        erro:
+          type: object
+          properties:
+            codigo:
+              type: string
+              example: "PEDIDO_NAO_ENCONTRADO"
+            mensagem:
+              type: string
+              example: "Pedido 42 não existe."
+            detalhes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErroDetalhe'
