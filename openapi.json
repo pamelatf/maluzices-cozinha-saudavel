@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API de Pedidos — Cozinha de Comida Saudável",
-    "description": "API REST para uma atendente registrar pedidos de uma cozinha de comida saudável e acompanhar o preparo até a entrega.\n",
-    "version": "1.0.0"
+    "description": "API REST para uma atendente registrar pedidos de uma cozinha de comida saudável e acompanhar o preparo até a entrega. A partir da versão 2.0.0, a API exige autenticação (Bearer JWT) em todos os endpoints, exceto `POST /auth/login` e `GET /health`.\n",
+    "version": "2.0.0"
   },
   "servers": [
     {
@@ -13,13 +13,103 @@
   ],
   "tags": [
     {
+      "name": "Autenticação"
+    },
+    {
       "name": "Pedidos"
     },
     {
       "name": "Sistema"
     }
   ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
   "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Autentica um usuário e retorna um token",
+        "description": "Endpoint público. Recebe usuário e senha e devolve um JWT válido por 1 hora, assinado com `JWT_SECRET`.\n",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginInput"
+              },
+              "example": {
+                "usuario": "pamela",
+                "senha": "1234"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                },
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwYW1lbGEiLCJpYXQiOjE3NTQ0NTA0MDAsImV4cCI6MTc1NDQ1NDAwMH0.assinatura",
+                  "expiraEm": "2026-08-06T02:00:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Payload inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResponse"
+                },
+                "example": {
+                  "erro": {
+                    "codigo": "VALIDACAO",
+                    "mensagem": "Payload inválido.",
+                    "detalhes": [
+                      {
+                        "campo": "usuario",
+                        "problema": "Campo obrigatório."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Usuário ou senha inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResponse"
+                },
+                "example": {
+                  "erro": {
+                    "codigo": "CREDENCIAIS_INVALIDAS",
+                    "mensagem": "Usuário ou senha inválidos.",
+                    "detalhes": []
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ErroInterno"
+          }
+        }
+      }
+    },
     "/pedidos": {
       "post": {
         "tags": [
@@ -112,6 +202,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/NaoAutenticado"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErroInterno"
           }
         }
       },
@@ -162,6 +258,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/NaoAutenticado"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErroInterno"
           }
         }
       }
@@ -190,6 +292,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/NaoAutenticado"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErroInterno"
           }
         }
       }
@@ -216,6 +324,9 @@
               }
             }
           },
+          "401": {
+            "$ref": "#/components/responses/NaoAutenticado"
+          },
           "404": {
             "description": "Pedido não encontrado",
             "content": {
@@ -232,6 +343,127 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/ErroInterno"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Pedidos"
+        ],
+        "summary": "Edita cliente, observação e/ou itens de um pedido",
+        "description": "Altera parcialmente `cliente`, `observacao` e/ou `itens` de um pedido. Todos os campos são opcionais, mas o corpo não pode vir vazio. Campos fora deste contrato (`status`, `id`, `valorTotal`, `criadoEm`, `atualizadoEm`) são ignorados se enviados — este endpoint não altera o status; para isso use `PATCH /pedidos/{id}/status`. Quando `itens` é enviado, ele substitui a lista inteira e o `valorTotal` é recalculado no servidor, pela mesma regra do `POST /pedidos`. Só é permitido com o pedido em `RECEBIDO` ou `EM_PREPARO`.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchPedidoInput"
+              },
+              "example": {
+                "cliente": "Maria Souza Andrade",
+                "observacao": "Sem cebola, capricha na pimenta"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pedido atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                },
+                "example": {
+                  "id": 1,
+                  "cliente": "Maria Souza Andrade",
+                  "observacao": "Sem cebola, capricha na pimenta",
+                  "status": "RECEBIDO",
+                  "valorTotal": 70.3,
+                  "criadoEm": "2026-08-04T13:00:00.000Z",
+                  "atualizadoEm": "2026-08-04T13:20:00.000Z",
+                  "itens": [
+                    {
+                      "id": 1,
+                      "nome": "Bowl de quinoa",
+                      "quantidade": 2,
+                      "precoUnitario": 28.9
+                    },
+                    {
+                      "id": 2,
+                      "nome": "Suco verde",
+                      "quantidade": 1,
+                      "precoUnitario": 12.5
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Payload inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResponse"
+                },
+                "example": {
+                  "erro": {
+                    "codigo": "VALIDACAO",
+                    "mensagem": "Payload inválido.",
+                    "detalhes": [
+                      {
+                        "campo": "(raiz)",
+                        "problema": "Corpo não pode ser vazio."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/NaoAutenticado"
+          },
+          "404": {
+            "description": "Pedido não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResponse"
+                },
+                "example": {
+                  "erro": {
+                    "codigo": "PEDIDO_NAO_ENCONTRADO",
+                    "mensagem": "Pedido 42 não existe.",
+                    "detalhes": []
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Pedido não pode ser editado no status atual",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResponse"
+                },
+                "example": {
+                  "erro": {
+                    "codigo": "TRANSICAO_INVALIDA",
+                    "mensagem": "Pedido 42 está PRONTO e não pode ser editado.",
+                    "detalhes": []
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ErroInterno"
           }
         }
       },
@@ -251,6 +483,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/NaoAutenticado"
           },
           "404": {
             "description": "Pedido não encontrado",
@@ -285,6 +520,9 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/ErroInterno"
           }
         }
       }
@@ -347,6 +585,9 @@
               }
             }
           },
+          "401": {
+            "$ref": "#/components/responses/NaoAutenticado"
+          },
           "404": {
             "description": "Pedido não encontrado",
             "content": {
@@ -380,6 +621,9 @@
                 }
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/ErroInterno"
           }
         }
       }
@@ -390,6 +634,8 @@
           "Sistema"
         ],
         "summary": "Verifica se a API está no ar",
+        "description": "Endpoint público. Verifica de fato a conexão com o banco (`SELECT 1`), com tempo limite de 2 segundos.\n",
+        "security": [],
         "responses": {
           "200": {
             "description": "API saudável",
@@ -399,7 +645,36 @@
                   "$ref": "#/components/schemas/HealthResponse"
                 },
                 "example": {
-                  "status": "ok"
+                  "status": "ok",
+                  "dependencias": [
+                    {
+                      "nome": "persistencia",
+                      "ok": true
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ErroInterno"
+          },
+          "503": {
+            "description": "Dependência indisponível ou fora do tempo limite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "indisponivel",
+                  "dependencias": [
+                    {
+                      "nome": "persistencia",
+                      "ok": false,
+                      "detalhe": "Tempo limite de 2000ms excedido."
+                    }
+                  ]
                 }
               }
             }
@@ -409,6 +684,13 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
     "parameters": {
       "PedidoId": {
         "name": "id",
@@ -419,6 +701,42 @@
           "example": 1
         },
         "description": "Id do pedido"
+      }
+    },
+    "responses": {
+      "NaoAutenticado": {
+        "description": "Não autenticado",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErroResponse"
+            },
+            "example": {
+              "erro": {
+                "codigo": "NAO_AUTENTICADO",
+                "mensagem": "Não autenticado.",
+                "detalhes": []
+              }
+            }
+          }
+        }
+      },
+      "ErroInterno": {
+        "description": "Erro interno do servidor",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErroResponse"
+            },
+            "example": {
+              "erro": {
+                "codigo": "ERRO_INTERNO",
+                "mensagem": "Erro interno do servidor.",
+                "detalhes": []
+              }
+            }
+          }
+        }
       }
     },
     "schemas": {
@@ -450,6 +768,42 @@
           }
         }
       },
+      "LoginInput": {
+        "type": "object",
+        "required": [
+          "usuario",
+          "senha"
+        ],
+        "properties": {
+          "usuario": {
+            "type": "string",
+            "example": "pamela"
+          },
+          "senha": {
+            "type": "string",
+            "format": "password",
+            "example": "1234"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "required": [
+          "token",
+          "expiraEm"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwYW1lbGEiLCJpYXQiOjE3NTQ0NTA0MDAsImV4cCI6MTc1NDQ1NDAwMH0.assinatura"
+          },
+          "expiraEm": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-08-06T02:00:00.000Z"
+          }
+        }
+      },
       "ItemPedidoInput": {
         "type": "object",
         "required": [
@@ -478,6 +832,12 @@
       },
       "ItemPedido": {
         "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "quantidade",
+          "precoUnitario"
+        ],
         "properties": {
           "id": {
             "type": "integer",
@@ -526,8 +886,44 @@
           }
         }
       },
+      "PatchPedidoInput": {
+        "type": "object",
+        "description": "Alteração parcial do pedido. Todos os campos são opcionais, mas o corpo não pode ser enviado vazio. Campos fora deste contrato (`status`, `id`, `valorTotal`, `criadoEm`, `atualizadoEm`) são ignorados se enviados.\n",
+        "minProperties": 1,
+        "properties": {
+          "cliente": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "example": "Maria Souza Andrade"
+          },
+          "observacao": {
+            "type": "string",
+            "maxLength": 280,
+            "nullable": true,
+            "example": "Sem cebola, capricha na pimenta"
+          },
+          "itens": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/ItemPedidoInput"
+            }
+          }
+        }
+      },
       "Pedido": {
         "type": "object",
+        "required": [
+          "id",
+          "cliente",
+          "observacao",
+          "status",
+          "valorTotal",
+          "criadoEm",
+          "atualizadoEm",
+          "itens"
+        ],
         "properties": {
           "id": {
             "type": "integer",
@@ -569,6 +965,13 @@
       "ResumoPedidos": {
         "type": "object",
         "description": "Contagem de pedidos por status.",
+        "required": [
+          "RECEBIDO",
+          "EM_PREPARO",
+          "PRONTO",
+          "ENTREGUE",
+          "CANCELADO"
+        ],
         "properties": {
           "RECEBIDO": {
             "type": "integer",
@@ -592,17 +995,57 @@
           }
         }
       },
+      "Dependencia": {
+        "type": "object",
+        "required": [
+          "nome",
+          "ok"
+        ],
+        "properties": {
+          "nome": {
+            "type": "string",
+            "example": "persistencia"
+          },
+          "ok": {
+            "type": "boolean",
+            "example": true
+          },
+          "detalhe": {
+            "type": "string",
+            "description": "Só é preenchido fora de produção (`NODE_ENV=production` usa texto genérico).",
+            "example": "Tempo limite de 2000ms excedido."
+          }
+        }
+      },
       "HealthResponse": {
         "type": "object",
+        "required": [
+          "status",
+          "dependencias"
+        ],
         "properties": {
           "status": {
             "type": "string",
+            "enum": [
+              "ok",
+              "indisponivel"
+            ],
             "example": "ok"
+          },
+          "dependencias": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Dependencia"
+            }
           }
         }
       },
       "ErroDetalhe": {
         "type": "object",
+        "required": [
+          "campo",
+          "problema"
+        ],
         "properties": {
           "campo": {
             "type": "string",
@@ -616,9 +1059,17 @@
       },
       "ErroResponse": {
         "type": "object",
+        "required": [
+          "erro"
+        ],
         "properties": {
           "erro": {
             "type": "object",
+            "required": [
+              "codigo",
+              "mensagem",
+              "detalhes"
+            ],
             "properties": {
               "codigo": {
                 "type": "string",
