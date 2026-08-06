@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { estaSaudavel } from './api/health';
 import { aoExpirarSessao, definirToken } from './api/httpClient';
 import { avancarPedido, cancelarPedido, ErroRequisicao, listarPedidos, retrocederPedido } from './api/pedidos';
 import { Indicadores } from './componentes/Indicadores';
@@ -18,12 +19,27 @@ export function App() {
   const [carregando, setCarregando] = useState(true);
   const [modalAberto, setModalAberto] = useState(false);
   const [pedidoEmEdicao, setPedidoEmEdicao] = useState<Pedido | null>(null);
+  const [apiIndisponivel, setApiIndisponivel] = useState(false);
 
   useEffect(() => {
     aoExpirarSessao(() => {
       setToken(null);
       setMensagemSessao('Sua sessão expirou. Faça login novamente.');
     });
+  }, []);
+
+  useEffect(() => {
+    let cancelado = false;
+    async function checarSaude() {
+      const ok = await estaSaudavel();
+      if (!cancelado) setApiIndisponivel(!ok);
+    }
+    checarSaude();
+    const intervalo = setInterval(checarSaude, 30000);
+    return () => {
+      cancelado = true;
+      clearInterval(intervalo);
+    };
   }, []);
 
   useEffect(() => {
@@ -60,7 +76,12 @@ export function App() {
   }
 
   if (!token) {
-    return <TelaLogin aoAutenticar={aoAutenticar} mensagemInicial={mensagemSessao} />;
+    return (
+      <>
+        {apiIndisponivel ? <p className="aviso-saude">Não foi possível conectar ao servidor no momento.</p> : null}
+        <TelaLogin aoAutenticar={aoAutenticar} mensagemInicial={mensagemSessao} />
+      </>
+    );
   }
 
   const pedidosVisiveis = pedidos.filter((p) => p.status !== 'CANCELADO');
@@ -100,6 +121,7 @@ export function App() {
   return (
     <>
       <SpriteIcones />
+      {apiIndisponivel ? <p className="aviso-saude">Não foi possível conectar ao servidor no momento.</p> : null}
       <Topo aoAbrirModal={() => setModalAberto(true)} nomeUsuario={nomeUsuario} aoSair={aoSair} />
       <Indicadores pedidos={pedidosVisiveis} />
       <Quadro
