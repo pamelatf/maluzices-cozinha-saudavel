@@ -38,3 +38,15 @@ export class TransicaoInvalidaError extends AppError {
     super('TRANSICAO_INVALIDA', mensagem, 409);
   }
 }
+
+export class CredenciaisInvalidasError extends AppError {
+  constructor() {
+    super('CREDENCIAIS_INVALIDAS', 'Usuário ou senha inválidos.', 401);
+  }
+}
+
+export class NaoAutenticadoError extends AppError {
+  constructor() {
+    super('NAO_AUTENTICADO', 'Não autenticado.', 401);
+  }
+}

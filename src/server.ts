@@ -4,6 +4,8 @@ import express from 'express';
 import yaml from 'js-yaml';
 import swaggerUi from 'swagger-ui-express';
 import { rotaNaoEncontrada, tratadorDeErros } from './errors/middleware';
+import { autenticar } from './middlewares/autenticacao';
+import { authRouter } from './routes/authRouter';
 import { healthRouter } from './routes/healthRouter';
 import { pedidosRouter } from './routes/pedidosRouter';
 
@@ -16,6 +18,9 @@ const documentoOpenApi = yaml.load(
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(documentoOpenApi));
 
+app.use(autenticar);
+
+app.use(authRouter);
 app.use(healthRouter);
 app.use(pedidosRouter);
 
