@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { AcaoStatus, Pedido } from '../domain/tipos';
 import { ErroValidacao } from '../errors/AppError';
 import * as pedidoService from '../services/pedidoService';
-import { acaoStatusSchema, criarPedidoSchema, idParamSchema } from './schemas';
+import { acaoStatusSchema, criarPedidoSchema, editarPedidoSchema, idParamSchema } from './schemas';
 import { zodParaDetalhes } from './zodParaDetalhes';
 
 export const pedidosRouter = Router();
@@ -60,6 +60,20 @@ pedidosRouter.get('/pedidos', async (req, res, next) => {
     const status = pedidoService.validarStatusFiltro(req.query.status);
     const pedidos = await pedidoService.listarPedidos(status);
     res.status(200).json(pedidos.map(serializarPedido));
+  } catch (erro) {
+    next(erro);
+  }
+});
+
+pedidosRouter.patch('/pedidos/:id', async (req, res, next) => {
+  try {
+    const id = paraId(req.params.id);
+    const resultado = editarPedidoSchema.safeParse(req.body);
+    if (!resultado.success) {
+      throw new ErroValidacao(zodParaDetalhes(resultado.error));
+    }
+    const pedido = await pedidoService.editarPedido(id, resultado.data);
+    res.status(200).json(serializarPedido(pedido));
   } catch (erro) {
     next(erro);
   }

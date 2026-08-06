@@ -1,3 +1,4 @@
+import { garantirPedidoEditavel } from '../domain/edicaoPedido';
 import { avancarStatus, retrocederStatus, statusParaCancelamento } from '../domain/statusPedido';
 import { AcaoStatus, ItemPedidoEntrada, Pedido, STATUS_PEDIDO, StatusPedido } from '../domain/tipos';
 import { calcularValorTotalEmCentavos, reaisParaCentavos } from '../domain/valorPedido';
@@ -54,6 +55,35 @@ export async function atualizarStatusPedido(id: number, acao: AcaoStatus): Promi
       ? avancarStatus(id, pedido.status)
       : retrocederStatus(id, pedido.status);
   return pedidoRepository.atualizarStatus(id, novoStatus);
+}
+
+export interface EditarPedidoInput {
+  cliente?: string;
+  observacao?: string | null;
+  itens?: ItemPedidoEntrada[];
+}
+
+export async function editarPedido(id: number, input: EditarPedidoInput): Promise<Pedido> {
+  const pedido = await buscarPedido(id);
+  garantirPedidoEditavel(id, pedido.status);
+
+  const dados: pedidoRepository.DadosAtualizacaoPedido = {};
+  if (input.cliente !== undefined) {
+    dados.cliente = input.cliente;
+  }
+  if (input.observacao !== undefined) {
+    dados.observacao = input.observacao;
+  }
+  if (input.itens !== undefined) {
+    dados.itens = input.itens.map((item) => ({
+      nome: item.nome,
+      quantidade: item.quantidade,
+      precoUnitarioCentavos: reaisParaCentavos(item.precoUnitario),
+    }));
+    dados.valorTotalCentavos = calcularValorTotalEmCentavos(input.itens);
+  }
+
+  return pedidoRepository.atualizar(id, dados);
 }
 
 export async function cancelarPedido(id: number): Promise<Pedido> {

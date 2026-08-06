@@ -81,6 +81,38 @@ export async function atualizarStatus(id: number, status: StatusPedido): Promise
   return paraDominio(atualizado);
 }
 
+export interface DadosAtualizacaoPedido {
+  cliente?: string;
+  observacao?: string | null;
+  itens?: ItemParaCriar[];
+  valorTotalCentavos?: number;
+}
+
+export async function atualizar(id: number, dados: DadosAtualizacaoPedido): Promise<Pedido> {
+  const atualizado = await prisma.pedido.update({
+    where: { id },
+    data: {
+      ...(dados.cliente !== undefined ? { cliente: dados.cliente } : {}),
+      ...(dados.observacao !== undefined ? { observacao: dados.observacao } : {}),
+      ...(dados.itens !== undefined
+        ? {
+            itens: {
+              deleteMany: {},
+              create: dados.itens.map((item) => ({
+                nome: item.nome,
+                quantidade: item.quantidade,
+                precoUnitario: (item.precoUnitarioCentavos / 100).toFixed(2),
+              })),
+            },
+            valorTotal: (dados.valorTotalCentavos! / 100).toFixed(2),
+          }
+        : {}),
+    },
+    include: { itens: true },
+  });
+  return paraDominio(atualizado);
+}
+
 export async function contarPorStatus(): Promise<Record<StatusPedido, number>> {
   const grupos = await prisma.pedido.groupBy({
     by: ['status'],
