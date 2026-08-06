@@ -48,6 +48,10 @@ export function SpriteIcones() {
       <symbol id="i-check" viewBox="0 0 24 24">
         <path d="M4.5 12.5l5 5 10-11" />
       </symbol>
+      <symbol id="i-editar" viewBox="0 0 24 24">
+        <path d="M4 20l1-4L16 5l3 3L8 19l-4 1z" />
+        <path d="M14 7l3 3" />
+      </symbol>
     </svg>
   );
 }

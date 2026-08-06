@@ -14,9 +14,10 @@ interface QuadroProps {
   aoAvancar: (id: number) => void;
   aoRetroceder: (id: number) => void;
   aoCancelar: (id: number) => void;
+  aoEditar: (pedido: Pedido) => void;
 }
 
-export function Quadro({ pedidos, carregando, aoAvancar, aoRetroceder, aoCancelar }: QuadroProps) {
+export function Quadro({ pedidos, carregando, aoAvancar, aoRetroceder, aoCancelar, aoEditar }: QuadroProps) {
   return (
     <main className="quadro">
       {COLUNAS.map((coluna) => (
@@ -30,6 +31,7 @@ export function Quadro({ pedidos, carregando, aoAvancar, aoRetroceder, aoCancela
           aoAvancar={aoAvancar}
           aoRetroceder={aoRetroceder}
           aoCancelar={aoCancelar}
+          aoEditar={aoEditar}
         />
       ))}
     </main>

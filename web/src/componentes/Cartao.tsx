@@ -3,15 +3,17 @@ import { Pedido } from '../tipos';
 import { brl, tempoRelativo } from '../utils/formato';
 
 const ORDEM = ['RECEBIDO', 'EM_PREPARO', 'PRONTO', 'ENTREGUE'] as const;
+const STATUS_EDITAVEIS = ['RECEBIDO', 'EM_PREPARO'];
 
 interface CartaoProps {
   pedido: Pedido;
   aoAvancar: (id: number) => void;
   aoRetroceder: (id: number) => void;
   aoCancelar: (id: number) => void;
+  aoEditar: (pedido: Pedido) => void;
 }
 
-export function Cartao({ pedido, aoAvancar, aoRetroceder, aoCancelar }: CartaoProps) {
+export function Cartao({ pedido, aoAvancar, aoRetroceder, aoCancelar, aoEditar }: CartaoProps) {
   const [agora, setAgora] = useState(() => Date.now());
 
   useEffect(() => {
@@ -20,6 +22,7 @@ export function Cartao({ pedido, aoAvancar, aoRetroceder, aoCancelar }: CartaoPr
   }, []);
 
   const fim = pedido.status === 'ENTREGUE';
+  const editavel = STATUS_EDITAVEIS.includes(pedido.status);
   const indice = ORDEM.indexOf(pedido.status as (typeof ORDEM)[number]);
 
   return (
@@ -38,44 +41,56 @@ export function Cartao({ pedido, aoAvancar, aoRetroceder, aoCancelar }: CartaoPr
       {pedido.observacao ? <p className="obs">“{pedido.observacao}”</p> : null}
       <div className="cartao-base">
         <span className="total">{brl(pedido.valorTotal)}</span>
-        {fim ? (
-          <span className="concluido">
+        <div className="acoes">
+          <button
+            className="acao"
+            aria-label={`Editar pedido de ${pedido.cliente}`}
+            disabled={!editavel}
+            onClick={() => aoEditar(pedido)}
+          >
             <svg className="icone">
-              <use href="#i-check" />
-            </svg>{' '}
-            concluído
-          </span>
-        ) : (
-          <div className="acoes">
-            <button
-              className="acao perigo"
-              data-acao="cancelar"
-              aria-label={`Cancelar pedido de ${pedido.cliente}`}
-              onClick={() => aoCancelar(pedido.id)}
-            >
+              <use href="#i-editar" />
+            </svg>
+          </button>
+          {fim ? (
+            <span className="concluido">
               <svg className="icone">
-                <use href="#i-x" />
-              </svg>
-            </button>
-            <button
-              className="acao"
-              data-acao="voltar"
-              aria-label="Retroceder status"
-              disabled={indice === 0}
-              onClick={() => aoRetroceder(pedido.id)}
-            >
-              <svg className="icone">
-                <use href="#i-esq" />
-              </svg>
-            </button>
-            <button className="acao principal" data-acao="avancar" onClick={() => aoAvancar(pedido.id)}>
-              Avançar{' '}
-              <svg className="icone">
-                <use href="#i-dir" />
-              </svg>
-            </button>
-          </div>
-        )}
+                <use href="#i-check" />
+              </svg>{' '}
+              concluído
+            </span>
+          ) : (
+            <>
+              <button
+                className="acao perigo"
+                data-acao="cancelar"
+                aria-label={`Cancelar pedido de ${pedido.cliente}`}
+                onClick={() => aoCancelar(pedido.id)}
+              >
+                <svg className="icone">
+                  <use href="#i-x" />
+                </svg>
+              </button>
+              <button
+                className="acao"
+                data-acao="voltar"
+                aria-label="Retroceder status"
+                disabled={indice === 0}
+                onClick={() => aoRetroceder(pedido.id)}
+              >
+                <svg className="icone">
+                  <use href="#i-esq" />
+                </svg>
+              </button>
+              <button className="acao principal" data-acao="avancar" onClick={() => aoAvancar(pedido.id)}>
+                Avançar{' '}
+                <svg className="icone">
+                  <use href="#i-dir" />
+                </svg>
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </article>
   );

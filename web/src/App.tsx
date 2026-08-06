@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { aoExpirarSessao, definirToken } from './api/httpClient';
 import { avancarPedido, cancelarPedido, ErroRequisicao, listarPedidos, retrocederPedido } from './api/pedidos';
 import { Indicadores } from './componentes/Indicadores';
+import { ModalEditarPedido } from './componentes/ModalEditarPedido';
 import { ModalNovoPedido } from './componentes/ModalNovoPedido';
 import { Quadro } from './componentes/Quadro';
 import { SpriteIcones } from './componentes/SpriteIcones';
@@ -16,6 +17,7 @@ export function App() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [modalAberto, setModalAberto] = useState(false);
+  const [pedidoEmEdicao, setPedidoEmEdicao] = useState<Pedido | null>(null);
 
   useEffect(() => {
     aoExpirarSessao(() => {
@@ -106,6 +108,7 @@ export function App() {
         aoAvancar={aoAvancar}
         aoRetroceder={aoRetroceder}
         aoCancelar={aoCancelar}
+        aoEditar={setPedidoEmEdicao}
       />
       <p className="rodape" style={{ display: 'none' }}>
         Protótipo visual · dados de demonstração em memória ·{' '}
@@ -115,6 +118,14 @@ export function App() {
         aberto={modalAberto}
         aoFechar={() => setModalAberto(false)}
         aoRegistrarPedido={(pedido) => setPedidos((atual) => [pedido, ...atual])}
+      />
+      <ModalEditarPedido
+        pedido={pedidoEmEdicao}
+        aoFechar={() => setPedidoEmEdicao(null)}
+        aoSalvar={(pedido) => {
+          substituirPedido(pedido);
+          setPedidoEmEdicao(null);
+        }}
       />
     </>
   );

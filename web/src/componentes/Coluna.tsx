@@ -10,6 +10,7 @@ interface ColunaProps {
   aoAvancar: (id: number) => void;
   aoRetroceder: (id: number) => void;
   aoCancelar: (id: number) => void;
+  aoEditar: (pedido: Pedido) => void;
 }
 
 export function Coluna({
@@ -21,6 +22,7 @@ export function Coluna({
   aoAvancar,
   aoRetroceder,
   aoCancelar,
+  aoEditar,
 }: ColunaProps) {
   return (
     <section className="coluna" data-status={status}>
@@ -44,6 +46,7 @@ export function Coluna({
               aoAvancar={aoAvancar}
               aoRetroceder={aoRetroceder}
               aoCancelar={aoCancelar}
+              aoEditar={aoEditar}
             />
           ))
         )}
