@@ -34,3 +34,9 @@ model ItemPedido {
   precoUnitario Decimal  @db.Decimal(10, 2)
   pedido        Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
 }
+
+model Usuario {
+  id      Int    @id @default(autoincrement())
+  usuario String @unique @db.VarChar(60)
+  senha   String @db.VarChar(120)
+}

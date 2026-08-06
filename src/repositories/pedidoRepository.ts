@@ -1,7 +1,6 @@
-import { Prisma, PrismaClient, StatusPedido as StatusPedidoPrisma } from '@prisma/client';
+import { Prisma, StatusPedido as StatusPedidoPrisma } from '@prisma/client';
 import { Pedido, STATUS_PEDIDO, StatusPedido } from '../domain/tipos';
-
-export const prisma = new PrismaClient();
+import { prisma } from './prismaClient';
 
 type PedidoComItens = Prisma.PedidoGetPayload<{ include: { itens: true } }>;
 
