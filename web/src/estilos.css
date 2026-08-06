@@ -229,3 +229,42 @@ textarea{resize:vertical;min-height:56px;font-family:'Cormorant Garamond',Georgi
   .topo{padding:16px}
   .topo-dir{width:100%;margin-left:0}
 }
+
+/* ============================================================
+   ADIÇÕES — login e edição de pedido (não fazem parte do protótipo original)
+   ============================================================ */
+
+/* ---------- login ---------- */
+.tela-login{
+  min-height:100vh;display:grid;place-items:center;padding:20px;
+  background:var(--creme-fundo);
+}
+.cartao-login{
+  background:var(--branco);border:1px solid var(--areia);border-radius:var(--raio);
+  box-shadow:var(--sombra-alta);padding:32px 28px;width:min(360px,100%);
+  display:flex;flex-direction:column;gap:14px;
+}
+.login-titulo{
+  font-size:22px;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--oliva);
+  text-align:center;
+}
+.login-subtitulo{
+  font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14px;
+  color:var(--pedra);text-align:center;margin-top:-8px;margin-bottom:4px;
+}
+.cartao-login .btn-primario{width:100%;text-align:center;margin-top:4px}
+
+/* ---------- sessão (usuário logado + sair) ---------- */
+.sessao{display:flex;align-items:center;gap:12px}
+.sessao-usuario{font-size:13px;letter-spacing:.06em;color:#C9C6AE}
+.btn-sair{
+  font-size:12.5px;color:#C9C6AE;padding:6px 12px;border-radius:999px;
+  border:1px solid rgba(201,198,174,.35);
+}
+.btn-sair:hover{color:var(--creme);border-color:rgba(201,198,174,.6)}
+
+/* ---------- indicador de saúde da API ---------- */
+.aviso-saude{
+  text-align:center;font-size:12px;color:var(--terracota);background:#F7EBE4;
+  padding:7px 12px;letter-spacing:.03em;
+}

@@ -1,8 +1,10 @@
 interface TopoProps {
   aoAbrirModal: () => void;
+  nomeUsuario: string;
+  aoSair: () => void;
 }
 
-export function Topo({ aoAbrirModal }: TopoProps) {
+export function Topo({ aoAbrirModal, nomeUsuario, aoSair }: TopoProps) {
   const dataHoje = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',
     day: '2-digit',
@@ -30,6 +32,12 @@ export function Topo({ aoAbrirModal }: TopoProps) {
           </svg>{' '}
           Novo pedido
         </button>
+        <div className="sessao">
+          <span className="sessao-usuario">{nomeUsuario}</span>
+          <button className="btn-sair" onClick={aoSair}>
+            Sair
+          </button>
+        </div>
       </div>
     </header>
   );
