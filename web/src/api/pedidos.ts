@@ -1,54 +1,37 @@
-import { CorpoErroApi, ErroDetalhe, NovoPedidoInput, Pedido } from '../tipos';
+import { NovoPedidoInput, Pedido } from '../tipos';
+import { requisitar } from './httpClient';
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
-
-export class ErroRequisicao extends Error {
-  constructor(
-    public readonly status: number,
-    public readonly codigo: string,
-    mensagem: string,
-    public readonly detalhes: ErroDetalhe[],
-  ) {
-    super(mensagem);
-    this.name = 'ErroRequisicao';
-  }
-}
-
-async function tratarResposta<T>(resposta: Response): Promise<T> {
-  if (!resposta.ok) {
-    const corpo = (await resposta.json().catch(() => null)) as CorpoErroApi | null;
-    const erro = corpo?.erro;
-    throw new ErroRequisicao(
-      resposta.status,
-      erro?.codigo ?? 'ERRO_DESCONHECIDO',
-      erro?.mensagem ?? 'Não foi possível completar a ação.',
-      erro?.detalhes ?? [],
-    );
-  }
-  return resposta.json() as Promise<T>;
-}
+export { ErroRequisicao } from './httpClient';
 
 export async function listarPedidos(): Promise<Pedido[]> {
-  const resposta = await fetch(`${BASE_URL}/pedidos`);
-  return tratarResposta<Pedido[]>(resposta);
+  return requisitar<Pedido[]>('/pedidos');
 }
 
 export async function criarPedido(dados: NovoPedidoInput): Promise<Pedido> {
-  const resposta = await fetch(`${BASE_URL}/pedidos`, {
+  return requisitar<Pedido>('/pedidos', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dados),
   });
-  return tratarResposta<Pedido>(resposta);
+}
+
+export interface EditarPedidoInput {
+  cliente?: string;
+  observacao?: string | null;
+  itens?: { nome: string; quantidade: number; precoUnitario: number }[];
+}
+
+export async function editarPedido(id: number, dados: EditarPedidoInput): Promise<Pedido> {
+  return requisitar<Pedido>(`/pedidos/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(dados),
+  });
 }
 
 async function alterarStatus(id: number, acao: 'AVANCAR' | 'RETROCEDER'): Promise<Pedido> {
-  const resposta = await fetch(`${BASE_URL}/pedidos/${id}/status`, {
+  return requisitar<Pedido>(`/pedidos/${id}/status`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ acao }),
   });
-  return tratarResposta<Pedido>(resposta);
 }
 
 export function avancarPedido(id: number): Promise<Pedido> {
@@ -60,6 +43,5 @@ export function retrocederPedido(id: number): Promise<Pedido> {
 }
 
 export async function cancelarPedido(id: number): Promise<Pedido> {
-  const resposta = await fetch(`${BASE_URL}/pedidos/${id}`, { method: 'DELETE' });
-  return tratarResposta<Pedido>(resposta);
+  return requisitar<Pedido>(`/pedidos/${id}`, { method: 'DELETE' });
 }
