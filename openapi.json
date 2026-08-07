@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API de Pedidos — Cozinha de Comida Saudável",
-    "description": "API REST para uma atendente registrar pedidos de uma cozinha de comida saudável e acompanhar o preparo até a entrega. A partir da versão 2.0.0, a API exige autenticação (Bearer JWT) em todos os endpoints, exceto `POST /auth/login` e `GET /health`.\n",
-    "version": "2.0.0"
+    "description": "API REST para uma atendente registrar pedidos de uma cozinha de comida saudável e acompanhar o preparo até a entrega. A partir da versão 2.0.0, a API exige autenticação (Bearer JWT) em todos os endpoints, exceto `POST /auth/login` e `GET /health`. A partir da versão 2.1.0, requisições com método não suportado numa rota existente respondem `405` (com o header `Allow`), e requisições para rotas inexistentes respondem `404` — em ambos os casos **sem exigir autenticação**, já que essas respostas descrevem o recurso, não o solicitante.\n",
+    "version": "2.1.0"
   },
   "servers": [
     {
@@ -103,6 +103,9 @@
                 }
               }
             }
+          },
+          "405": {
+            "$ref": "#/components/responses/MetodoNaoPermitido"
           },
           "500": {
             "$ref": "#/components/responses/ErroInterno"
@@ -206,6 +209,9 @@
           "401": {
             "$ref": "#/components/responses/NaoAutenticado"
           },
+          "405": {
+            "$ref": "#/components/responses/MetodoNaoPermitido"
+          },
           "500": {
             "$ref": "#/components/responses/ErroInterno"
           }
@@ -262,6 +268,9 @@
           "401": {
             "$ref": "#/components/responses/NaoAutenticado"
           },
+          "405": {
+            "$ref": "#/components/responses/MetodoNaoPermitido"
+          },
           "500": {
             "$ref": "#/components/responses/ErroInterno"
           }
@@ -295,6 +304,9 @@
           },
           "401": {
             "$ref": "#/components/responses/NaoAutenticado"
+          },
+          "405": {
+            "$ref": "#/components/responses/MetodoNaoPermitido"
           },
           "500": {
             "$ref": "#/components/responses/ErroInterno"
@@ -343,6 +355,9 @@
                 }
               }
             }
+          },
+          "405": {
+            "$ref": "#/components/responses/MetodoNaoPermitido"
           },
           "500": {
             "$ref": "#/components/responses/ErroInterno"
@@ -445,6 +460,9 @@
               }
             }
           },
+          "405": {
+            "$ref": "#/components/responses/MetodoNaoPermitido"
+          },
           "409": {
             "description": "Pedido não pode ser editado no status atual",
             "content": {
@@ -503,6 +521,9 @@
                 }
               }
             }
+          },
+          "405": {
+            "$ref": "#/components/responses/MetodoNaoPermitido"
           },
           "409": {
             "description": "Pedido não pode ser cancelado no status atual",
@@ -605,6 +626,9 @@
               }
             }
           },
+          "405": {
+            "$ref": "#/components/responses/MetodoNaoPermitido"
+          },
           "409": {
             "description": "Transição de status não permitida",
             "content": {
@@ -655,6 +679,9 @@
                 }
               }
             }
+          },
+          "405": {
+            "$ref": "#/components/responses/MetodoNaoPermitido"
           },
           "500": {
             "$ref": "#/components/responses/ErroInterno"
@@ -732,6 +759,32 @@
               "erro": {
                 "codigo": "ERRO_INTERNO",
                 "mensagem": "Erro interno do servidor.",
+                "detalhes": []
+              }
+            }
+          }
+        }
+      },
+      "MetodoNaoPermitido": {
+        "description": "Método HTTP não suportado nesta rota. Resolvido antes da verificação de autenticação — não exige token.\n",
+        "headers": {
+          "Allow": {
+            "description": "Métodos aceitos nesta rota, separados por vírgula.",
+            "schema": {
+              "type": "string",
+              "example": "GET, HEAD, POST, OPTIONS"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErroResponse"
+            },
+            "example": {
+              "erro": {
+                "codigo": "METODO_NAO_PERMITIDO",
+                "mensagem": "Método PUT não é permitido em /pedidos.",
                 "detalhes": []
               }
             }

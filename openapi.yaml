@@ -5,8 +5,12 @@ info:
     API REST para uma atendente registrar pedidos de uma cozinha de comida
     saudável e acompanhar o preparo até a entrega. A partir da versão 2.0.0,
     a API exige autenticação (Bearer JWT) em todos os endpoints, exceto
-    `POST /auth/login` e `GET /health`.
-  version: 2.0.0
+    `POST /auth/login` e `GET /health`. A partir da versão 2.1.0, requisições
+    com método não suportado numa rota existente respondem `405` (com o
+    header `Allow`), e requisições para rotas inexistentes respondem `404`
+    — em ambos os casos **sem exigir autenticação**, já que essas respostas
+    descrevem o recurso, não o solicitante.
+  version: 2.1.0
 
 servers:
   - url: http://localhost:2000
@@ -72,6 +76,8 @@ paths:
                   codigo: CREDENCIAIS_INVALIDAS
                   mensagem: "Usuário ou senha inválidos."
                   detalhes: []
+        '405':
+          $ref: '#/components/responses/MetodoNaoPermitido'
         '500':
           $ref: '#/components/responses/ErroInterno'
 
@@ -140,6 +146,8 @@ paths:
                       problema: "Deve ser um inteiro maior ou igual a 1."
         '401':
           $ref: '#/components/responses/NaoAutenticado'
+        '405':
+          $ref: '#/components/responses/MetodoNaoPermitido'
         '500':
           $ref: '#/components/responses/ErroInterno'
 
@@ -176,6 +184,8 @@ paths:
                   detalhes: []
         '401':
           $ref: '#/components/responses/NaoAutenticado'
+        '405':
+          $ref: '#/components/responses/MetodoNaoPermitido'
         '500':
           $ref: '#/components/responses/ErroInterno'
 
@@ -199,6 +209,8 @@ paths:
                 CANCELADO: 1
         '401':
           $ref: '#/components/responses/NaoAutenticado'
+        '405':
+          $ref: '#/components/responses/MetodoNaoPermitido'
         '500':
           $ref: '#/components/responses/ErroInterno'
 
@@ -228,6 +240,8 @@ paths:
                   codigo: PEDIDO_NAO_ENCONTRADO
                   mensagem: "Pedido 42 não existe."
                   detalhes: []
+        '405':
+          $ref: '#/components/responses/MetodoNaoPermitido'
         '500':
           $ref: '#/components/responses/ErroInterno'
 
@@ -314,6 +328,8 @@ paths:
                   codigo: TRANSICAO_INVALIDA
                   mensagem: "Pedido 42 está PRONTO e não pode ser editado."
                   detalhes: []
+        '405':
+          $ref: '#/components/responses/MetodoNaoPermitido'
         '500':
           $ref: '#/components/responses/ErroInterno'
 
@@ -354,6 +370,8 @@ paths:
                   codigo: TRANSICAO_INVALIDA
                   mensagem: "Pedido 42 já está ENTREGUE e não pode ser cancelado."
                   detalhes: []
+        '405':
+          $ref: '#/components/responses/MetodoNaoPermitido'
         '500':
           $ref: '#/components/responses/ErroInterno'
 
@@ -419,6 +437,8 @@ paths:
                   codigo: TRANSICAO_INVALIDA
                   mensagem: "Pedido 42 está ENTREGUE e não pode avançar."
                   detalhes: []
+        '405':
+          $ref: '#/components/responses/MetodoNaoPermitido'
         '500':
           $ref: '#/components/responses/ErroInterno'
 
@@ -454,6 +474,8 @@ paths:
                   - nome: persistencia
                     ok: false
                     detalhe: "Tempo limite de 2000ms excedido."
+        '405':
+          $ref: '#/components/responses/MetodoNaoPermitido'
         '500':
           $ref: '#/components/responses/ErroInterno'
 
@@ -497,6 +519,26 @@ components:
             erro:
               codigo: ERRO_INTERNO
               mensagem: "Erro interno do servidor."
+              detalhes: []
+
+    MetodoNaoPermitido:
+      description: >
+        Método HTTP não suportado nesta rota. Resolvido antes da verificação
+        de autenticação — não exige token.
+      headers:
+        Allow:
+          description: Métodos aceitos nesta rota, separados por vírgula.
+          schema:
+            type: string
+            example: "GET, HEAD, POST, OPTIONS"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErroResponse'
+          example:
+            erro:
+              codigo: METODO_NAO_PERMITIDO
+              mensagem: "Método PUT não é permitido em /pedidos."
               detalhes: []
 
   schemas:
