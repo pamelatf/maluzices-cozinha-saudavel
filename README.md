@@ -128,3 +128,33 @@ direto contra a API local.
 
 Detalhes completos de request/response, exemplos e o formato padronizado de
 erro estão em [`openapi.yaml`](openapi.yaml) e no Swagger UI em `/docs`.
+
+## Método não permitido e rota inexistente
+
+- Enviar um verbo HTTP não aceito por uma rota que existe responde
+  **405 Method Not Allowed**, com o header `Allow` (verbos aceitos naquela
+  rota, separados por vírgula) e corpo `ErroResponse` com
+  `codigo: METODO_NAO_PERMITIDO`.
+- Enviar qualquer verbo para um caminho que não corresponde a nenhuma rota
+  responde **404**, com `codigo: ROTA_NAO_ENCONTRADA`.
+- `OPTIONS` numa rota existente responde **204** com o header `Allow`
+  preenchido. `HEAD` é aceito em qualquer rota que aceite `GET` (espelha o
+  `GET`, sem corpo na resposta).
+- Esses quatro casos (405, 404, `OPTIONS`, `HEAD`) são resolvidos **antes**
+  da verificação de autenticação — nunca exigem `Authorization`, mesmo em
+  rotas que normalmente são protegidas. Eles descrevem o recurso, não quem
+  está pedindo.
+
+Rotas e verbos aceitos:
+
+| Rota | Verbos aceitos |
+|---|---|
+| `/auth/login` | `POST` |
+| `/pedidos` | `GET`, `POST` |
+| `/pedidos/resumo` | `GET` |
+| `/pedidos/{id}` | `GET`, `PATCH`, `DELETE` |
+| `/pedidos/{id}/status` | `PATCH` |
+| `/health` | `GET` |
+
+(`OPTIONS` e, onde houver `GET`, `HEAD` são sempre aceitos além do que está
+na tabela.)
