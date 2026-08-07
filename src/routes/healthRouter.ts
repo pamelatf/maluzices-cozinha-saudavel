@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { prisma } from '../repositories/prismaClient';
+import { DescritorRota } from '../routing/tipos';
 
 export const healthRouter = Router();
+
+export const rotasHealth: DescritorRota[] = [{ caminho: '/health', metodos: ['GET'] }];
 
 const TEMPO_LIMITE_MS = 2000;
 const EXPOR_DETALHE = process.env.NODE_ENV !== 'production';

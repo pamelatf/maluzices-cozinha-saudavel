@@ -8,7 +8,8 @@ const ROTAS_PUBLICAS: { method: string; path: string }[] = [
 ];
 
 function ehRotaPublica(req: Request): boolean {
-  return ROTAS_PUBLICAS.some((rota) => rota.method === req.method && req.path === rota.path);
+  const metodo = req.method === 'HEAD' ? 'GET' : req.method;
+  return ROTAS_PUBLICAS.some((rota) => rota.method === metodo && req.path === rota.path);
 }
 
 export function autenticar(req: Request, _res: Response, next: NextFunction): void {

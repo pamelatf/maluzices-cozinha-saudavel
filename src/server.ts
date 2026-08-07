@@ -5,9 +5,10 @@ import yaml from 'js-yaml';
 import swaggerUi from 'swagger-ui-express';
 import { rotaNaoEncontrada, tratadorDeErros } from './errors/middleware';
 import { autenticar } from './middlewares/autenticacao';
-import { authRouter } from './routes/authRouter';
-import { healthRouter } from './routes/healthRouter';
-import { pedidosRouter } from './routes/pedidosRouter';
+import { criarVerbosPermitidos } from './middlewares/verbosPermitidos';
+import { authRouter, rotasAuth } from './routes/authRouter';
+import { healthRouter, rotasHealth } from './routes/healthRouter';
+import { pedidosRouter, rotasPedidos } from './routes/pedidosRouter';
 
 const app = express();
 app.use(express.json());
@@ -17,6 +18,8 @@ const documentoOpenApi = yaml.load(
 ) as Record<string, unknown>;
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(documentoOpenApi));
+
+app.use(criarVerbosPermitidos([...rotasAuth, ...rotasHealth, ...rotasPedidos]));
 
 app.use(autenticar);
 

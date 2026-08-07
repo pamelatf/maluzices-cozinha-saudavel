@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { ErroValidacao } from '../errors/AppError';
+import { DescritorRota } from '../routing/tipos';
 import * as authService from '../services/authService';
 import { zodParaDetalhes } from './zodParaDetalhes';
 
 export const authRouter = Router();
+
+export const rotasAuth: DescritorRota[] = [{ caminho: '/auth/login', metodos: ['POST'] }];
 
 const loginSchema = z.object({
   usuario: z.string().min(1, 'Campo obrigatório.'),

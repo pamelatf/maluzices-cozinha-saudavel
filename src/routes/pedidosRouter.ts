@@ -1,11 +1,19 @@
 import { Router } from 'express';
 import { AcaoStatus, Pedido } from '../domain/tipos';
 import { ErroValidacao } from '../errors/AppError';
+import { DescritorRota } from '../routing/tipos';
 import * as pedidoService from '../services/pedidoService';
 import { acaoStatusSchema, criarPedidoSchema, editarPedidoSchema, idParamSchema } from './schemas';
 import { zodParaDetalhes } from './zodParaDetalhes';
 
 export const pedidosRouter = Router();
+
+export const rotasPedidos: DescritorRota[] = [
+  { caminho: '/pedidos', metodos: ['GET', 'POST'] },
+  { caminho: '/pedidos/resumo', metodos: ['GET'] },
+  { caminho: '/pedidos/:id', metodos: ['GET', 'PATCH', 'DELETE'] },
+  { caminho: '/pedidos/:id/status', metodos: ['PATCH'] },
+];
 
 function paraId(valorParam: string): number {
   const resultado = idParamSchema.safeParse(valorParam);
