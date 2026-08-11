@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const { api, credenciais } = require('../config/ambiente');
-const { credenciaisInvalidas, campoObrigatorio, metodoNaoPermitido } = require('../fixtures/erros');
+const { credenciaisInvalidas, campoObrigatorio, metodoNaoPermitido, validacao } = require('../fixtures/erros');
 
 
 const montarBodyLogin = () => ({
