@@ -1,0 +1,141 @@
+# Sobe um ambiente limpo com banco e API e executa a suíte de testes
+# a cada pull request aberto para a master.
+#
+# Depois da unificação dos dois repositórios, o job precisa de um único
+# checkout. Sumiram a separação entre as pastas api/ e testes/, o segundo
+# actions/checkout e o secret TOKEN_REPO_API, que só existia para alcançar o
+# repositório privado da aplicação a partir do repositório de testes.
+
+name: testes de API
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  testes:
+    name: Suíte de testes de API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: cozinha
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/cozinha
+      BASE_URL: http://localhost:2000
+      USUARIO: ${{ secrets.USUARIO }}
+      SENHA: ${{ secrets.SENHA }}
+
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar o Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      # Um npm ci só: as dependências da API e as da suíte moram no mesmo
+      # package.json desde a unificação.
+      - name: Instalar dependências
+        run: npm ci
+
+      # Os scripts da API usam --env-file=.env, que falha se o arquivo não existe.
+      # O .env real não é versionado, então o ambiente descartável monta o seu.
+      - name: Criar o .env
+        run: |
+          cat > .env <<'EOF'
+          DATABASE_URL=mysql://root:root@127.0.0.1:3306/cozinha
+          PORT=2000
+          JWT_SECRET=segredo-descartavel-de-ci
+          EOF
+
+      # O start aponta para dist/server.js, que só existe depois do tsc.
+      - name: Compilar a API
+        run: npm run build
+
+      - name: Criar as tabelas e os dados iniciais
+        run: |
+          npx prisma migrate deploy
+          npm run db:seed
+          npm run seed
+
+      - name: Subir a API em segundo plano
+        run: nohup npm start > api.log 2>&1 &
+
+      # Espera ativa em vez de sleep fixo: segue assim que a API responder.
+      - name: Esperar a API responder
+        run: |
+          for tentativa in $(seq 1 30); do
+            if curl --silent --fail http://localhost:2000/health > /dev/null; then
+              echo "A API respondeu na tentativa $tentativa."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "A API não respondeu em 60 segundos. Log abaixo:"
+          cat api.log
+          exit 1
+
+      # O mocha roda duas vezes neste job, e o mochawesome sobrescreve o
+      # relatório anterior por padrão. Cada execução grava com nome próprio,
+      # senão a segunda apaga a primeira e o anexo mente sobre o resultado.
+      - name: Executar a suíte
+        run: npm test -- --grep "HEALTH-02" --invert --reporter-option reportFilename=suite
+
+      # A partir daqui é a injeção de falha do HEALTH-02.
+      # always() porque a suíte acima falha enquanto os achados não forem corrigidos,
+      # e mesmo assim este cenário precisa ser exercitado.
+      - name: Derrubar o banco
+        if: always()
+        run: |
+          docker stop $(docker ps --quiet --filter "ancestor=mysql:8.0")
+          echo "Banco parado."
+
+      - name: Executar o cenário de banco indisponível
+        if: always()
+        run: npm test -- --grep "HEALTH-02" --reporter-option reportFilename=banco-indisponivel
+
+      - name: Subir o banco de novo
+        if: always()
+        run: docker start $(docker ps --all --quiet --filter "ancestor=mysql:8.0")
+
+      # always() garante o relatório também quando a suíte falha.
+      - name: Guardar o relatório dos testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-mochawesome
+          path: mochawesome-report/
+          retention-days: 14
+
+      - name: Guardar o log da API
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-da-api
+          path: api.log
+          retention-days: 14

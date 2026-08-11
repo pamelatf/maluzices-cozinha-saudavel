@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist VADER · API de Pedidos da Cozinha de Comida Saudável</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2336;
+    --border: #2a3050;
+    --accent: #5b8dee;
+    --green: #3ecf8e;
+    --yellow: #f5a623;
+    --red: #e85b5b;
+    --text: #e2e8f0;
+    --text-muted: #6b7fa3;
+    --text-dim: #8899bb;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+    --radius: 8px;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  header {
+    max-width: 980px;
+    margin: 0 auto 32px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  h1 { font-size: 22px; font-weight: 600; line-height: 1.2; }
+  h1 span { color: var(--text-muted); font-weight: 400; }
+
+  /* Largura travada: sem isso o rótulo do filtro alarga o bloco, o cabeçalho
+     estoura os 980px e o contador cai para baixo do título. */
+  .progress-block { text-align: right; flex-shrink: 0; max-width: 210px; }
+  .progress-count {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--green);
+    line-height: 1;
+  }
+  .progress-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; letter-spacing: 0.05em; line-height: 1.5; }
+  .filtro-ativo { display: block; color: var(--accent); }
+
+  .progress-bar-wrap {
+    margin-top: 16px;
+    background: var(--surface2);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .stats-wrap { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .stats-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .stats-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    width: 74px;
+    flex-shrink: 0;
+  }
+  .cat-stat { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); }
+  .cat-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .controls { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; align-items: center; }
+
+  .btn {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--border); color: var(--text); }
+  .btn.danger { border-color: #3a1e1e; color: var(--red); }
+  .btn.danger:hover { background: #2a1010; }
+  .btn.primary { border-color: #1a3555; color: var(--accent); }
+  .btn.primary:hover { background: #0d1e35; }
+
+  .filter-group { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+  .filter-btn {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .main { max-width: 980px; margin: 0 auto; }
+
+  .file-section {
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .file-section:hover { border-color: #3a4570; }
+
+  .file-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--surface);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .file-header:hover { background: var(--surface2); }
+  .file-path { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--accent); flex: 1; }
+  .file-desc { font-size: 11px; color: var(--text-muted); }
+  .file-count { font-family: var(--mono); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  .file-progress { font-family: var(--mono); font-size: 11px; color: var(--green); white-space: nowrap; }
+  .file-chevron { color: var(--text-muted); font-size: 12px; transition: transform 0.2s; }
+  .file-section.open .file-chevron { transform: rotate(90deg); }
+
+  .file-body { display: none; border-top: 1px solid var(--border); }
+  .file-section.open .file-body { display: block; }
+
+  .case-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .case-item:last-child { border-bottom: none; }
+  .case-item:hover { background: var(--surface2); }
+  .case-item.done { background: #0d1a14; }
+  .case-item.done:hover { background: #0f1f18; }
+  .case-item.hidden { display: none; }
+  .file-section.hidden { display: none; }
+  .vazio {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  .vazio.hidden { display: none; }
+
+  .case-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .case-item.done .case-check { background: var(--green); border-color: var(--green); }
+  .case-check-tick { display: none; color: #0d1a14; font-size: 11px; font-weight: 700; }
+  .case-item.done .case-check-tick { display: block; }
+
+  .case-content { flex: 1; min-width: 0; }
+  .case-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; }
+  .case-id { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--text-dim); flex-shrink: 0; }
+
+  .method-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .method-GET    { background: #0d2e1a; color: #3ecf8e; border: 1px solid #1a4a2e; }
+  .method-POST   { background: #1a2a0d; color: #9ecf3e; border: 1px solid #2e4a1a; }
+  .method-PUT    { background: #2a1a0d; color: #cfac3e; border: 1px solid #4a2e1a; }
+  .method-DELETE { background: #2a0d0d; color: #cf5b5b; border: 1px solid #4a1a1a; }
+  .method-PATCH  { background: #1a0d2a; color: #a05bcf; border: 1px solid #2e1a4a; }
+  .method-OTHER  { background: #1a1a2a; color: #7b8ec4; border: 1px solid #2a2a4a; }
+
+  .heur-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    font-family: var(--mono);
+  }
+  .vader-V { background: #0d1e35; color: #5b8dee; border: 1px solid #1a3555; }
+  .vader-A { background: #2a1a0a; color: #e8a85b; border: 1px solid #4a2a10; }
+  .vader-D { background: #0a1a2a; color: #5bc8e8; border: 1px solid #103a4a; }
+  .vader-E { background: #2a0a0a; color: #e85b5b; border: 1px solid #4a1010; }
+  .vader-R { background: #0a2a0a; color: #5be888; border: 1px solid #104a20; }
+
+  .sev-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .sev-Critica { background: #2a0a10; color: #f07c95; border: 1px solid #4a1020; }
+  .sev-Alta    { background: #2a170d; color: #e8975b; border: 1px solid #4a2a1a; }
+  .sev-Media   { background: #2a220a; color: var(--yellow); border: 1px solid #4a3a10; }
+
+  .ci-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    font-family: var(--mono);
+  }
+  .ci-Passou { background: #0d2e1a; color: var(--green); border: 1px solid #1a4a2e; }
+  .ci-Falhou { background: #2a0d0d; color: var(--red); border: 1px solid #4a1a1a; }
+
+  .pend-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #2a220a;
+    color: var(--yellow);
+    border: 1px solid #4a3a10;
+    flex-shrink: 0;
+  }
+
+  .case-title { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.4; }
+  .case-item.done .case-title { color: var(--text-muted); text-decoration: line-through; }
+
+  .case-details {
+    display: none;
+    margin-top: 10px;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .case-item.expanded .case-details { display: block; }
+
+  .detail-row {
+    display: grid;
+    grid-template-columns: 118px 1fr;
+    gap: 6px 12px;
+    margin-bottom: 8px;
+    align-items: start;
+  }
+  .detail-row:last-child { margin-bottom: 0; }
+  .detail-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding-top: 1px;
+  }
+  .detail-value { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+  .detail-value code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent);
+    display: inline-block;
+  }
+  .detail-value.warn { color: var(--yellow); }
+
+  .result-input {
+    width: 100%;
+    min-height: 44px;
+    resize: vertical;
+    font-family: var(--sans);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 9px;
+    transition: border-color 0.15s;
+  }
+  .result-input:focus { outline: none; border-color: var(--accent); }
+  .result-input::placeholder { color: var(--text-muted); }
+
+  .verdict-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .verdict-btn {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--sans);
+  }
+  .verdict-btn:hover { border-color: var(--text-dim); color: var(--text); }
+  .verdict-btn.sel-passou { background: #0d2e1a; border-color: #1a4a2e; color: var(--green); }
+  .verdict-btn.sel-falhou { background: #2a0d0d; border-color: #4a1a1a; color: var(--red); }
+  .verdict-btn.sel-lacuna { background: #2a220a; border-color: #4a3a10; color: var(--yellow); }
+  .verdict-btn.sel-bloqueado { background: #1a1a2a; border-color: #2a2a4a; color: var(--text-dim); }
+
+  .result-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #7c5be8;
+    flex-shrink: 0;
+    display: none;
+  }
+  .case-item.has-result .result-dot { display: inline-block; }
+
+  .expand-hint { font-size: 10px; color: var(--text-muted); margin-top: 4px; opacity: 0.6; }
+  .case-item.expanded .expand-hint { display: none; }
+
+  .saved-notice {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--green);
+    color: #0d1a14;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .saved-notice.show { opacity: 1; }
+
+  footer {
+    max-width: 980px;
+    margin: 32px auto 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div>
+      <div class="logo">VADER · escopo da entrega</div>
+      <h1>API de Pedidos da Cozinha de Comida Saudável <span>/ Checklist de execução</span></h1>
+    </div>
+    <div class="progress-block">
+      <div class="progress-count" id="prog-count">0/96</div>
+      <div class="progress-label" id="prog-label">casos validados</div>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-bar"></div></div>
+
+  <div class="stats-wrap">
+    <div class="stats-row"><span class="stats-title">VADER</span><span id="stats-vader" style="display:flex;gap:10px;flex-wrap:wrap"></span></div>
+    <div class="stats-row"><span class="stats-title">Severidade</span><span id="stats-sev" style="display:flex;gap:10px;flex-wrap:wrap"></span></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="expandAll()">Expandir tudo</button>
+    <button class="btn" onclick="collapseAll()">Recolher tudo</button>
+    <button class="btn primary" onclick="exportarCsv()">Exportar evidências</button>
+    <button class="btn danger" onclick="confirmReset()">Zerar progresso</button>
+    <div class="filter-group">
+      <button class="filter-btn active" data-filtro="all" onclick="setFilter('all')">Todos</button>
+      <button class="filter-btn" data-filtro="pending" onclick="setFilter('pending')">Pendentes</button>
+      <button class="filter-btn" data-filtro="done" onclick="setFilter('done')">Feitos</button>
+      <button class="filter-btn" data-filtro="critica" onclick="setFilter('critica')">Críticos</button>
+      <button class="filter-btn" data-filtro="automatizado" onclick="setFilter('automatizado')">Automatizados</button>
+      <button class="filter-btn" data-filtro="blocked" onclick="setFilter('blocked')">Bloqueados</button>
+    </div>
+  </div>
+</header>
+
+<main class="main" id="main"></main>
+<div class="vazio hidden" id="vazio"></div>
+
+<footer>
+  96 casos do escopo da entrega, sendo 24 de severidade Crítica, derivados da heurística VADER a partir do contrato openapi.yaml 2.1.0.
+  11 já foram executados no workflow de integração contínua, e o veredicto de cada um aparece no cartão.
+  Gerado por scripts/gerarChecklist.js a partir de docs/matriz_vader_cozinha_v3.0.csv. Os 30 casos fora do recorte estão em docs/backlog_pos_entrega.csv.
+  O progresso, os veredictos e as observações ficam salvos apenas neste navegador.
+</footer>
+
+<div class="saved-notice" id="saved-notice">Salvo</div>
+
+<script id="dados" type="application/json">
+[{"id":"AUTH-01","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"V","severidade":"Crítica","titulo":"Login válido devolve token utilizável, sem exigir header de autenticação","descricao":"Caminho feliz da autenticação. Sem ele nenhum outro caso da suíte consegue rodar, então é o primeiro a ser escrito e o helper de token depende dele.","acao":"Enviar POST /auth/login com as credenciais do seed e usar o token devolvido em uma chamada protegida qualquer.","dadosEntrada":"usuario pamela, senha 1234, sem header Authorization","esperado":"200 com token em string não vazia e expiraEm em ISO 8601 aproximadamente 1 hora à frente. O token deve ser aceito em GET /pedidos. Como a chamada não envia Authorization, este caso também comprova que o login permanece público.","lacuna":"LoginResponse não declara o tipo do token, então o cliente precisa saber por fora que é Bearer.","pendencia":"","nota":"","comando":"npx mocha --grep \"AUTH-01\"","veredictoCi":"Passou","observacaoCi":"Execução de 2026-08-07: 1 execução, todas verdes."},{"id":"AUTH-02","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Campo obrigatório ausente no login","descricao":"LoginInput declara usuario e senha como required, sem tamanho mínimo, máximo nem pattern. Verificar a validação antes de qualquer consulta ao banco.","acao":"Enviar o login omitindo usuario e depois omitindo senha.","dadosEntrada":"{ \"senha\": \"1234\" } | { \"usuario\": \"pamela\" }","esperado":"400 com codigo VALIDACAO e detalhes apontando o campo que faltou, em cada uma das duas requisições.","lacuna":"usuario e senha não têm maxLength. Uma senha de vários megabytes seria processada.","pendencia":"","nota":"","comando":"npx mocha --grep \"AUTH-02\"","veredictoCi":"Falhou","observacaoCi":"Execução do CI de 2026-08-07: falhou, mas o defeito é da automação, não da API. O critério da matriz pede 400 com codigo VALIDACAO e detalhes apontando o campo que faltou, e é isso que a API entrega. O teste falha porque a fixture campoObrigatorio exige o texto 'Campo obrigatório.', enquanto a API devolve 'Required' quando o campo está ausente. Achado à parte: o exemplo do 400 no openapi.yaml promete 'Campo obrigatório.', então há divergência entre contrato e implementação na mensagem de campo ausente."},{"id":"AUTH-03","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Campo obrigatório vazio no login","descricao":"LoginInput declara usuario e senha como required, sem tamanho mínimo, máximo nem pattern. Verificar a validação antes de qualquer consulta ao banco.","acao":"Enviar o login com usuario vazio e depois com senha vazia.","dadosEntrada":"{ \"usuario\": \"\", \"senha\": \"1234\" } | { \"usuario\": \"pamela\", \"senha\": \"\" }","esperado":"400 com codigo VALIDACAO nas duas. Nunca 401, porque o problema é o formato e não a credencial.","lacuna":"usuario e senha não têm maxLength. Uma senha de vários megabytes seria processada.","pendencia":"","nota":"","comando":"npx mocha --grep \"AUTH-03\"","veredictoCi":"","observacaoCi":""},{"id":"AUTH-04","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Campos de login ausentes, vazios e com tipo incorreto — usuario com tipo incorreto","descricao":"LoginInput declara usuario e senha como required, sem tamanho mínimo, máximo nem pattern. Verificar a validação antes de qualquer consulta ao banco.","acao":"Enviar o login com usuario numérico.","dadosEntrada":"{ \"usuario\": 123, \"senha\": \"1234\" }","esperado":"400 com codigo VALIDACAO. LoginInput declara usuario como string.","lacuna":"usuario e senha não têm maxLength. Uma senha de vários megabytes seria processada.","pendencia":"","nota":"","comando":"npx mocha --grep \"AUTH-04\"","veredictoCi":"Falhou","observacaoCi":"Execução do CI de 2026-08-07: falhou por asserção incorreta no teste. O critério da matriz pede 400 com codigo VALIDACAO, e a API devolve exatamente isso, com detalhe 'Expected string, received number'. O teste compara o corpo com a fixture credenciaisInvalidas, que é o erro 401 de credencial errada. As duas asserções do teste não podem ser verdadeiras juntas."},{"id":"AUTH-05","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Campos de login ausentes, vazios e com tipo incorreto — corpo vazio","descricao":"LoginInput declara usuario e senha como required, sem tamanho mínimo, máximo nem pattern. Verificar a validação antes de qualquer consulta ao banco.","acao":"Enviar o login com corpo vazio.","dadosEntrada":"{}","esperado":"400 com codigo VALIDACAO e detalhes citando os dois campos obrigatórios.","lacuna":"usuario e senha não têm maxLength. Uma senha de vários megabytes seria processada.","pendencia":"","nota":"","comando":"npx mocha --grep \"AUTH-05\"","veredictoCi":"Falhou","observacaoCi":"Execução do CI de 2026-08-07: falhou por asserção incorreta no teste. O critério da matriz pede 400 com codigo VALIDACAO e detalhes citando os dois campos obrigatórios, e a API devolve os dois. O teste compara o mesmo objeto com campoObrigatorio('usuario') e depois com campoObrigatorio('senha'), cada uma esperando um único detalhe. Sendo igualdade profunda, as duas se excluem."},{"id":"AUTH-06","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Campos de login ausentes, vazios e com tipo incorreto — senha sem limite de tamanho","descricao":"LoginInput declara usuario e senha como required, sem tamanho mínimo, máximo nem pattern. Verificar a validação antes de qualquer consulta ao banco.","acao":"Enviar o login com uma senha muito longa e medir o tempo de resposta.","dadosEntrada":"senha com 100 mil caracteres","esperado":"Definir e aplicar um maxLength. Processar a senha inteira é vetor de esgotamento de recurso.","lacuna":"usuario e senha não declaram maxLength no LoginInput.","pendencia":"","nota":"","comando":"npx mocha --grep \"AUTH-06\"","veredictoCi":"","observacaoCi":""},{"id":"AUTH-07","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"A","severidade":"Crítica","titulo":"Enumeração de usuários pela mensagem de erro — usuário inexistente","descricao":"O contrato documenta uma única mensagem para o 401. Se a resposta distinguir usuário inexistente de senha incorreta, um atacante descobre quais contas existem antes de tentar a senha.","acao":"Tentar o login com um usuário que não existe no banco e registrar corpo e tempo.","dadosEntrada":"{ \"usuario\": \"fulano\", \"senha\": \"1234\" }","esperado":"401 com codigo CREDENCIAIS_INVALIDAS. Guardar corpo e tempo de resposta para comparar com a variação seguinte.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"AUTH-07\"","veredictoCi":"","observacaoCi":""},{"id":"AUTH-08","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"A","severidade":"Crítica","titulo":"Enumeração de usuários pela mensagem de erro — senha incorreta de usuário existente","descricao":"O contrato documenta uma única mensagem para o 401. Se a resposta distinguir usuário inexistente de senha incorreta, um atacante descobre quais contas existem antes de tentar a senha.","acao":"Tentar o login com o usuário real e senha errada, e comparar com o resultado da variação anterior.","dadosEntrada":"{ \"usuario\": \"pamela\", \"senha\": \"errada\" }","esperado":"401 com corpo byte a byte idêntico ao da variação anterior. Diferença de mensagem ou de tempo perceptível revela quais contas existem.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"AUTH-08\"","veredictoCi":"","observacaoCi":""},{"id":"AUTH-09","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"A","severidade":"Crítica","titulo":"Ausência de proteção contra tentativas repetidas no login","descricao":"O login é o único endpoint público que aceita corpo, existe um único usuário conhecido e a senha tem quatro dígitos. Sem bloqueio ou atraso, a força bruta é trivial.","acao":"Executar a sequência manual e, em seguida, o cenário de carga em k6 sobre o mesmo endpoint.","dadosEntrada":"30 tentativas sequenciais com senha inválida | 10 VUs em POST /auth/login por 3 minutos","esperado":"Bloqueio temporário, atraso progressivo ou 429 com Retry-After. Uma sequência ilimitada de 401 confirma a exposição. Registrar também o custo por requisição observado sob carga.","lacuna":"429 não está documentado e não há política de bloqueio descrita no contrato. Sem limite de taxa declarado, o login também é vetor de esgotamento de recurso.","pendencia":"Pode bloquear o único usuário do ambiente. Executar com EXECUTAR_FORCA_BRUTA=true Depende do resultado de CRIT-46","nota":"","comando":"npx mocha --grep \"AUTH-09\"","veredictoCi":"","observacaoCi":""},{"id":"AUTH-10","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"R","severidade":"Alta","titulo":"Coerência entre expiraEm e o claim exp do token","descricao":"expiraEm é o que o cliente usa para decidir quando renovar. Se divergir do exp real do JWT, o front descarta um token ainda válido ou usa um já vencido.","acao":"Decodificar a carga do JWT devolvido e comparar o claim exp com o campo expiraEm da resposta.","dadosEntrada":"token de um login bem-sucedido","esperado":"exp e expiraEm apontando para o mesmo instante, com diferença de no máximo poucos segundos, e ambos aproximadamente 1 hora à frente do login.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"AUTH-10\"","veredictoCi":"","observacaoCi":""},{"id":"AUTH-11","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"R","severidade":"Alta","titulo":"Credencial e token reais publicados como exemplo no contrato","descricao":"Frente de proteção de dados da POISED. A senha é gravada em texto puro por decisão do projeto, aparece como exemplo no próprio openapi.yaml e trafega em HTTP no ambiente local.","acao":"Abrir o openapi.yaml e conferir os exemplos de LoginInput e LoginResponse.","dadosEntrada":"exemplo senha \"1234\" no LoginInput | exemplo do LoginResponse terminando em .assinatura","esperado":"Trocar os dois por valores inequivocamente fictícios. O contrato é documentação pública, não deve carregar a senha real, e o token de exemplo dispara detector de segredo a cada importação.","lacuna":"O contrato publica a credencial real como exemplo e não há servidor https declarado.","pendencia":"Depende de decisão do projeto. Hoje é risco aceito de forma consciente","nota":"Letra VADER atribuída na revisão de escopo: o caso vinha classificado apenas por POISED.","comando":"npx mocha --grep \"AUTH-11\"","veredictoCi":"","observacaoCi":""},{"id":"AUTH-12","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"POST","vader":"A","severidade":"Alta","titulo":"Exposição da credencial no contrato e no tráfego — senha em texto puro no banco","descricao":"Frente de proteção de dados da POISED. A senha é gravada em texto puro por decisão do projeto, aparece como exemplo no próprio openapi.yaml e trafega em HTTP no ambiente local.","acao":"Consultar a tabela de usuários e conferir como a senha está gravada.","dadosEntrada":"registro do usuario pamela na tabela de usuários","esperado":"Registrar como risco conhecido, com plano de correção por hash bcrypt.","lacuna":"O contrato publica a credencial real como exemplo e não há servidor https declarado.","pendencia":"Depende de decisão do projeto. Hoje é risco aceito de forma consciente","nota":"Letra VADER atribuída na revisão de escopo: o caso vinha classificado apenas por POISED.","comando":"npx mocha --grep \"AUTH-12\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-01","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"A","severidade":"Crítica","titulo":"Endpoints protegidos recusam requisição sem token","descricao":"A versão 2.0.0 declara security bearerAuth global, com security vazio apenas em POST /auth/login e GET /health. Este caso verifica se a declaração é efetiva em cada operação, e não só documental.","acao":"Repetir as sete operações protegidas sem o header Authorization.","dadosEntrada":"POST e GET /pedidos, GET /pedidos/resumo, GET, PATCH e DELETE /pedidos/{id}, PATCH /pedidos/{id}/status","esperado":"401 com codigo NAO_AUTENTICADO nas sete operações. Qualquer 200 significa endpoint que escapou do middleware, e é falha de severidade máxima.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-01\"","veredictoCi":"","observacaoCi":""},{"id":"GERAL-01","grupo":"GERAL","arquivo":"test/geral.test.js","endpoint":"Todos os endpoints protegidos","metodo":"OTHER","vader":"A","severidade":"Crítica","titulo":"Header Authorization malformado","descricao":"Complementa o CRIT-35. Não basta exigir o header, é preciso validar assinatura e formato, senão qualquer texto vira credencial.","acao":"Repetir uma chamada protegida trocando o valor do header Authorization.","dadosEntrada":"Bearer abc | Basic <token válido> | <token sem prefixo> | Bearer vazio","esperado":"401 com codigo NAO_AUTENTICADO nas quatro. Um 500 no header vazio indica que o parser não trata o caso.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"GERAL-01\"","veredictoCi":"","observacaoCi":""},{"id":"GERAL-02","grupo":"GERAL","arquivo":"test/geral.test.js","endpoint":"Todos os endpoints protegidos","metodo":"OTHER","vader":"A","severidade":"Crítica","titulo":"Token malformado, adulterado e com esquema errado — assinatura adulterada","descricao":"Complementa o CRIT-35. Não basta exigir o header, é preciso validar assinatura e formato, senão qualquer texto vira credencial.","acao":"Obter um token válido, alterar um caractere da assinatura e repetir a chamada. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"Bearer <token válido com um caractere da assinatura alterado>","esperado":"401. Um 200 aqui significa que a verificação de assinatura do JWT não acontece, e é o pior resultado possível deste bloco.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"GERAL-02\"","veredictoCi":"","observacaoCi":""},{"id":"GERAL-03","grupo":"GERAL","arquivo":"test/geral.test.js","endpoint":"Todos os endpoints protegidos","metodo":"OTHER","vader":"A","severidade":"Alta","titulo":"Token expirado após a janela de 1 hora","descricao":"O contrato promete validade de 1 hora. Verificar se a expiração é efetivamente checada, e não apenas anunciada no expiraEm.","acao":"Usar um token com claim exp no passado, assinado com o mesmo JWT_SECRET, em uma chamada protegida.","dadosEntrada":"Bearer <token com exp vencido>","esperado":"401 com codigo NAO_AUTENTICADO. Um 200 significa que a API confia no token indefinidamente.","lacuna":"O contrato não define se existe renovação de token nem endpoint de refresh.","pendencia":"Requer gerar token vencido com o JWT_SECRET do ambiente, ou aguardar 1 hora","nota":"","comando":"npx mocha --grep \"GERAL-03\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-02","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"V","severidade":"Alta","titulo":"Criação válida com múltiplos itens nasce em RECEBIDO","descricao":"Confirmar o caminho feliz do verbo documentado e as três regras que o contrato afirma serem garantidas pelo servidor: status inicial fixo, valorTotal calculado e carimbos de tempo preenchidos.","acao":"Enviar POST /pedidos com o payload de exemplo do contrato e validar corpo e cabeçalhos da resposta. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"cliente Maria Souza, Bowl de quinoa 2 x 28.90, Suco verde 1 x 12.50","esperado":"201 com id gerado, status RECEBIDO, valorTotal 70.30, itens com id próprio, criadoEm igual a atualizadoEm em ISO 8601.","lacuna":"O contrato não declara o header Location nem Content-Type da resposta 201.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-02\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-03","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Crítica","titulo":"valorTotal enviado no corpo precisa ser ignorado pelo servidor","descricao":"A descrição da operação afirma que qualquer valorTotal enviado é ignorado. Essa é a regra de negócio com maior impacto financeiro de toda a API e precisa de teste dedicado.","acao":"Criar o pedido do exemplo acrescentando valorTotal no corpo com um valor irrisório e conferir o valorTotal persistido via GET /pedidos/{id}. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"payload válido + \"valorTotal\": 0.01","esperado":"201 com valorTotal 70.30, recalculado. Refletir 0.01 significa permitir que o cliente defina o próprio preço.","lacuna":"O schema PedidoInput não lista valorTotal, mas também não declara additionalProperties false.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-03\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-04","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Campos obrigatórios ausentes em pedido e em item — campo cliente ausente","descricao":"Verificar se os required de PedidoInput (cliente, itens) e de ItemPedidoInput (nome, quantidade, precoUnitario) são efetivamente validados e reportados campo a campo.","acao":"Criar pedido omitindo o cliente. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"payload válido sem a propriedade cliente","esperado":"400 com codigo VALIDACAO e detalhes com campo \"cliente\".","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-04\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-05","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Campos obrigatórios ausentes em pedido e em item — campo itens ausente","descricao":"Verificar se os required de PedidoInput (cliente, itens) e de ItemPedidoInput (nome, quantidade, precoUnitario) são efetivamente validados e reportados campo a campo.","acao":"Criar pedido omitindo o array de itens. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"payload válido sem a propriedade itens","esperado":"400 com codigo VALIDACAO e detalhes com campo \"itens\".","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-05\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-06","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Campo obrigatório ausente no item do pedido","descricao":"Verificar se os required de PedidoInput (cliente, itens) e de ItemPedidoInput (nome, quantidade, precoUnitario) são efetivamente validados e reportados campo a campo.","acao":"Enviar três criações, omitindo um campo obrigatório do item por vez.","dadosEntrada":"itens[0] sem nome | sem quantidade | sem precoUnitario","esperado":"400 com codigo VALIDACAO em cada uma, com detalhes no formato itens[0].campo mostrado no exemplo do contrato.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-06\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-07","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Valores de borda de quantidade — quantidade no limite mínimo","descricao":"quantidade é integer com minimum 1. Testar o limite exato, o valor logo abaixo, o negativo e o não inteiro.","acao":"Criar pedido com quantidade 1. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"quantidade: 1","esperado":"201. É o valor exato do minimum declarado e precisa ser aceito.","lacuna":"Não há maximum declarado para quantidade.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-07\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-08","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Quantidade fora do domínio válido","descricao":"quantidade é integer com minimum 1. Testar o limite exato, o valor logo abaixo, o negativo e o não inteiro.","acao":"Criar três pedidos variando apenas a quantidade do item.","dadosEntrada":"quantidade: 0 | -1 | 1.5","esperado":"400 com codigo VALIDACAO nas três. O schema declara integer com minimum 1, e meia unidade não existe no balcão.","lacuna":"Não há maximum declarado para quantidade.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-08\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-09","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Valores de borda de quantidade — quantidade extrema","descricao":"quantidade é integer com minimum 1. Testar o limite exato, o valor logo abaixo, o negativo e o não inteiro.","acao":"Criar pedido com quantidade muito alta e conferir o valorTotal calculado. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"quantidade: 999999999","esperado":"Definir um teto e aplicá-lo. Observar se o valorTotal sofre estouro ou perde precisão.","lacuna":"Não há maximum declarado para quantidade.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-09\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-10","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Valores de borda de precoUnitario e arredondamento monetário — preço mínimo aceitável","descricao":"precoUnitario é double com exclusiveMinimum 0, ou seja, zero deve ser rejeitado. O contrato não define regra de arredondamento para mais de duas casas decimais.","acao":"Criar pedido com preço de um centavo. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"precoUnitario: 0.01","esperado":"201. Está acima do exclusiveMinimum e deve ser aceito.","lacuna":"Nenhum multipleOf nem número de casas decimais é declarado para valores monetários.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-10\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-11","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Preço unitário fora do domínio válido","descricao":"precoUnitario é double com exclusiveMinimum 0, ou seja, zero deve ser rejeitado. O contrato não define regra de arredondamento para mais de duas casas decimais.","acao":"Criar dois pedidos, um com preço zero e outro com preço negativo.","dadosEntrada":"precoUnitario: 0 | -10","esperado":"400 nas duas. exclusiveMinimum 0 significa que zero é recusado, e não aceito.","lacuna":"Nenhum multipleOf nem número de casas decimais é declarado para valores monetários.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-11\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-12","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Arredondamento monetário acima de duas casas decimais","descricao":"precoUnitario é double com exclusiveMinimum 0, ou seja, zero deve ser rejeitado. O contrato não define regra de arredondamento para mais de duas casas decimais.","acao":"Criar pedidos com preços de três casas e conferir o total calculado.","dadosEntrada":"precoUnitario: 28.905 | 0.001","esperado":"Registrar e documentar a regra real de arredondamento observada no valorTotal. Um pedido de valor zero após arredondamento é venda sem receita.","lacuna":"Nenhum multipleOf nem escala decimal declarada para valores monetários. Nenhum multipleOf nem número de casas decimais é declarado para valores monetários.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-12\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-13","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Array de itens vazio e ausência de limite superior — array de itens vazio","descricao":"itens declara minItems 1, mas nenhum maxItems. Um pedido com milhares de itens é aceito pelo contrato e pode derrubar a aplicação em uma única chamada.","acao":"Criar pedido sem nenhum item na lista. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"itens: []","esperado":"400 com codigo VALIDACAO. minItems 1 recusa o array vazio.","lacuna":"Ausência de maxItems em itens e de qualquer limite de tamanho de corpo.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-13\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-14","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Ausência de limite superior de itens no pedido","descricao":"itens declara minItems 1, mas nenhum maxItems. Um pedido com milhares de itens é aceito pelo contrato e pode derrubar a aplicação em uma única chamada.","acao":"Criar um pedido com volume alto de itens medindo o tempo, e depois executar a escalada em k6.","dadosEntrada":"itens com 5000 elementos | escalada 10, 100, 1000 e 5000 itens com 5 VUs","esperado":"Definir e aplicar um teto, devolvendo 400 ou 413 acima dele. Degradação controlada, sem timeout sem resposta, sem 500 e sem queda do processo.","lacuna":"Ausência de maxItems em itens e de limite de tamanho de corpo. Nenhum limite de tamanho de corpo, de itens ou de taxa de requisições.","pendencia":"Pode indisponibilizar o ambiente. Executar isolado e monitorado.","nota":"","comando":"npx mocha --grep \"PEDIDOS-14\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-15","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Crítica","titulo":"Campos gerados pelo servidor enviados no corpo da criação","descricao":"Além de valorTotal, o corpo pode tentar definir id, status, criadoEm e o id de cada item. Aceitar qualquer um deles quebra o modelo de estados da cozinha.","acao":"Criar pedido tentando definir id, criadoEm e o id do item, e conferir o recurso criado.","dadosEntrada":"payload válido + \"id\": 99, \"criadoEm\": \"2020-01-01T00:00:00Z\" e itens[0].id: 99","esperado":"Campos ignorados. O id do pedido, o id de cada item e o carimbo de criação são do servidor, senão o histórico da cozinha vira ficção.","lacuna":"Nenhum schema declara additionalProperties false nem readOnly nos campos de servidor.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-15\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-16","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Crítica","titulo":"Campos calculados pelo servidor enviados no corpo — status enviado no corpo","descricao":"Além de valorTotal, o corpo pode tentar definir id, status, criadoEm e o id de cada item. Aceitar qualquer um deles quebra o modelo de estados da cozinha.","acao":"Criar pedido tentando definir o status inicial. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"payload válido + \"status\": \"ENTREGUE\"","esperado":"Campo ignorado e pedido nascendo RECEBIDO. Refletir ENTREGUE pularia todo o preparo.","lacuna":"Nenhum schema declara additionalProperties false nem readOnly nos campos de servidor.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-16\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-17","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"E","severidade":"Alta","titulo":"Corpo malformado, ausente e nulo na criação","descricao":"Verificar se um payload corrompido é tratado como erro de cliente e não como exceção interna, já que requestBody é required true.","acao":"Enviar três criações com corpo corrompido, ausente e literal null.","dadosEntrada":"{\"cliente\": \"Maria\", \"itens\": [ | requisição sem corpo | null","esperado":"400 com o schema ErroResponse nas três. Nunca 500 nem stack trace, já que requestBody é declarado required true.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-17\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-18","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"E","severidade":"Alta","titulo":"Idempotência na criação do pedido","descricao":"Duplo clique da atendente ou reenvio por falha de rede é o cenário mais provável de erro operacional nesta API. Não existe chave de idempotência no contrato.","acao":"Enviar a mesma requisição duas vezes em sequência e listar os pedidos do cliente. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"mesmo payload enviado duas vezes","esperado":"Documentar o comportamento real. Dois pedidos idênticos criados significa cobrança e preparo em duplicidade na cozinha.","lacuna":"Não há header de idempotência nem status 409 previsto no POST.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-18\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-19","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Precisão do valorTotal em ponto flutuante","descricao":"O tipo declarado é number format double. Somas de valores monetários em ponto flutuante produzem resíduos como 333.29999999999995.","acao":"Criar os três pedidos e comparar cada total com o valor esperado em duas casas.","dadosEntrada":"10 x 33.33 | 3 x 0.10 | 7 x 1.15","esperado":"valorTotal exatamente 333.30, 0.30 e 8.05. Qualquer casa decimal extra denuncia resíduo binário em valor monetário.","lacuna":"Valores monetários como double, sem definição de escala ou tipo decimal.","pendencia":"","nota":"Letra VADER atribuída na revisão de escopo: o caso vinha classificado apenas por POISED.","comando":"npx mocha --grep \"PEDIDOS-19\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-20","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Acentuação, emoji e conteúdo malicioso em campos de texto — acentuação completa","descricao":"Frente de sanitização da POISED. cliente e observacao são texto livre exibido na tela da cozinha e no comprovante do cliente.","acao":"Criar o pedido, recuperar por GET e comparar o texto devolvido. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"cliente: \"João Gonçalves d'Ávila\"","esperado":"201 e, no GET seguinte, o nome idêntico byte a byte, em UTF-8.","lacuna":"Não há pattern nem política de sanitização declarada para campos de texto livre.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-20\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-21","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Acentuação, emoji e conteúdo malicioso em campos de texto — emoji na observação","descricao":"Frente de sanitização da POISED. cliente e observacao são texto livre exibido na tela da cozinha e no comprovante do cliente.","acao":"Criar o pedido com emoji e conferir o retorno. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"observacao: \"Sem cebola 🥗\"","esperado":"Texto preservado ou rejeitado de forma explícita. Nunca truncado no meio do caractere.","lacuna":"Não há pattern nem política de sanitização declarada para campos de texto livre.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-21\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-22","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"POST","vader":"D","severidade":"Alta","titulo":"Conteúdo malicioso em campos de texto livre","descricao":"Frente de sanitização da POISED. cliente e observacao são texto livre exibido na tela da cozinha e no comprovante do cliente.","acao":"Criar os três pedidos e conferir como cada valor volta no GET seguinte.","dadosEntrada":"cliente: \"<script>alert(1)<\/script>\" | \"' OR 1=1 --\" | observacao: \"${7*7}\"","esperado":"Armazenado como texto puro nas três e devolvido escapado. A tela da cozinha não pode executar script, um 500 indica concatenação de query, e voltar 49 indica avaliação de template no servidor.","lacuna":"Não há pattern nem política de sanitização declarada para campos de texto livre.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-22\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-23","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"GET","vader":"D","severidade":"Alta","titulo":"Filtro status com valores fora do enum e variações de caixa — status fora do enum","descricao":"O parâmetro status é opcional e restrito ao enum StatusPedido. O contrato documenta 400 STATUS_INVALIDO, mas não trata caixa, valor vazio nem repetição do parâmetro.","acao":"Listar pedidos filtrando por um status inexistente. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"?status=FINALIZADO","esperado":"400 com codigo STATUS_INVALIDO e a mensagem citando o valor recebido.","lacuna":"Sensibilidade a maiúsculas, parâmetro vazio e parâmetro repetido não especificados.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-23\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-24","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"GET","vader":"D","severidade":"Alta","titulo":"Filtro status com valores fora do enum e variações de caixa — status em caixa baixa","descricao":"O parâmetro status é opcional e restrito ao enum StatusPedido. O contrato documenta 400 STATUS_INVALIDO, mas não trata caixa, valor vazio nem repetição do parâmetro.","acao":"Listar pedidos com o status em minúsculas. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"?status=recebido","esperado":"Definir e padronizar: aceitar ou recusar com 400. Registrar o comportamento real.","lacuna":"Sensibilidade a maiúsculas não especificada.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-24\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-25","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"GET","vader":"D","severidade":"Alta","titulo":"Filtro status com valores fora do enum e variações de caixa — status com espaço extra","descricao":"O parâmetro status é opcional e restrito ao enum StatusPedido. O contrato documenta 400 STATUS_INVALIDO, mas não trata caixa, valor vazio nem repetição do parâmetro.","acao":"Listar pedidos com espaço no fim do valor. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"?status=RECEBIDO%20","esperado":"Definir se há trim. Um 400 aqui frustraria integração que monta a query com espaço.","lacuna":"Sensibilidade a maiúsculas, parâmetro vazio e parâmetro repetido não especificados.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-25\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-26","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"GET","vader":"D","severidade":"Alta","titulo":"Filtro status com valores fora do enum e variações de caixa — status vazio","descricao":"O parâmetro status é opcional e restrito ao enum StatusPedido. O contrato documenta 400 STATUS_INVALIDO, mas não trata caixa, valor vazio nem repetição do parâmetro.","acao":"Listar pedidos com o parâmetro presente e sem valor. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"?status=","esperado":"Definir: tratar como filtro ausente ou como valor inválido. Registrar o comportamento real.","lacuna":"Parâmetro vazio não especificado.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-26\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-27","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"GET","vader":"D","severidade":"Alta","titulo":"Filtro status com valores fora do enum e variações de caixa — status repetido","descricao":"O parâmetro status é opcional e restrito ao enum StatusPedido. O contrato documenta 400 STATUS_INVALIDO, mas não trata caixa, valor vazio nem repetição do parâmetro.","acao":"Listar pedidos repetindo o parâmetro status. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"?status=RECEBIDO&status=PRONTO","esperado":"Definir a regra: primeiro valor, último valor ou 400. Sem definição, integrações divergem.","lacuna":"Parâmetro repetido não especificado.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-27\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-28","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"GET","vader":"R","severidade":"Alta","titulo":"Contrato da listagem e coerência do filtro por status — listagem sem filtro","descricao":"Verificar se cada elemento do array respeita o schema Pedido completo e se o filtro devolve exatamente o subconjunto correspondente.","acao":"Listar pedidos sem filtro e validar o schema de cada elemento. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"nenhum parâmetro","esperado":"200 com array, cada elemento respeitando o schema Pedido completo, com todos os campos required.","lacuna":"O contrato não define ordenação padrão da lista.","pendencia":"Depende da massa criada em CRIT-22 e CRIT-29","nota":"","comando":"npx mocha --grep \"PEDIDOS-28\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-29","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"GET","vader":"R","severidade":"Alta","titulo":"Filtro por cada status do enum devolve o subconjunto correto","descricao":"Verificar se cada elemento do array respeita o schema Pedido completo e se o filtro devolve exatamente o subconjunto correspondente.","acao":"Listar filtrando por cada um dos cinco valores do enum e conferir o status de cada elemento.","dadosEntrada":"?status= RECEBIDO, EM_PREPARO, PRONTO, ENTREGUE e CANCELADO","esperado":"Cada filtro devolve 200 contendo apenas pedidos daquele status, e a soma dos cinco iguala a lista completa sem filtro.","lacuna":"O contrato não define ordenação padrão da lista.","pendencia":"Depende da massa criada em CRIT-22 e CRIT-29","nota":"","comando":"npx mocha --grep \"PEDIDOS-29\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-30","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"GET","vader":"R","severidade":"Alta","titulo":"Ausência de paginação na listagem de pedidos","descricao":"GET /pedidos lista todos os pedidos sem page, size ou limit. O volume cresce indefinidamente com a operação diária da cozinha.","acao":"Popular a base, medir a listagem sem filtro e depois executar o cenário de carga em k6.","dadosEntrada":"base com 5000 pedidos | 30 VUs por 5 minutos sobre a listagem","esperado":"Definir paginação ou teto de retorno. Thresholds sugeridos para o cenário em carga: p95 abaixo de 500 ms e falhas abaixo de 1 por cento. Registrar tempo e tamanho do payload.","lacuna":"Nenhum parâmetro de paginação, ordenação ou recorte por período. Sem paginação, o custo da listagem cresce linearmente com a operação.","pendencia":"Requer massa em volume. Executar em ambiente dedicado. Requer massa de 5000 pedidos e ambiente dedicado","nota":"Letra VADER atribuída na revisão de escopo: o caso vinha classificado apenas por POISED.","comando":"npx mocha --grep \"PEDIDOS-30\"","veredictoCi":"","observacaoCi":""},{"id":"RESUMO-01","grupo":"RESUMO","arquivo":"test/pedidos.resumo.test.js","endpoint":"/pedidos/resumo","metodo":"GET","vader":"E","severidade":"Crítica","titulo":"Colisão de rota entre /pedidos/resumo e /pedidos/{id} — rota literal do resumo","descricao":"As duas rotas competem pelo mesmo segmento. Se a rota parametrizada for registrada primeiro, resumo é tratado como id e o endpoint de resumo deixa de existir.","acao":"Consultar o resumo e comparar o corpo com o schema ResumoPedidos. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"GET /pedidos/resumo","esperado":"200 com o objeto ResumoPedidos. Um 404 PEDIDO_NAO_ENCONTRADO revela que a rota parametrizada capturou o segmento.","lacuna":"O contrato não sinaliza a precedência entre a rota literal e a parametrizada.","pendencia":"","nota":"","comando":"npx mocha --grep \"RESUMO-01\"","veredictoCi":"","observacaoCi":""},{"id":"RESUMO-02","grupo":"RESUMO","arquivo":"test/pedidos.resumo.test.js","endpoint":"/pedidos/resumo","metodo":"GET","vader":"E","severidade":"Crítica","titulo":"Colisão de rota entre /pedidos/resumo e /pedidos/{id} — resumo com barra final","descricao":"As duas rotas competem pelo mesmo segmento. Se a rota parametrizada for registrada primeiro, resumo é tratado como id e o endpoint de resumo deixa de existir.","acao":"Consultar o resumo com barra no fim. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"GET /pedidos/resumo/","esperado":"200, ou 404 consistente. Registrar o comportamento, porque cliente HTTP às vezes acrescenta a barra.","lacuna":"O contrato não sinaliza a precedência entre a rota literal e a parametrizada.","pendencia":"","nota":"","comando":"npx mocha --grep \"RESUMO-02\"","veredictoCi":"","observacaoCi":""},{"id":"RESUMO-03","grupo":"RESUMO","arquivo":"test/pedidos.resumo.test.js","endpoint":"/pedidos/resumo","metodo":"GET","vader":"R","severidade":"Alta","titulo":"Coerência do resumo com a listagem e status sem ocorrência — coerência com a listagem filtrada","descricao":"O resumo é o painel da cozinha. Precisa refletir exatamente a base e ter estrutura estável mesmo quando um status tem zero pedidos.","acao":"Consultar o resumo e comparar cada contagem com o GET /pedidos filtrado. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"base com pedidos em todos os cinco status","esperado":"Cada chave do resumo igual ao tamanho da lista filtrada pelo status correspondente, e a soma igual ao total.","lacuna":"Resolvida na 2.0.0: ResumoPedidos passou a declarar required com os cinco status.","pendencia":"","nota":"","comando":"npx mocha --grep \"RESUMO-03\"","veredictoCi":"","observacaoCi":""},{"id":"RESUMO-04","grupo":"RESUMO","arquivo":"test/pedidos.resumo.test.js","endpoint":"/pedidos/resumo","metodo":"GET","vader":"R","severidade":"Alta","titulo":"Coerência do resumo com a listagem e status sem ocorrência — base sem nenhum pedido","descricao":"O resumo é o painel da cozinha. Precisa refletir exatamente a base e ter estrutura estável mesmo quando um status tem zero pedidos.","acao":"Reiniciar a base e consultar o resumo. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"base recém-reiniciada","esperado":"As cinco chaves presentes, todas com 0. A 2.0.0 declarou todas como required.","lacuna":"Resolvida na 2.0.0: ResumoPedidos passou a declarar required com os cinco status.","pendencia":"Exige ambiente reiniciável","nota":"","comando":"npx mocha --grep \"RESUMO-04\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-01","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"GET","vader":"E","severidade":"Alta","titulo":"Busca por id inexistente e por valores de borda do path — pedido inexistente","descricao":"O parâmetro id é declarado como integer, sem mínimo. Verificar o 404 documentado e o tratamento de valores que não são id válidos.","acao":"Buscar um pedido que não existe. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"id 999999","esperado":"404 com codigo PEDIDO_NAO_ENCONTRADO e a mensagem citando o id.","lacuna":"400 não está documentado em GET /pedidos/{id}, apenas 200 e 404.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-01\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-02","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"GET","vader":"E","severidade":"Alta","titulo":"Busca por id fora da faixa válida","descricao":"O parâmetro id é declarado como integer, sem mínimo. Verificar o 404 documentado e o tratamento de valores que não são id válidos.","acao":"Buscar o pedido com cada valor de id fora da faixa.","dadosEntrada":"id 0 | -1 | 9999999999999999999","esperado":"400 ou 404, de forma consistente entre os três e com os demais endpoints. Jamais 500 por estouro de conversão numérica.","lacuna":"400 não está documentado em GET /pedidos/{id}, apenas 200 e 404.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-02\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-03","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"GET","vader":"E","severidade":"Alta","titulo":"Busca por id com tipo inválido","descricao":"O parâmetro id é declarado como integer, sem mínimo. Verificar o 404 documentado e o tratamento de valores que não são id válidos.","acao":"Buscar o pedido com id textual e com id decimal.","dadosEntrada":"id abc | 1.5 | GET /pedidos/abc","esperado":"400 por tipo inválido. O parâmetro é declarado integer. Jamais 500 por falha de conversão, e nunca o corpo do resumo.","lacuna":"400 não está documentado em GET /pedidos/{id}. 400 não está documentado em GET /pedidos/{id}, apenas 200 e 404. O contrato não sinaliza a precedência entre a rota literal e a parametrizada.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-03\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-04","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PATCH","vader":"V","severidade":"Alta","titulo":"Edição parcial altera apenas o campo enviado","descricao":"Caminho feliz do endpoint novo. Alteração parcial precisa alterar só o que foi enviado e preservar todo o restante do pedido.","acao":"Editar apenas o cliente e, em outro pedido, apenas a observação, comparando o corpo antes e depois.","dadosEntrada":"{ \"cliente\": \"Maria Souza Andrade\" } | { \"observacao\": \"Sem cebola, capricha na pimenta\" }","esperado":"200 com o campo alterado e todos os demais preservados. atualizadoEm renovado, criadoEm, status, valorTotal e itens intactos.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-04\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-05","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PATCH","vader":"D","severidade":"Crítica","titulo":"Substituição de itens recalcula o valorTotal no servidor","descricao":"O contrato diz que itens substitui a lista inteira e o valorTotal é recalculado pela mesma regra do POST. É a regra de maior impacto financeiro do endpoint novo.","acao":"Editar um pedido de 70.30 trocando a lista de itens por uma de valor conhecido e diferente, e conferir o valorTotal devolvido e o persistido. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"itens substituídos por 3 x 15.00, total esperado 45.00","esperado":"200 com valorTotal 45.00 e a lista antiga completamente descartada, sem itens remanescentes nem soma acumulada.","lacuna":"O contrato não diz se os ids dos itens são reaproveitados ou gerados de novo na substituição.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-05\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-06","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PATCH","vader":"D","severidade":"Alta","titulo":"Corpo vazio e corpo apenas com campos ignorados — corpo vazio","descricao":"PatchPedidoInput declara minProperties 1, mas os campos de servidor são ignorados em vez de recusados. Um corpo com apenas status satisfaz o minProperties e ainda assim não altera nada.","acao":"Editar um pedido enviando corpo vazio. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"{}","esperado":"400 com codigo VALIDACAO. minProperties 1 recusa o objeto vazio.","lacuna":"minProperties 1 é satisfeito por campos que serão ignorados, então o contrato aceita um corpo que na prática é vazio.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-06\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-07","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PATCH","vader":"D","severidade":"Alta","titulo":"Corpo contendo apenas campos que o contrato manda ignorar","descricao":"PatchPedidoInput declara minProperties 1, mas os campos de servidor são ignorados em vez de recusados. Um corpo com apenas status satisfaz o minProperties e ainda assim não altera nada.","acao":"Editar um pedido enviando apenas campos de servidor, um por requisição.","dadosEntrada":"{ \"status\": \"ENTREGUE\" } | { \"valorTotal\": 0.01 } | { \"id\": 99 }","esperado":"Definir e padronizar: 400 por não haver campo alterável, ou 200 sem alteração alguma. minProperties 1 é satisfeito por campos que serão descartados, então o contrato aceita um corpo que na prática é vazio.","lacuna":"minProperties 1 é satisfeito por campos que serão ignorados, então o contrato aceita um corpo que na prática é vazio.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-07\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-08","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PATCH","vader":"D","severidade":"Crítica","titulo":"Campos de servidor não podem escapar pelo endpoint de edição","descricao":"Este endpoint é a segunda porta de entrada para status e valorTotal. Se ele os aceitar, contorna a máquina de estados e o cálculo do servidor de uma vez.","acao":"Editar um pedido RECEBIDO enviando cliente válido acompanhado de status, valorTotal, criadoEm e id, e conferir o recurso resultante. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"{ cliente: Ana, status: ENTREGUE, valorTotal: 0.01, id: 99 }","esperado":"Cliente alterado e todo o resto intacto: status segue RECEBIDO, valorTotal segue calculado e o id não muda. Refletir qualquer um deles é falha de severidade máxima.","lacuna":"PatchPedidoInput não declara additionalProperties false, apenas descreve que os campos são ignorados.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-08\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-09","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PATCH","vader":"E","severidade":"Crítica","titulo":"Edição bloqueada nos status não permitidos","descricao":"A regra nova diz que só se edita em RECEBIDO ou EM_PREPARO. Depois de PRONTO a comida já foi feita, então alterar itens mudaria o valor de algo já produzido.","acao":"Levar pedidos a cada um dos três status bloqueados e tentar editar.","dadosEntrada":"pedido em PRONTO | ENTREGUE | CANCELADO","esperado":"409 com codigo TRANSICAO_INVALIDA nos três, citando o status atual, e o pedido inalterado após cada tentativa.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-09\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-10","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PATCH","vader":"D","severidade":"Alta","titulo":"Bordas de quantidade no PATCH espelhando o POST","descricao":"O contrato repete os mesmos limites de PedidoInput no PatchPedidoInput. Validação duplicada costuma divergir com o tempo, então vale conferir campo a campo.","acao":"Editar os itens com quantidade inválida e comparar o erro com o do POST.","dadosEntrada":"itens com quantidade 0 | 1.5","esperado":"400 com a mesma mensagem e o mesmo formato de detalhes que o POST devolve.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-10\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-11","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PATCH","vader":"D","severidade":"Alta","titulo":"Bordas de preço no PATCH espelhando o POST","descricao":"O contrato repete os mesmos limites de PedidoInput no PatchPedidoInput. Validação duplicada costuma divergir com o tempo, então vale conferir campo a campo.","acao":"Editar os itens com preço inválido.","dadosEntrada":"itens com precoUnitario 0 | -10","esperado":"400, idêntico ao POST.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-11\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-12","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PATCH","vader":"D","severidade":"Alta","titulo":"Limites de tamanho no PATCH espelhando o POST","descricao":"O contrato repete os mesmos limites de PedidoInput no PatchPedidoInput. Validação duplicada costuma divergir com o tempo, então vale conferir campo a campo.","acao":"Editar cliente e observação acima do maxLength.","dadosEntrada":"cliente com 121 caracteres | observacao com 281 caracteres","esperado":"400, idêntico ao POST.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-12\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-13","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PATCH","vader":"D","severidade":"Alta","titulo":"Validações do POST espelhadas no PATCH — itens vazio no PATCH","descricao":"O contrato repete os mesmos limites de PedidoInput no PatchPedidoInput. Validação duplicada costuma divergir com o tempo, então vale conferir campo a campo.","acao":"Editar enviando lista de itens vazia. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"{ \"itens\": [] }","esperado":"400. O PatchPedidoInput também declara minItems 1.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-13\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-01","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"PATCH","vader":"D","severidade":"Alta","titulo":"Ação fora do enum, ausente e com variação de caixa — ação fora do enum","descricao":"AcaoStatusInput exige acao com valores AVANCAR ou RETROCEDER. Verificar a validação antes de qualquer efeito sobre o pedido.","acao":"Enviar uma ação inexistente e conferir depois que o status permaneceu. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"{ \"acao\": \"CANCELAR\" }","esperado":"400 com codigo VALIDACAO e detalhes no campo acao. O status do pedido não pode mudar.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"STATUS-01\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-02","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"PATCH","vader":"D","severidade":"Alta","titulo":"Ação fora do enum, ausente e com variação de caixa — ação em caixa baixa","descricao":"AcaoStatusInput exige acao com valores AVANCAR ou RETROCEDER. Verificar a validação antes de qualquer efeito sobre o pedido.","acao":"Enviar a ação em minúsculas. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"{ \"acao\": \"avancar\" }","esperado":"Definir e padronizar. Registrar o comportamento real.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"STATUS-02\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-03","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"PATCH","vader":"D","severidade":"Alta","titulo":"Ação vazia, nula, com tipo errado e corpo ausente","descricao":"AcaoStatusInput exige acao com valores AVANCAR ou RETROCEDER. Verificar a validação antes de qualquer efeito sobre o pedido.","acao":"Enviar quatro transições variando o campo acao e conferir depois que o status permaneceu.","dadosEntrada":"{ \"acao\": \"\" } | null | 1 | {}","esperado":"400 com codigo VALIDACAO nas quatro, e o status do pedido inalterado após cada tentativa.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"STATUS-03\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-04","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"PATCH","vader":"V","severidade":"Crítica","titulo":"Fluxo completo de avanço e retrocesso do pedido — avanço completo até ENTREGUE","descricao":"Percorrer a máquina de estados documentada em ambos os sentidos, confirmando que cada transição é de uma casa por vez e que os carimbos de tempo reagem corretamente.","acao":"Criar um pedido e avançar três vezes, conferindo o status a cada passo. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"acao AVANCAR três vezes, a partir de RECEBIDO","esperado":"200 a cada passo, uma casa por vez: EM_PREPARO, PRONTO e ENTREGUE. atualizadoEm muda em toda transição e criadoEm permanece.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"STATUS-04\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-05","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"PATCH","vader":"V","severidade":"Crítica","titulo":"Fluxo completo de avanço e retrocesso do pedido — retrocesso de PRONTO até RECEBIDO","descricao":"Percorrer a máquina de estados documentada em ambos os sentidos, confirmando que cada transição é de uma casa por vez e que os carimbos de tempo reagem corretamente.","acao":"Levar um pedido até PRONTO e retroceder duas vezes. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"acao RETROCEDER duas vezes, a partir de PRONTO","esperado":"200 a cada passo, voltando para EM_PREPARO e depois RECEBIDO.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"STATUS-05\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-06","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"PATCH","vader":"E","severidade":"Crítica","titulo":"ENTREGUE como estado final nos dois sentidos","descricao":"A descrição afirma que ENTREGUE não avança nem retrocede. O exemplo do 409 cobre apenas o avanço, deixando o retrocesso sem confirmação documental.","acao":"Levar um pedido até ENTREGUE e tentar avançar e retroceder.","dadosEntrada":"pedido em ENTREGUE, acao AVANCAR | RETROCEDER","esperado":"409 com codigo TRANSICAO_INVALIDA nas duas, e o pedido permanece ENTREGUE. O contrato só exemplifica o avanço, então o retrocesso é lacuna.","lacuna":"O exemplo do 409 só cita o avanço a partir de ENTREGUE.","pendencia":"","nota":"","comando":"npx mocha --grep \"STATUS-06\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-07","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"PATCH","vader":"E","severidade":"Alta","titulo":"Retrocesso a partir de RECEBIDO, o primeiro estado","descricao":"RECEBIDO é a ponta inicial da cadeia. O contrato descreve o retrocesso de forma genérica e não define o que acontece na borda inferior.","acao":"Criar um pedido e enviar RETROCEDER imediatamente. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"pedido em RECEBIDO, acao RETROCEDER","esperado":"409 com codigo TRANSICAO_INVALIDA. Um 200 mantendo RECEBIDO seria aceitável apenas se documentado, e um status nulo é defeito.","lacuna":"A borda inferior da máquina de estados não está especificada.","pendencia":"","nota":"","comando":"npx mocha --grep \"STATUS-07\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-08","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"PATCH","vader":"E","severidade":"Crítica","titulo":"Transição de status em pedido CANCELADO nos dois sentidos","descricao":"CANCELADO pertence ao enum mas está fora da cadeia linear descrita. O contrato não define se um pedido cancelado pode voltar ao fluxo.","acao":"Cancelar um pedido e tentar avançar e retroceder.","dadosEntrada":"pedido em CANCELADO, acao AVANCAR | RETROCEDER","esperado":"409 com codigo TRANSICAO_INVALIDA nas duas. Reativar faria a cozinha preparar item já baixado, e o retrocesso é a variação mais provável de escapar, porque parece um desfazer.","lacuna":"CANCELADO não aparece na cadeia RECEBIDO até ENTREGUE descrita na operação.","pendencia":"Depende do cancelamento validado em CRIT-29","nota":"","comando":"npx mocha --grep \"STATUS-08\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-09","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"PATCH","vader":"E","severidade":"Alta","titulo":"Concorrência no avanço de status do mesmo pedido","descricao":"Dois terminais podem avançar o mesmo pedido ao mesmo tempo. Sem controle de concorrência, o pedido pode pular estados.","acao":"Disparar dois PATCH AVANCAR em paralelo e, em seguida, o cenário de concorrência em k6.","dadosEntrada":"duas requisições simultâneas | 20 VUs simultâneos sobre um único pedido","esperado":"Uma única transição bem sucedida por casa. Estado final coerente com o número de avanços aceitos, sem pulo de etapa e sem 500.","lacuna":"Não há ETag, versão do recurso nem qualquer controle de concorrência otimista. Ausência de controle de concorrência otimista no contrato.","pendencia":"Requer disparo paralelo. Também coberto por PERF-04. Depende do resultado de CRIT-26","nota":"","comando":"npx mocha --grep \"STATUS-09\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-10","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"PATCH","vader":"R","severidade":"Alta","titulo":"Integridade dos dados do pedido após a transição","descricao":"A resposta do PATCH devolve o Pedido completo. Nenhum dado além de status e atualizadoEm deveria mudar.","acao":"Guardar o corpo do pedido antes da transição e comparar campo a campo com o corpo devolvido pelo PATCH e pelo GET seguinte. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"pedido com 2 itens, observacao preenchida","esperado":"cliente, observacao, valorTotal, itens e criadoEm idênticos. Apenas status e atualizadoEm mudam.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"STATUS-10\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-14","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"DELETE","vader":"V","severidade":"Crítica","titulo":"Cancelamento a partir de cada status ativo","descricao":"O DELETE é semanticamente uma transição para CANCELADO, não uma exclusão. Precisa funcionar a partir dos três status ativos.","acao":"Cancelar três pedidos, um em cada status ativo.","dadosEntrada":"pedido em RECEBIDO | EM_PREPARO | PRONTO","esperado":"200 nos três, com status CANCELADO e atualizadoEm renovado. Em PRONTO a comida já foi feita, então vale observar se há registro do desperdício.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-14\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-15","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"DELETE","vader":"E","severidade":"Crítica","titulo":"Cancelamento bloqueado em ENTREGUE e cancelamento repetido — cancelamento de pedido ENTREGUE","descricao":"A operação declara que pedidos ENTREGUE ou já CANCELADO não podem ser cancelados. O segundo caso também cobre idempotência do verbo destrutivo.","acao":"Levar um pedido até ENTREGUE e tentar cancelar. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"pedido em ENTREGUE","esperado":"409 com codigo TRANSICAO_INVALIDA. É o caso exemplificado no contrato.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-15\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-16","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"DELETE","vader":"E","severidade":"Crítica","titulo":"Cancelamento bloqueado em ENTREGUE e cancelamento repetido — cancelamento repetido","descricao":"A operação declara que pedidos ENTREGUE ou já CANCELADO não podem ser cancelados. O segundo caso também cobre idempotência do verbo destrutivo.","acao":"Cancelar um pedido e repetir o DELETE. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"mesmo DELETE enviado duas vezes","esperado":"409 na segunda chamada. Um 200 indica reprocessamento de baixa já efetuada.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-16\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-17","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"DELETE","vader":"R","severidade":"Alta","titulo":"Cancelamento é lógico e permanece rastreável","descricao":"Verificar se o pedido cancelado continua existindo para consulta, filtro e resumo, preservando o histórico financeiro da cozinha.","acao":"Cancelar um pedido e, em seguida, consultá-lo por id, filtrá-lo por status CANCELADO e conferir o resumo. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"pedido cancelado com valorTotal 70.30","esperado":"200 no GET com status CANCELADO, presença no filtro e incremento na chave CANCELADO do resumo. valorTotal e itens preservados.","lacuna":"O contrato não diz se o pedido cancelado deve sair da listagem padrão.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-17\"","veredictoCi":"","observacaoCi":""},{"id":"AUTH-13","grupo":"AUTH","arquivo":"test/auth.login.test.js","endpoint":"/auth/login","metodo":"GET","vader":"V","severidade":"Crítica","titulo":"Verbos não documentados em cada recurso — GET em /auth/login","descricao":"Nenhuma operação do contrato declara 405. Verificar se verbos ausentes são recusados, em especial os destrutivos e os de escrita.","acao":"Enviar GET no login com as credenciais na query.","dadosEntrada":"GET /auth/login?usuario=pamela&senha=1234","esperado":"405 com header Allow contendo POST e OPTIONS, sem exigir token. Um 200 significaria credencial em query string, gravada em log de servidor, proxy e histórico do navegador.","lacuna":"Resolvida na 2.1.0: 405 passou a ser declarado em todas as operações, com o componente MetodoNaoPermitido e o header Allow documentado.","pendencia":"","nota":"","comando":"npx mocha --grep \"AUTH-13\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-31","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"PUT","vader":"V","severidade":"Alta","titulo":"Verbos de escrita não documentados na coleção de pedidos","descricao":"Nenhuma operação do contrato declara 405. Verificar se verbos ausentes são recusados, em especial os destrutivos e os de escrita.","acao":"Enviar PUT e DELETE na rota de coleção.","dadosEntrada":"PUT /pedidos | DELETE /pedidos","esperado":"405 com header Allow contendo GET, HEAD, POST e OPTIONS nos dois verbos, sem exigir token. Um 200 no DELETE poderia apagar a coleção inteira.","lacuna":"Resolvida na 2.1.0: 405 passou a ser declarado em todas as operações, com o componente MetodoNaoPermitido e o header Allow documentado.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-31\"","veredictoCi":"","observacaoCi":""},{"id":"RESUMO-05","grupo":"RESUMO","arquivo":"test/pedidos.resumo.test.js","endpoint":"/pedidos/resumo","metodo":"DELETE","vader":"V","severidade":"Alta","titulo":"Verbos não documentados em cada recurso — DELETE em /pedidos/resumo","descricao":"Nenhuma operação do contrato declara 405. Verificar se verbos ausentes são recusados, em especial os destrutivos e os de escrita.","acao":"Enviar DELETE na rota de resumo. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"DELETE /pedidos/resumo","esperado":"405 com header Allow contendo GET, HEAD e OPTIONS, sem exigir token. Também serve para observar se a rota do resumo é interpretada como id.","lacuna":"Resolvida na 2.1.0: 405 passou a ser declarado em todas as operações, com o componente MetodoNaoPermitido e o header Allow documentado.","pendencia":"","nota":"","comando":"npx mocha --grep \"RESUMO-05\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-18","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PUT","vader":"V","severidade":"Alta","titulo":"Verbos não documentados em cada recurso — PUT em /pedidos/{id}","descricao":"Nenhuma operação do contrato declara 405. Verificar se verbos ausentes são recusados, em especial os destrutivos e os de escrita.","acao":"Enviar PUT no recurso individual. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"PUT /pedidos/1 com corpo completo","esperado":"405 com header Allow contendo GET, HEAD, PATCH, DELETE e OPTIONS, sem exigir token. A substituição total contornaria as regras do PATCH.","lacuna":"Resolvida na 2.1.0: 405 passou a ser declarado em todas as operações, com o componente MetodoNaoPermitido e o header Allow documentado.","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-18\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-11","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"POST","vader":"V","severidade":"Alta","titulo":"Verbos não documentados em cada recurso — POST em /pedidos/{id}/status","descricao":"Nenhuma operação do contrato declara 405. Verificar se verbos ausentes são recusados, em especial os destrutivos e os de escrita.","acao":"Enviar POST na rota de status. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"POST /pedidos/1/status","esperado":"405 com header Allow contendo PATCH e OPTIONS, sem exigir token. A rota documenta apenas PATCH.","lacuna":"Resolvida na 2.1.0: 405 passou a ser declarado em todas as operações, com o componente MetodoNaoPermitido e o header Allow documentado.","pendencia":"","nota":"","comando":"npx mocha --grep \"STATUS-11\"","veredictoCi":"","observacaoCi":""},{"id":"HEALTH-04","grupo":"HEALTH","arquivo":"test/health.test.js","endpoint":"/health","metodo":"POST","vader":"V","severidade":"Média","titulo":"Verbo não permitido no health check — POST em /health","descricao":"O /health é declarado público com security vazio. Verificar se um verbo não documentado é recusado pelo motivo certo, e não pela camada de autenticação que roda antes do roteamento.","acao":"Enviar POST em /health, primeiro sem token e depois com token inválido.","dadosEntrada":"POST /health sem token | POST /health com Authorization: Bearer invalido","esperado":"405 com header Allow contendo GET, HEAD e OPTIONS, nas duas variações. Como o 405 é resolvido antes da autenticação, a resposta deve ser idêntica com e sem token. Um 401 informa a causa errada a quem chama.","lacuna":"Resolvida na 2.1.0: 405 passou a ser declarado em todas as operações, com o componente MetodoNaoPermitido e o header Allow documentado.","pendencia":"","nota":"","comando":"npx mocha --grep \"HEALTH-04\"","veredictoCi":"Passou","observacaoCi":"Execução de 2026-08-07: 2 execuções, todas verdes."},{"id":"HEALTH-05","grupo":"HEALTH","arquivo":"test/health.test.js","endpoint":"/health","metodo":"PATCH","vader":"V","severidade":"Média","titulo":"Verbo não permitido no health check — PATCH em /health","descricao":"O /health é declarado público com security vazio. Verificar se um verbo não documentado é recusado pelo motivo certo, e não pela camada de autenticação que roda antes do roteamento.","acao":"Enviar PATCH em /health, primeiro sem token e depois com token inválido.","dadosEntrada":"PATCH /health sem token | PATCH /health com Authorization: Bearer invalido","esperado":"405 com header Allow contendo GET, HEAD e OPTIONS, nas duas variações. Como o 405 é resolvido antes da autenticação, a resposta deve ser idêntica com e sem token. Um 401 informa a causa errada a quem chama.","lacuna":"Resolvida na 2.1.0: 405 passou a ser declarado em todas as operações, com o componente MetodoNaoPermitido e o header Allow documentado.","pendencia":"","nota":"","comando":"npx mocha --grep \"HEALTH-05\"","veredictoCi":"Passou","observacaoCi":"Execução de 2026-08-07: 2 execuções, todas verdes."},{"id":"HEALTH-06","grupo":"HEALTH","arquivo":"test/health.test.js","endpoint":"/health","metodo":"PUT","vader":"V","severidade":"Média","titulo":"Verbo não permitido no health check — PUT em /health","descricao":"O /health é declarado público com security vazio. Verificar se um verbo não documentado é recusado pelo motivo certo, e não pela camada de autenticação que roda antes do roteamento.","acao":"Enviar PUT em /health, primeiro sem token e depois com token inválido.","dadosEntrada":"PUT /health sem token | PUT /health com Authorization: Bearer invalido","esperado":"405 com header Allow contendo GET, HEAD e OPTIONS, nas duas variações. Como o 405 é resolvido antes da autenticação, a resposta deve ser idêntica com e sem token. Um 401 informa a causa errada a quem chama.","lacuna":"Resolvida na 2.1.0: 405 passou a ser declarado em todas as operações, com o componente MetodoNaoPermitido e o header Allow documentado.","pendencia":"","nota":"","comando":"npx mocha --grep \"HEALTH-06\"","veredictoCi":"Passou","observacaoCi":"Execução de 2026-08-07: 2 execuções, todas verdes."},{"id":"HEALTH-07","grupo":"HEALTH","arquivo":"test/health.test.js","endpoint":"/health","metodo":"DELETE","vader":"V","severidade":"Média","titulo":"Verbo não permitido no health check — DELETE em /health","descricao":"O /health é declarado público com security vazio. Verificar se um verbo não documentado é recusado pelo motivo certo, e não pela camada de autenticação que roda antes do roteamento.","acao":"Enviar DELETE em /health, primeiro sem token e depois com token inválido.","dadosEntrada":"DELETE /health sem token | DELETE /health com Authorization: Bearer invalido","esperado":"405 com header Allow contendo GET, HEAD e OPTIONS, nas duas variações. Como o 405 é resolvido antes da autenticação, a resposta deve ser idêntica com e sem token. Um 401 informa a causa errada a quem chama.","lacuna":"Resolvida na 2.1.0: 405 passou a ser declarado em todas as operações, com o componente MetodoNaoPermitido e o header Allow documentado.","pendencia":"","nota":"","comando":"npx mocha --grep \"HEALTH-07\"","veredictoCi":"Passou","observacaoCi":"Execução de 2026-08-07: 2 execuções, todas verdes."},{"id":"HEALTH-01","grupo":"HEALTH","arquivo":"test/health.test.js","endpoint":"/health","metodo":"GET","vader":"R","severidade":"Alta","titulo":"Health check com banco disponível, sem exigir token","descricao":"A 2.0.0 especificou o comportamento: verificação real por SELECT 1, tempo limite de 2 segundos, 200 com status ok e 503 com status indisponivel.","acao":"Consultar o health com tudo funcionando e sem enviar o header Authorization.","dadosEntrada":"aplicação e banco no ar, sem header Authorization","esperado":"200 com status ok e dependencias[0].ok true. Como a chamada não envia Authorization, este caso também comprova que o endpoint permanece público: um 401 aqui quebraria a monitoração.","lacuna":"Resolvida na 2.0.0: HealthResponse ganhou enum, required e o array dependencias, e o 503 passou a ser documentado.","pendencia":"","nota":"","comando":"npx mocha --grep \"HEALTH-01\"","veredictoCi":"Passou","observacaoCi":"Execução de 2026-08-07: 1 execução, todas verdes."},{"id":"HEALTH-02","grupo":"HEALTH","arquivo":"test/health.test.js","endpoint":"/health","metodo":"GET","vader":"R","severidade":"Alta","titulo":"Health check com dependência indisponível ou fora do tempo limite","descricao":"A 2.0.0 especificou verificação real por SELECT 1, tempo limite de 2 segundos, 200 com status ok e 503 com status indisponivel. Com o banco parado, a conexão não é recusada de imediato, então quem responde é o próprio tempo limite: o cenário cobre as duas frentes numa execução só.","acao":"Parar o serviço do banco e consultar o health, medindo o tempo até a resposta.","dadosEntrada":"serviço do banco parado","esperado":"503 com status indisponivel, dependencias[0].nome persistencia, ok false e detalhe preenchido fora de produção. A resposta deve chegar em aproximadamente 2 segundos, cortada pelo tempo limite, e nunca ficar pendurada esperando o banco desistir. Não assertar o texto do detalhe: o mesmo cenário já produziu o erro do Prisma e a mensagem de tempo limite em execuções diferentes.","lacuna":"Resolvida na 2.0.0: HealthResponse ganhou enum, required e o array dependencias, e o 503 passou a ser documentado. Permanece em aberto qual dependência falhou e por quê, já que o contrato não padroniza o conteúdo de detalhe.","pendencia":"Exige parar o serviço do banco no ambiente","nota":"","comando":"npx mocha --grep \"HEALTH-02\"","veredictoCi":"Passou","observacaoCi":"Execução do CI de 2026-08-07: passou no relatório banco-indisponivel, que roda o caso isolado depois de um docker stop no contêiner do MySQL. No relatório suite ele é excluído pelo --grep --invert, porque com o banco no ar a API responde 200 e o caso falharia por falta da condição que ele testa. Ressalva de precisão: o CI produz banco fora do ar, que recusa a conexão na hora, e não banco lento, que estoura o tempo limite de 2 segundos. As duas condições dão 503, mas o título do teste descreve a segunda."},{"id":"HEALTH-03","grupo":"HEALTH","arquivo":"test/health.test.js","endpoint":"/health","metodo":"GET","vader":"A","severidade":"Média","titulo":"Endpoints públicos continuam acessíveis sem token — health ignora token inválido","descricao":"O security vazio nessas duas operações precisa ser respeitado pela implementação. Um middleware aplicado de forma ampla demais quebraria o login e a monitoração.","acao":"Consultar o health enviando um token inválido no header.","dadosEntrada":"GET /health com Authorization: Bearer invalido","esperado":"O token é irrelevante: responde conforme o banco.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"HEALTH-03\"","veredictoCi":"Passou","observacaoCi":"Execução de 2026-08-07: 1 execução, todas verdes."},{"id":"GERAL-04","grupo":"GERAL","arquivo":"test/geral.test.js","endpoint":"Todos os endpoints","metodo":"OTHER","vader":"E","severidade":"Alta","titulo":"Exposição de dados e ausência de proteção em trânsito — mensagens de erro sem vazamento","descricao":"O único servidor declarado é http em localhost. O nome do cliente é dado pessoal e as mensagens de erro não devem revelar detalhes internos.","acao":"Consolidar os corpos de erro coletados nos demais casos e inspecionar o conteúdo. Enviar Authorization: Bearer <token> válido.","dadosEntrada":"todas as respostas 4xx observadas na execução","esperado":"Nenhum stack trace, caminho de arquivo, nome de tabela ou query no campo mensagem.","lacuna":"Apenas servidor http declarado, sem menção a HTTPS em ambiente real.","pendencia":"","nota":"Letra VADER atribuída na revisão de escopo: o caso vinha classificado apenas por POISED.","comando":"npx mocha --grep \"GERAL-04\"","veredictoCi":"","observacaoCi":""},{"id":"GERAL-05","grupo":"GERAL","arquivo":"test/geral.test.js","endpoint":"Todos os endpoints","metodo":"OTHER","vader":"A","severidade":"Alta","titulo":"Ausência de proteção em trânsito","descricao":"O único servidor declarado é http em localhost. O nome do cliente é dado pessoal e as mensagens de erro não devem revelar detalhes internos.","acao":"Conferir o esquema do server declarado no contrato e o protocolo do ambiente.","dadosEntrada":"único server declarado: http://localhost:2000","esperado":"HTTP aceitável apenas no ambiente local. Registrar a exigência de HTTPS para qualquer ambiente publicado, já que o nome do cliente e a credencial trafegam em texto claro.","lacuna":"Apenas servidor http declarado, sem menção a HTTPS em ambiente real. O contrato publica a credencial real como exemplo e não há servidor https declarado.","pendencia":"Depende de decisão do projeto. Hoje é risco aceito de forma consciente","nota":"Letra VADER atribuída na revisão de escopo: o caso vinha classificado apenas por POISED.","comando":"npx mocha --grep \"GERAL-05\"","veredictoCi":"","observacaoCi":""},{"id":"GERAL-06","grupo":"GERAL","arquivo":"test/geral.test.js","endpoint":"Todos os endpoints","metodo":"GET","vader":"E","severidade":"Alta","titulo":"Rota inexistente responde 404 sem exigir autenticação","descricao":"A 2.1.0 move o tratador de rota inexistente para antes da autenticação. Antes, uma rota errada sem token respondia 401, informando sobre credencial quando a pergunta era sobre o recurso.","acao":"Chamar rotas que não existem, sem nenhum header Authorization.","dadosEntrada":"GET /pedidoss | GET /Pedidos | GET /","esperado":"404 com o codigo ROTA_NAO_ENCONTRADA no formato ErroResponse, nas três. Nunca 401 e nunca uma página HTML de erro padrão do framework.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"GERAL-06\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDOS-32","grupo":"PEDIDOS","arquivo":"test/pedidos.test.js","endpoint":"/pedidos","metodo":"PUT","vader":"V","severidade":"Alta","titulo":"Método não permitido resolvido antes da autenticação — PUT em /pedidos","descricao":"A 2.1.0 declara que a recusa por método acontece antes da verificação de credencial. Este é o cenário que prova a ordem de montagem dos middlewares: a resposta precisa falar do recurso, não do solicitante.","acao":"Enviar PUT em /pedidos sem nenhum header Authorization.","dadosEntrada":"PUT /pedidos, sem token","esperado":"405 com header Allow. Um 401 significa que o tratamento de método ficou depois do middleware de autenticação e a correção da 2.1.0 não surtiu efeito.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDOS-32\"","veredictoCi":"","observacaoCi":""},{"id":"PEDIDO-ID-19","grupo":"PEDIDO-ID","arquivo":"test/pedidos.id.test.js","endpoint":"/pedidos/{id}","metodo":"PUT","vader":"V","severidade":"Alta","titulo":"Método não permitido resolvido antes da autenticação — PUT em /pedidos/{id}","descricao":"A 2.1.0 declara que a recusa por método acontece antes da verificação de credencial. Este é o cenário que prova a ordem de montagem dos middlewares: a resposta precisa falar do recurso, não do solicitante.","acao":"Enviar PUT em /pedidos/1 sem nenhum header Authorization.","dadosEntrada":"PUT /pedidos/1, sem token","esperado":"405 com header Allow. Comparar com a mesma requisição enviando token válido: as duas respostas devem ser idênticas, inclusive no corpo.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"PEDIDO-ID-19\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-12","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"PUT","vader":"V","severidade":"Crítica","titulo":"Método não permitido resolvido antes da autenticação — PUT em /pedidos/{id}/status","descricao":"A 2.1.0 declara que a recusa por método acontece antes da verificação de credencial. Este é o cenário que prova a ordem de montagem dos middlewares: a resposta precisa falar do recurso, não do solicitante. Aqui o risco é maior: um PUT aceito permitiria definir o status diretamente, contornando a máquina de estados inteira.","acao":"Enviar PUT em /pedidos/1/status sem token, com corpo contendo status ENTREGUE.","dadosEntrada":"PUT /pedidos/1/status { \"status\": \"ENTREGUE\" }, sem token","esperado":"405 com header Allow contendo PATCH e OPTIONS. O pedido não pode mudar de status.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"STATUS-12\"","veredictoCi":"","observacaoCi":""},{"id":"RESUMO-06","grupo":"RESUMO","arquivo":"test/pedidos.resumo.test.js","endpoint":"/pedidos/resumo","metodo":"DELETE","vader":"V","severidade":"Alta","titulo":"Método não permitido resolvido antes da autenticação — DELETE em /pedidos/resumo","descricao":"A 2.1.0 declara que a recusa por método acontece antes da verificação de credencial. Este é o cenário que prova a ordem de montagem dos middlewares: a resposta precisa falar do recurso, não do solicitante. Cobre também a ambiguidade entre /pedidos/resumo e /pedidos/{id}: um 200 aqui indicaria que resumo foi tratado como id e o pedido foi cancelado.","acao":"Enviar DELETE em /pedidos/resumo sem token.","dadosEntrada":"DELETE /pedidos/resumo, sem token","esperado":"405 com header Allow contendo GET, HEAD e OPTIONS. Nunca 200 e nunca 401.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"RESUMO-06\"","veredictoCi":"","observacaoCi":""},{"id":"STATUS-13","grupo":"STATUS","arquivo":"test/pedidos.status.test.js","endpoint":"/pedidos/{id}/status","metodo":"OTHER","vader":"R","severidade":"Alta","titulo":"Header Allow correto na rota de status","descricao":"Rota de um método só. O Allow é a evidência de que nenhum outro caminho de escrita existe para o status.","acao":"Provocar um 405 na rota de status e inspecionar o header Allow.","dadosEntrada":"POST /pedidos/1/status","esperado":"Allow com PATCH e OPTIONS, e nada além disso.","lacuna":"","pendencia":"","nota":"","comando":"npx mocha --grep \"STATUS-13\"","veredictoCi":"","observacaoCi":""}]
+</script>
+
+<script>
+const DATA = JSON.parse(document.getElementById('dados').textContent);
+const TOTAL = DATA.length;
+
+const STORAGE_KEY = 'cozinha_vader_done';
+const RESULTS_KEY = 'cozinha_vader_results';
+const VERDICT_KEY = 'cozinha_vader_verdicts';
+
+const VADER_COLORS = { V: '#5b8dee', A: '#e8a85b', D: '#5bc8e8', E: '#e85b5b', R: '#5be888' };
+const VADER_LABELS = { V: 'V Verbo', A: 'A Auth', D: 'D Dados', E: 'E Erros', R: 'R Respostas' };
+const SEV_COLORS = { 'Crítica': '#f07c95', 'Alta': '#e8975b', 'Média': '#f5a623' };
+const VERDICTS = ['Passou', 'Falhou', 'Lacuna', 'Bloqueado'];
+
+function ler(chave, padrao) {
+  try { return JSON.parse(localStorage.getItem(chave) || padrao); }
+  catch (e) { return JSON.parse(padrao); }
+}
+function gravar(chave, valor) {
+  try { localStorage.setItem(chave, JSON.stringify(valor)); } catch (e) { /* modo privado */ }
+}
+
+let done = new Set(ler(STORAGE_KEY, '[]'));
+let results = ler(RESULTS_KEY, '{}');
+let verdicts = ler(VERDICT_KEY, '{}');
+/**
+ * Os filtros se acumulam e valem juntos: com "críticos" e "automatizados"
+ * ligados, sobra a interseção dos dois. Conjunto vazio significa sem filtro.
+ */
+let filtrosAtivos = new Set();
+
+const FILTRO_ROTULOS = {
+  pending: 'pendentes',
+  done: 'feitos',
+  critica: 'críticos',
+  automatizado: 'automatizados',
+  blocked: 'bloqueados',
+};
+
+/**
+ * Filtros que respondem à mesma pergunta e não podem valer ao mesmo tempo.
+ * Um caso é feito ou pendente; ligar os dois devolveria lista vazia sempre,
+ * então ligar um desliga o outro em vez de zerar a tela.
+ */
+const EXCLUSIVOS = [['pending', 'done']];
+
+function aviso() {
+  const n = document.getElementById('saved-notice');
+  n.classList.add('show');
+  clearTimeout(n._t);
+  n._t = setTimeout(() => n.classList.remove('show'), 1200);
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function idSeguro(texto) { return String(texto).replace(/[^a-zA-Z0-9]/g, '_'); }
+function semAcento(texto) { return String(texto || '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+
+function saveResult(id, textarea) {
+  const valor = textarea.value;
+  if (valor && valor.trim()) results[id] = valor; else delete results[id];
+  gravar(RESULTS_KEY, results);
+  textarea.closest('.case-item').classList.toggle('has-result', !!(valor && valor.trim()));
+  aviso();
+}
+
+function setVerdict(id, valor, botao) {
+  if (verdicts[id] === valor) delete verdicts[id]; else verdicts[id] = valor;
+  gravar(VERDICT_KEY, verdicts);
+  botao.parentElement.querySelectorAll('.verdict-btn').forEach((b) => {
+    b.className = 'verdict-btn' + (verdicts[id] === b.dataset.valor ? ' sel-' + b.dataset.valor.toLowerCase() : '');
+  });
+  aviso();
+}
+
+function toggleCase(id, el) {
+  if (done.has(id)) done.delete(id); else done.add(id);
+  el.classList.toggle('done', done.has(id));
+  gravar(STORAGE_KEY, [...done]);
+  aviso();
+  updateProgress();
+}
+
+function toggleDetails(el, e) {
+  if (e.target.closest('.case-check') || e.target.closest('.verdict-btn') || e.target.tagName === 'TEXTAREA') return;
+  el.classList.toggle('expanded');
+}
+
+function expandAll() { document.querySelectorAll('.file-section').forEach((e) => e.classList.add('open')); }
+function collapseAll() { document.querySelectorAll('.file-section').forEach((e) => e.classList.remove('open')); }
+
+function setFilter(f) {
+  if (f === 'all') {
+    filtrosAtivos.clear();
+  } else if (filtrosAtivos.has(f)) {
+    filtrosAtivos.delete(f);
+  } else {
+    for (const par of EXCLUSIVOS) {
+      if (par.includes(f)) par.forEach((outro) => filtrosAtivos.delete(outro));
+    }
+    filtrosAtivos.add(f);
+  }
+
+  document.querySelectorAll('.filter-btn').forEach((b) => {
+    const alvo = b.dataset.filtro;
+    const ligado = alvo === 'all' ? filtrosAtivos.size === 0 : filtrosAtivos.has(alvo);
+    b.classList.toggle('active', ligado);
+  });
+
+  updateProgress();
+}
+
+/**
+ * Único lugar que decide se um caso entra no filtro. O DOM e os totalizadores
+ * leem daqui, senão a lista mostra um recorte e os números mostram outro.
+ */
+function noFiltro(caso, f) {
+  const feito = done.has(caso.id);
+  if (f === 'done') return feito;
+  if (f === 'pending') return !feito;
+  if (f === 'blocked') return !!caso.pendencia;
+  if (f === 'critica') return caso.severidade === 'Crítica';
+  if (f === 'automatizado') return !!caso.veredictoCi;
+  return true;
+}
+
+function visiveis() {
+  return DATA.filter((c) => [...filtrosAtivos].every((f) => noFiltro(c, f)));
+}
+
+function applyFilter() {
+  const dentro = new Set(visiveis().map((c) => c.id));
+  document.querySelectorAll('.case-item').forEach((el) => {
+    el.classList.toggle('hidden', !dentro.has(el.dataset.id));
+  });
+  // Grupo sem nenhum caso no filtro sai da tela inteiro, em vez de virar um
+  // cabeçalho vazio anunciando "0 casos".
+  document.querySelectorAll('.file-section').forEach((secao) => {
+    const total = secao.querySelectorAll('.case-item').length;
+    const ocultos = secao.querySelectorAll('.case-item.hidden').length;
+    secao.classList.toggle('hidden', total > 0 && total === ocultos);
+  });
+}
+
+function updateProgress() {
+  // Tudo abaixo é contado sobre o recorte do filtro, não sobre a matriz
+  // inteira. Com "Críticos" ligado, 0/24 quer dizer nenhum dos 24 críticos,
+  // e o rótulo diz qual recorte está valendo para o número não ser lido
+  // como se a matriz tivesse encolhido.
+  const dentro = visiveis();
+  const count = dentro.filter((c) => done.has(c.id)).length;
+  const total = dentro.length;
+
+  document.getElementById('prog-count').textContent = count + '/' + total;
+  document.getElementById('prog-bar').style.width =
+    (total === 0 ? 0 : count / total * 100).toFixed(1) + '%';
+  // A ordem é a dos botões, e não a ordem em que foram clicados, para o
+  // rótulo ler igual sempre que a mesma combinação estiver ligada.
+  const rotulos = Object.keys(FILTRO_ROTULOS)
+    .filter((f) => filtrosAtivos.has(f))
+    .map((f) => FILTRO_ROTULOS[f]);
+  document.getElementById('prog-label').innerHTML = rotulos.length === 0
+    ? 'casos validados'
+    : 'casos validados<span class="filtro-ativo">' + rotulos.join(' + ') + '</span>';
+
+  // Sem nenhum caso no recorte, as duas linhas de estatística ficariam só
+  // com os títulos VADER e SEVERIDADE e nenhum número ao lado, parecendo
+  // defeito. Somem junto com a lista.
+  const estatisticas = document.querySelector('.stats-wrap');
+  if (estatisticas) estatisticas.style.display = total === 0 ? 'none' : '';
+
+  const vazio = document.getElementById('vazio');
+  if (vazio) {
+    vazio.classList.toggle('hidden', total > 0);
+    vazio.textContent = 'Nenhum caso combina com ' + (rotulos.length > 1
+      ? 'a combinação ' + rotulos.join(' + ') + '.'
+      : 'este filtro.');
+  }
+
+  const montar = (campo, cores, rotulos, alvo) => {
+    const feitos = {}; const totais = {};
+    dentro.forEach((c) => {
+      const chave = c[campo];
+      if (!chave) return;
+      totais[chave] = (totais[chave] || 0) + 1;
+      if (done.has(c.id)) feitos[chave] = (feitos[chave] || 0) + 1;
+    });
+    document.getElementById(alvo).innerHTML = Object.keys(rotulos)
+      .filter((l) => totais[l])
+      .map((l) => '<span class="cat-stat"><span class="cat-dot" style="background:' + cores[l] + '"></span>'
+        + '<span style="color:' + cores[l] + '">' + rotulos[l] + '</span>'
+        + '<span>&nbsp;' + (feitos[l] || 0) + '/' + totais[l] + '</span></span>')
+      .join('');
+  };
+
+  montar('vader', VADER_COLORS, VADER_LABELS, 'stats-vader');
+  montar('severidade', SEV_COLORS, { 'Crítica': 'Crítica', 'Alta': 'Alta', 'Média': 'Média' }, 'stats-sev');
+
+  gruposOrdenados().forEach((grupo) => {
+    const casos = dentro.filter((c) => c.grupo === grupo);
+    const feitos = casos.filter((c) => done.has(c.id)).length;
+    const chave = idSeguro(grupo);
+
+    const contador = document.getElementById('cont-' + chave);
+    if (contador) contador.textContent = casos.length + (casos.length === 1 ? ' caso' : ' casos');
+
+    const el = document.getElementById('prog-' + chave);
+    if (el) {
+      el.textContent = casos.length > 0 && feitos === casos.length
+        ? 'Completo'
+        : feitos + '/' + casos.length;
+    }
+  });
+
+  applyFilter();
+}
+
+function confirmReset() {
+  if (!confirm('Zerar todo o progresso, os veredictos e as observações registradas? Essa ação não pode ser desfeita.')) return;
+  done.clear(); results = {}; verdicts = {};
+  gravar(STORAGE_KEY, []); gravar(RESULTS_KEY, {}); gravar(VERDICT_KEY, {});
+  render();
+}
+
+function exportarCsv() {
+  const cabecalho = ['id', 'grupo', 'arquivo', 'endpoint', 'metodo', 'vader', 'severidade', 'titulo',
+    'veredicto_ci', 'validado', 'veredicto', 'observado'];
+  const escapar = (v) => {
+    const texto = String(v == null ? '' : v);
+    return /[;"\n]/.test(texto) ? '"' + texto.replace(/"/g, '""') + '"' : texto;
+  };
+  const linhas = DATA.map((c) => [
+    c.id, c.grupo, c.arquivo, c.endpoint, c.metodo, c.vader, c.severidade, c.titulo,
+    c.veredictoCi || '',
+    done.has(c.id) ? 'sim' : 'nao',
+    verdicts[c.id] || '',
+    results[c.id] || ''
+  ].map(escapar).join(';'));
+
+  const conteudo = '\uFEFF' + [cabecalho.join(';'), ...linhas].join('\r\n');
+  const blob = new Blob([conteudo], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'evidencias_execucao_cozinha.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+const GRUPOS = {"AUTH":"/auth/login","PEDIDOS":"/pedidos","PEDIDO-ID":"/pedidos/{id}","RESUMO":"/pedidos/resumo","STATUS":"/pedidos/{id}/status","HEALTH":"/health","GERAL":"Todos os endpoints","CARGA":"Carga e concorrência"};
+
+/**
+ * A ordem das seções é a da declaração de GRUPOS, que segue o caminho do
+ * endpoint, e não a ordem em que os grupos aparecem na matriz. Grupo que
+ * apareça na matriz sem estar declarado vai para o fim, em vez de sumir.
+ */
+function gruposOrdenados() {
+  const presentes = new Set(DATA.map((c) => c.grupo));
+  return Object.keys(GRUPOS).filter((g) => presentes.has(g))
+    .concat([...presentes].filter((g) => !Object.prototype.hasOwnProperty.call(GRUPOS, g)));
+}
+
+function render() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+
+  gruposOrdenados().forEach((grupo) => {
+    const casos = DATA.filter((c) => c.grupo === grupo);
+    const chave = idSeguro(grupo);
+
+    const secao = document.createElement('div');
+    secao.className = 'file-section';
+    secao.innerHTML =
+      '<div class="file-header" onclick="this.parentElement.classList.toggle(\'open\')">'
+      + '<span class="file-path">' + escapeHtml(grupo) + '</span>'
+      + '<span class="file-desc">' + escapeHtml(GRUPOS[grupo] || '') + '</span>'
+      + '<span class="file-count" id="cont-' + chave + '">' + casos.length + ' casos</span>'
+      + '<span class="file-progress" id="prog-' + chave + '">0/' + casos.length + '</span>'
+      + '<span class="file-chevron">&#9654;</span>'
+      + '</div><div class="file-body"></div>';
+
+    const corpo = secao.querySelector('.file-body');
+
+    casos.forEach((c) => {
+      const feito = done.has(c.id);
+      const temResultado = !!(results[c.id] && results[c.id].trim());
+      const bloqueado = !!c.pendencia;
+
+      const item = document.createElement('div');
+      item.className = 'case-item' + (feito ? ' done' : '') + (temResultado ? ' has-result' : '');
+      item.dataset.id = c.id;
+      item.dataset.blocked = bloqueado ? '1' : '0';
+      item.dataset.severidade = c.severidade;
+      item.dataset.ci = c.veredictoCi || '';
+
+      const linha = (rotulo, valor, classe) => valor
+        ? '<div class="detail-row"><span class="detail-label">' + rotulo + '</span>'
+          + '<span class="detail-value' + (classe ? ' ' + classe : '') + '">' + valor + '</span></div>'
+        : '';
+
+      const botoes = VERDICTS.map((v) => {
+        const sel = verdicts[c.id] === v ? ' sel-' + v.toLowerCase() : '';
+        return '<button class="verdict-btn' + sel + '" data-valor="' + v + '" '
+          + 'onclick="event.stopPropagation(); setVerdict(\'' + c.id + '\', \'' + v + '\', this)">' + v + '</button>';
+      }).join('');
+
+      item.innerHTML =
+        '<div class="case-check" onclick="event.stopPropagation(); toggleCase(\'' + c.id + '\', this.closest(\'.case-item\'))">'
+        + '<span class="case-check-tick">&#10003;</span></div>'
+        + '<div class="case-content">'
+        + '<div class="case-top">'
+        + '<span class="case-id">' + c.id + '</span>'
+        + '<span class="method-badge method-' + c.metodo + '">' + (c.metodo === 'OTHER' ? 'VÁRIOS' : c.metodo) + '</span>'
+        + (c.vader ? '<span class="heur-badge vader-' + c.vader + '" title="VADER">' + c.vader + '</span>' : '')
+        + '<span class="sev-badge sev-' + semAcento(c.severidade) + '">' + c.severidade + '</span>'
+        + (c.veredictoCi ? '<span class="ci-badge ci-' + c.veredictoCi + '" title="Última execução no CI">CI ' + c.veredictoCi + '</span>' : '')
+        + (bloqueado ? '<span class="pend-badge">bloqueado</span>' : '')
+        + '<span class="result-dot" title="Observação registrada"></span>'
+        + '<span class="case-title">' + escapeHtml(c.titulo) + '</span>'
+        + '</div>'
+        + '<div class="case-details">'
+        + linha('Endpoint', '<code>' + escapeHtml(c.endpoint) + '</code>')
+        + linha('Arquivo', '<code>' + escapeHtml(c.arquivo) + '</code>')
+        + linha('Descrição', escapeHtml(c.descricao))
+        + linha('Ação', escapeHtml(c.acao))
+        + linha('Dados', '<code>' + escapeHtml(c.dadosEntrada) + '</code>')
+        + linha('Esperado', escapeHtml(c.esperado))
+        + linha('Lacuna', escapeHtml(c.lacuna), 'warn')
+        + linha('Pendência', escapeHtml(c.pendencia), 'warn')
+        + linha('Nota', escapeHtml(c.nota))
+        + linha('Última execução', c.veredictoCi ? escapeHtml(c.veredictoCi + '. ' + (c.observacaoCi || '')) : '')
+        + linha('Comando', '<code>' + escapeHtml(c.comando) + '</code>')
+        + '<div class="detail-row"><span class="detail-label">Veredicto</span>'
+        + '<span class="detail-value"><span class="verdict-group">' + botoes + '</span></span></div>'
+        + '<div class="detail-row"><span class="detail-label">Obtido</span>'
+        + '<span class="detail-value"><textarea class="result-input" placeholder="Registre o status e o corpo observados na execução deste caso..." '
+        + 'onclick="event.stopPropagation()" oninput="saveResult(\'' + c.id + '\', this)">'
+        + escapeHtml(results[c.id] || '') + '</textarea></span></div>'
+        + '</div>'
+        + '<div class="expand-hint">Clique para ver detalhes</div>'
+        + '</div>';
+
+      item.addEventListener('click', (e) => toggleDetails(item, e));
+      corpo.appendChild(item);
+    });
+
+    main.appendChild(secao);
+  });
+
+  updateProgress();
+}
+
+render();
+</script>
+</body>
+</html>

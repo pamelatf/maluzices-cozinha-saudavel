@@ -1,0 +1,1180 @@
+{
+  "uuid": "5d30b5d9-11a6-4136-bbe9-9ee377ad8df0",
+  "lastMigration": 33,
+  "name": "API de Pedidos — Cozinha de Comida Saudável",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 8081,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "80cdbeeb-cbe6-4463-82c9-85d08f04d7d4",
+      "type": "http",
+      "documentation": "Cria um novo pedido",
+      "method": "post",
+      "endpoint": "pedidos",
+      "responses": [
+        {
+          "uuid": "14ef2dc1-1fbe-437c-a29c-0e477479d979",
+          "body": "{\n  \"id\": 6,\n  \"cliente\": \"Maria Souza\",\n  \"observacao\": \"Sem cebola\",\n  \"status\": \"RECEBIDO\",\n  \"valorTotal\": 57.8,\n  \"criadoEm\": \"2026-08-05T09:00:00.000Z\",\n  \"atualizadoEm\": \"2026-08-05T09:00:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 9,\n      \"nome\": \"Bowl de quinoa\",\n      \"quantidade\": 2,\n      \"precoUnitario\": 28.9\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 201,
+          "label": "Pedido criado (valorTotal FIXO - Mockoon nao recalcula a soma de verdade)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "7bcba3e3-6fe6-402b-a4e1-907a79049864",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"VALIDACAO\",\n    \"mensagem\": \"Payload inválido.\",\n    \"detalhes\": [\n      {\n        \"campo\": \"cliente\",\n        \"problema\": \"Campo obrigatório.\"\n      }\n    ]\n  }\n}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "cliente ausente ou vazio",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "cliente",
+              "value": ".+",
+              "invert": true,
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "8a71c046-5ceb-4819-8464-a2b5e0ca67f5",
+      "type": "http",
+      "documentation": "Lista pedidos",
+      "method": "get",
+      "endpoint": "pedidos",
+      "responses": [
+        {
+          "uuid": "e71441c8-0810-4d52-b3fa-a1d8e33698c1",
+          "body": "[\n  {\n    \"id\": 1,\n    \"cliente\": \"Ana Paula Ribeiro\",\n    \"observacao\": null,\n    \"status\": \"RECEBIDO\",\n    \"valorTotal\": 41.4,\n    \"criadoEm\": \"2026-08-04T12:00:00.000Z\",\n    \"atualizadoEm\": \"2026-08-04T12:00:00.000Z\",\n    \"itens\": [\n      {\n        \"id\": 1,\n        \"nome\": \"Bowl de quinoa com legumes\",\n        \"quantidade\": 1,\n        \"precoUnitario\": 28.9\n      },\n      {\n        \"id\": 2,\n        \"nome\": \"Suco verde detox\",\n        \"quantidade\": 1,\n        \"precoUnitario\": 12.5\n      }\n    ]\n  },\n  {\n    \"id\": 2,\n    \"cliente\": \"Beatriz Fernandes\",\n    \"observacao\": null,\n    \"status\": \"EM_PREPARO\",\n    \"valorTotal\": 33.5,\n    \"criadoEm\": \"2026-08-04T12:05:00.000Z\",\n    \"atualizadoEm\": \"2026-08-04T12:20:00.000Z\",\n    \"itens\": [\n      {\n        \"id\": 3,\n        \"nome\": \"Salada caesar fit\",\n        \"quantidade\": 1,\n        \"precoUnitario\": 26.5\n      },\n      {\n        \"id\": 4,\n        \"nome\": \"Água de coco\",\n        \"quantidade\": 1,\n        \"precoUnitario\": 7\n      }\n    ]\n  },\n  {\n    \"id\": 3,\n    \"cliente\": \"Diego Almeida\",\n    \"observacao\": null,\n    \"status\": \"PRONTO\",\n    \"valorTotal\": 32.9,\n    \"criadoEm\": \"2026-08-04T12:10:00.000Z\",\n    \"atualizadoEm\": \"2026-08-04T12:30:00.000Z\",\n    \"itens\": [\n      {\n        \"id\": 5,\n        \"nome\": \"Marmita fitness de frango\",\n        \"quantidade\": 1,\n        \"precoUnitario\": 32.9\n      }\n    ]\n  },\n  {\n    \"id\": 4,\n    \"cliente\": \"Fernanda Costa\",\n    \"observacao\": \"Entregar até 12h\",\n    \"status\": \"ENTREGUE\",\n    \"valorTotal\": 45,\n    \"criadoEm\": \"2026-08-04T11:30:00.000Z\",\n    \"atualizadoEm\": \"2026-08-04T12:40:00.000Z\",\n    \"itens\": [\n      {\n        \"id\": 6,\n        \"nome\": \"Bowl havaiano de salmão\",\n        \"quantidade\": 1,\n        \"precoUnitario\": 36\n      },\n      {\n        \"id\": 7,\n        \"nome\": \"Chá gelado natural\",\n        \"quantidade\": 1,\n        \"precoUnitario\": 9\n      }\n    ]\n  },\n  {\n    \"id\": 5,\n    \"cliente\": \"Gustavo Martins\",\n    \"observacao\": null,\n    \"status\": \"CANCELADO\",\n    \"valorTotal\": 18,\n    \"criadoEm\": \"2026-08-04T11:00:00.000Z\",\n    \"atualizadoEm\": \"2026-08-04T11:45:00.000Z\",\n    \"itens\": [\n      {\n        \"id\": 8,\n        \"nome\": \"Sopa de legumes\",\n        \"quantidade\": 1,\n        \"precoUnitario\": 18\n      }\n    ]\n  }\n]",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Lista de pedidos (fixture fixo, nao filtra por status de verdade)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "c734a06d-9512-4254-a069-00ce06e14c2b",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"STATUS_INVALIDO\",\n    \"mensagem\": \"Status '{{queryParam 'status'}}' não é válido.\",\n    \"detalhes\": []\n  }\n}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "Status de filtro inválido",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "query",
+              "modifier": "status",
+              "value": ".+",
+              "invert": false,
+              "operator": "regex"
+            },
+            {
+              "target": "query",
+              "modifier": "status",
+              "value": "^(RECEBIDO|EM_PREPARO|PRONTO|ENTREGUE|CANCELADO)$",
+              "invert": true,
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "070fc874-dfe5-4363-8928-42193a00cef9",
+      "type": "http",
+      "documentation": "Resumo de pedidos por status",
+      "method": "get",
+      "endpoint": "pedidos/resumo",
+      "responses": [
+        {
+          "uuid": "b713484c-13fe-4448-809b-705dbf491cad",
+          "body": "{\n  \"RECEBIDO\": 1,\n  \"EM_PREPARO\": 1,\n  \"PRONTO\": 1,\n  \"ENTREGUE\": 1,\n  \"CANCELADO\": 1\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Contagem por status (fixa)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "740310dd-f999-47da-903f-51294c9a726d",
+      "type": "http",
+      "documentation": "Busca um pedido pelo id",
+      "method": "get",
+      "endpoint": "pedidos/:id",
+      "responses": [
+        {
+          "uuid": "3cb536fb-f84b-45b3-9b95-96fdcb7eefe6",
+          "body": "{\n  \"id\": 1,\n  \"cliente\": \"Ana Paula Ribeiro\",\n  \"observacao\": null,\n  \"status\": \"RECEBIDO\",\n  \"valorTotal\": 41.4,\n  \"criadoEm\": \"2026-08-04T12:00:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:00:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 1,\n      \"nome\": \"Bowl de quinoa com legumes\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 28.9\n    },\n    {\n      \"id\": 2,\n      \"nome\": \"Suco verde detox\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 12.5\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 1 encontrado (RECEBIDO)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "1",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "39dac9db-1b18-415b-884d-f2a6422478c8",
+          "body": "{\n  \"id\": 2,\n  \"cliente\": \"Beatriz Fernandes\",\n  \"observacao\": null,\n  \"status\": \"EM_PREPARO\",\n  \"valorTotal\": 33.5,\n  \"criadoEm\": \"2026-08-04T12:05:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:20:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 3,\n      \"nome\": \"Salada caesar fit\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 26.5\n    },\n    {\n      \"id\": 4,\n      \"nome\": \"Água de coco\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 7\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 2 encontrado (EM_PREPARO)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "2",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "202a1cf0-73b8-4337-b5a0-03dfad6bb784",
+          "body": "{\n  \"id\": 3,\n  \"cliente\": \"Diego Almeida\",\n  \"observacao\": null,\n  \"status\": \"PRONTO\",\n  \"valorTotal\": 32.9,\n  \"criadoEm\": \"2026-08-04T12:10:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:30:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 5,\n      \"nome\": \"Marmita fitness de frango\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 32.9\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 3 encontrado (PRONTO)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "3",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "42cc5cf5-7163-44a7-ab87-e519396c13aa",
+          "body": "{\n  \"id\": 4,\n  \"cliente\": \"Fernanda Costa\",\n  \"observacao\": \"Entregar até 12h\",\n  \"status\": \"ENTREGUE\",\n  \"valorTotal\": 45,\n  \"criadoEm\": \"2026-08-04T11:30:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:40:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 6,\n      \"nome\": \"Bowl havaiano de salmão\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 36\n    },\n    {\n      \"id\": 7,\n      \"nome\": \"Chá gelado natural\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 9\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 4 encontrado (ENTREGUE)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "4",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "e686e78b-bc6e-4995-9795-b9918c92dc4d",
+          "body": "{\n  \"id\": 5,\n  \"cliente\": \"Gustavo Martins\",\n  \"observacao\": null,\n  \"status\": \"CANCELADO\",\n  \"valorTotal\": 18,\n  \"criadoEm\": \"2026-08-04T11:00:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T11:45:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 8,\n      \"nome\": \"Sopa de legumes\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 18\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 5 encontrado (CANCELADO)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "5",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "91bad317-4e73-4ca8-865d-693353941319",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"PEDIDO_NAO_ENCONTRADO\",\n    \"mensagem\": \"Pedido {{urlParam 'id'}} não existe.\",\n    \"detalhes\": []\n  }\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "Pedido não encontrado (fallback)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "1309fbac-b5aa-4000-874e-b6bb754ccfca",
+      "type": "http",
+      "documentation": "Cancela um pedido",
+      "method": "delete",
+      "endpoint": "pedidos/:id",
+      "responses": [
+        {
+          "uuid": "0dc26110-95ca-418c-a4ba-e1188e35ce2e",
+          "body": "{\n  \"id\": 1,\n  \"cliente\": \"Ana Paula Ribeiro\",\n  \"observacao\": null,\n  \"status\": \"CANCELADO\",\n  \"valorTotal\": 41.4,\n  \"criadoEm\": \"2026-08-04T12:00:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:00:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 1,\n      \"nome\": \"Bowl de quinoa com legumes\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 28.9\n    },\n    {\n      \"id\": 2,\n      \"nome\": \"Suco verde detox\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 12.5\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 1 cancelado (estava RECEBIDO)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "1",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "de8e1c7c-6aad-4dce-9355-3fba26885fa8",
+          "body": "{\n  \"id\": 2,\n  \"cliente\": \"Beatriz Fernandes\",\n  \"observacao\": null,\n  \"status\": \"CANCELADO\",\n  \"valorTotal\": 33.5,\n  \"criadoEm\": \"2026-08-04T12:05:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:20:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 3,\n      \"nome\": \"Salada caesar fit\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 26.5\n    },\n    {\n      \"id\": 4,\n      \"nome\": \"Água de coco\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 7\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 2 cancelado (estava EM_PREPARO)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "2",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "af54944b-35cd-429d-8495-52310a8ad3de",
+          "body": "{\n  \"id\": 3,\n  \"cliente\": \"Diego Almeida\",\n  \"observacao\": null,\n  \"status\": \"CANCELADO\",\n  \"valorTotal\": 32.9,\n  \"criadoEm\": \"2026-08-04T12:10:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:30:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 5,\n      \"nome\": \"Marmita fitness de frango\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 32.9\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 3 cancelado (estava PRONTO)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "3",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "5b2fdbf1-ed86-4009-8def-38cbf1df7364",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"TRANSICAO_INVALIDA\",\n    \"mensagem\": \"Pedido 4 já está ENTREGUE e não pode ser cancelado.\",\n    \"detalhes\": []\n  }\n}",
+          "latency": 0,
+          "statusCode": 409,
+          "label": "Pedido 4 (ENTREGUE) não pode ser cancelado",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "4",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "a4b63cb5-d3d2-4406-8de2-3d41cae22f1b",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"TRANSICAO_INVALIDA\",\n    \"mensagem\": \"Pedido 5 já está CANCELADO.\",\n    \"detalhes\": []\n  }\n}",
+          "latency": 0,
+          "statusCode": 409,
+          "label": "Pedido 5 (CANCELADO) já cancelado",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "5",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "31e568e9-5efc-42dc-8198-42839651ec27",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"PEDIDO_NAO_ENCONTRADO\",\n    \"mensagem\": \"Pedido {{urlParam 'id'}} não existe.\",\n    \"detalhes\": []\n  }\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "Pedido não encontrado (fallback)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "60b0bd25-e501-408c-872a-884003ab95ef",
+      "type": "http",
+      "documentation": "Avança ou retrocede o status do pedido",
+      "method": "patch",
+      "endpoint": "pedidos/:id/status",
+      "responses": [
+        {
+          "uuid": "03805313-fe4f-419b-bd48-04aff9aa7153",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"VALIDACAO\",\n    \"mensagem\": \"Payload inválido.\",\n    \"detalhes\": [\n      {\n        \"campo\": \"acao\",\n        \"problema\": \"Deve ser 'AVANCAR' ou 'RETROCEDER'.\"\n      }\n    ]\n  }\n}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "acao invalida (nao e AVANCAR nem RETROCEDER)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "acao",
+              "value": "^(AVANCAR|RETROCEDER)$",
+              "invert": true,
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "8f824bd8-1e12-497d-8349-73f2d1fc4010",
+          "body": "{\n  \"id\": 1,\n  \"cliente\": \"Ana Paula Ribeiro\",\n  \"observacao\": null,\n  \"status\": \"EM_PREPARO\",\n  \"valorTotal\": 41.4,\n  \"criadoEm\": \"2026-08-04T12:00:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:00:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 1,\n      \"nome\": \"Bowl de quinoa com legumes\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 28.9\n    },\n    {\n      \"id\": 2,\n      \"nome\": \"Suco verde detox\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 12.5\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 1 (RECEBIDO) avanca para EM_PREPARO",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "1",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "acao",
+              "value": "AVANCAR",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "01d2dd34-d960-46b0-abb2-4e8cdb9551e1",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"TRANSICAO_INVALIDA\",\n    \"mensagem\": \"Pedido 1 está RECEBIDO e não pode retroceder.\",\n    \"detalhes\": []\n  }\n}",
+          "latency": 0,
+          "statusCode": 409,
+          "label": "Pedido 1 (RECEBIDO) nao pode retroceder",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "1",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "acao",
+              "value": "RETROCEDER",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "2afa8bc8-f2de-4aa3-a606-abfd527829a0",
+          "body": "{\n  \"id\": 2,\n  \"cliente\": \"Beatriz Fernandes\",\n  \"observacao\": null,\n  \"status\": \"PRONTO\",\n  \"valorTotal\": 33.5,\n  \"criadoEm\": \"2026-08-04T12:05:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:20:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 3,\n      \"nome\": \"Salada caesar fit\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 26.5\n    },\n    {\n      \"id\": 4,\n      \"nome\": \"Água de coco\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 7\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 2 (EM_PREPARO) avanca para PRONTO",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "2",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "acao",
+              "value": "AVANCAR",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "f7aa5823-fac2-4f4b-acb9-e14f5499e92a",
+          "body": "{\n  \"id\": 2,\n  \"cliente\": \"Beatriz Fernandes\",\n  \"observacao\": null,\n  \"status\": \"RECEBIDO\",\n  \"valorTotal\": 33.5,\n  \"criadoEm\": \"2026-08-04T12:05:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:20:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 3,\n      \"nome\": \"Salada caesar fit\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 26.5\n    },\n    {\n      \"id\": 4,\n      \"nome\": \"Água de coco\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 7\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 2 (EM_PREPARO) retrocede para RECEBIDO",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "2",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "acao",
+              "value": "RETROCEDER",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "9ccd80de-164a-49f8-8079-21d068d7c86e",
+          "body": "{\n  \"id\": 3,\n  \"cliente\": \"Diego Almeida\",\n  \"observacao\": null,\n  \"status\": \"ENTREGUE\",\n  \"valorTotal\": 32.9,\n  \"criadoEm\": \"2026-08-04T12:10:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:30:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 5,\n      \"nome\": \"Marmita fitness de frango\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 32.9\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 3 (PRONTO) avanca para ENTREGUE",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "3",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "acao",
+              "value": "AVANCAR",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "42d0f863-52f4-48cb-80a4-7f79ae90513b",
+          "body": "{\n  \"id\": 3,\n  \"cliente\": \"Diego Almeida\",\n  \"observacao\": null,\n  \"status\": \"EM_PREPARO\",\n  \"valorTotal\": 32.9,\n  \"criadoEm\": \"2026-08-04T12:10:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:30:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 5,\n      \"nome\": \"Marmita fitness de frango\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 32.9\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 3 (PRONTO) retrocede para EM_PREPARO",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "3",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "acao",
+              "value": "RETROCEDER",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "b210a7ca-8788-450e-b9ae-63b15b1cb729",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"TRANSICAO_INVALIDA\",\n    \"mensagem\": \"Pedido 4 está ENTREGUE e não pode avançar.\",\n    \"detalhes\": []\n  }\n}",
+          "latency": 0,
+          "statusCode": 409,
+          "label": "Pedido 4 (ENTREGUE) nao pode avancar",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "4",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "acao",
+              "value": "AVANCAR",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "f29c1e94-e99f-4ab8-9ebc-b70d8fcfa3ff",
+          "body": "{\n  \"id\": 4,\n  \"cliente\": \"Fernanda Costa\",\n  \"observacao\": \"Entregar até 12h\",\n  \"status\": \"PRONTO\",\n  \"valorTotal\": 45,\n  \"criadoEm\": \"2026-08-04T11:30:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:40:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 6,\n      \"nome\": \"Bowl havaiano de salmão\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 36\n    },\n    {\n      \"id\": 7,\n      \"nome\": \"Chá gelado natural\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 9\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Pedido 4 (ENTREGUE) retrocede para PRONTO",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "4",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "acao",
+              "value": "RETROCEDER",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "4a120e12-c66b-4ec6-bf02-0f33772b0bf0",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"TRANSICAO_INVALIDA\",\n    \"mensagem\": \"Pedido 5 está CANCELADO e não pode avançar.\",\n    \"detalhes\": []\n  }\n}",
+          "latency": 0,
+          "statusCode": 409,
+          "label": "Pedido 5 (CANCELADO) nao pode AVANCAR",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "5",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "acao",
+              "value": "AVANCAR",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "13ffcf27-aba5-411a-8e57-07e602d80468",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"TRANSICAO_INVALIDA\",\n    \"mensagem\": \"Pedido 5 está CANCELADO e não pode retroceder.\",\n    \"detalhes\": []\n  }\n}",
+          "latency": 0,
+          "statusCode": 409,
+          "label": "Pedido 5 (CANCELADO) nao pode RETROCEDER",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "5",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "acao",
+              "value": "RETROCEDER",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "d6b5d528-bb47-46d5-b8cc-0f43f5989a36",
+          "body": "{\n  \"erro\": {\n    \"codigo\": \"PEDIDO_NAO_ENCONTRADO\",\n    \"mensagem\": \"Pedido {{urlParam 'id'}} não existe.\",\n    \"detalhes\": []\n  }\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "Pedido nao encontrado",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "999",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "68f287ad-859b-4db2-bd95-23f473b3a1be",
+          "body": "{\n  \"id\": 1,\n  \"cliente\": \"Ana Paula Ribeiro\",\n  \"observacao\": null,\n  \"status\": \"EM_PREPARO\",\n  \"valorTotal\": 41.4,\n  \"criadoEm\": \"2026-08-04T12:00:00.000Z\",\n  \"atualizadoEm\": \"2026-08-04T12:00:00.000Z\",\n  \"itens\": [\n    {\n      \"id\": 1,\n      \"nome\": \"Bowl de quinoa com legumes\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 28.9\n    },\n    {\n      \"id\": 2,\n      \"nome\": \"Suco verde detox\",\n      \"quantidade\": 1,\n      \"precoUnitario\": 12.5\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Fallback generico (id fora do fixture 1-5)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "f3ea6394-591d-4729-abbe-8c7fd36afe5e",
+      "type": "http",
+      "documentation": "Verifica se a API está no ar",
+      "method": "get",
+      "endpoint": "health",
+      "responses": [
+        {
+          "uuid": "e98e3bfc-7d51-46fd-86fe-ceb12424830d",
+          "body": "{\n  \"status\": \"ok\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "API saudável",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "80cdbeeb-cbe6-4463-82c9-85d08f04d7d4"
+    },
+    {
+      "type": "route",
+      "uuid": "8a71c046-5ceb-4819-8464-a2b5e0ca67f5"
+    },
+    {
+      "type": "route",
+      "uuid": "070fc874-dfe5-4363-8928-42193a00cef9"
+    },
+    {
+      "type": "route",
+      "uuid": "740310dd-f999-47da-903f-51294c9a726d"
+    },
+    {
+      "type": "route",
+      "uuid": "1309fbac-b5aa-4000-874e-b6bb754ccfca"
+    },
+    {
+      "type": "route",
+      "uuid": "60b0bd25-e501-408c-872a-884003ab95ef"
+    },
+    {
+      "type": "route",
+      "uuid": "f3ea6394-591d-4729-abbe-8c7fd36afe5e"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}

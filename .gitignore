@@ -5,3 +5,8 @@ dist/
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
+
+# suíte de testes
+mochawesome-report/
+config/config.local.json
+.claude/

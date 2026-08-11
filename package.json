@@ -1,7 +1,7 @@
 {
   "name": "cozinha-pedidos-api",
   "version": "1.0.0",
-  "description": "API REST para controle de pedidos de uma cozinha de comida saudável",
+  "description": "API REST para controle de pedidos de uma cozinha de comida saudável, com a suíte de testes de API no mesmo repositório",
   "main": "dist/server.js",
   "private": true,
   "scripts": {
@@ -11,7 +11,8 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx --env-file=.env prisma/seed.ts",
     "seed": "tsx --env-file=.env prisma/seedUsuario.ts",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "mocha --reporter mochawesome"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -32,8 +33,13 @@
     "@types/swagger-ui-express": "^4.1.6",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
+    "chai": "^6.2.2",
+    "dotenv": "^17.4.2",
     "eslint": "^8.57.0",
+    "mocha": "^11.8.0",
+    "mochawesome": "^8.0.1",
     "prisma": "^5.19.1",
+    "supertest": "^7.2.2",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4"
   }
