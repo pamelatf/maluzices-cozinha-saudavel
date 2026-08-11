@@ -49,7 +49,7 @@
  * evita que o script saia procurando issues por título e encoste em alguma de
  * defeito por engano:
  *
- *   CAMINHO_CARDS=/c/projetos/cozinha-tests.wiki/cards-criados.json \
+ *   CAMINHO_CARDS=/c/projetos/maluzices-cozinha-saudavel.wiki/cards-criados.json \
  *     node scripts/reagruparPorEndpoint.js --csv --executar
  */
 
@@ -63,7 +63,7 @@ const { execFileSync } = require('node:child_process');
 // Configuração
 // ---------------------------------------------------------------------------
 
-const REPOSITORIO = process.env.REPOSITORIO || 'pamelatf/cozinha-tests';
+const REPOSITORIO = process.env.REPOSITORIO || 'pamelatf/maluzices-cozinha-saudavel';
 const RAIZ = path.join(__dirname, '..');
 
 const CAMINHO_MATRIZ =

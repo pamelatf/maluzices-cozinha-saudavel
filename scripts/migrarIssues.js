@@ -75,11 +75,16 @@ const SO_MAPA = argumentos.includes('--mapa');
 // gh
 // ---------------------------------------------------------------------------
 
+/**
+ * silencioso: false herda a saída de erro, true descarta, 'capturar' guarda o
+ * texto no erro lançado, que é o que permite explicar a falha linha a linha.
+ */
 function gh(args, silencioso = false) {
+  const erro = silencioso === 'capturar' ? 'pipe' : silencioso ? 'ignore' : 'inherit';
   return execFileSync('gh', args, {
     encoding: 'utf8',
     maxBuffer: 32 * 1024 * 1024,
-    stdio: silencioso ? ['ignore', 'pipe', 'ignore'] : ['ignore', 'pipe', 'inherit'],
+    stdio: ['ignore', 'pipe', erro],
   }).trim();
 }
 
@@ -142,6 +147,12 @@ function reescreverCards(progresso) {
     console.warn('Aviso: cards-criados.json não encontrado, o mapa não foi reescrito.');
     return;
   }
+  // Sem nenhuma transferência registrada, o mapa sairia vazio. Gravar um
+  // arquivo vazio por cima de um mapa bom é pior que não gravar nada.
+  if (Object.keys(progresso).length === 0) {
+    console.warn('\nNenhuma transferência registrada, então o mapa não foi tocado.');
+    return;
+  }
 
   const cards = JSON.parse(fs.readFileSync(CAMINHO_CARDS, 'utf8'));
   const novo = {};
@@ -171,9 +182,10 @@ function reescreverCards(progresso) {
   console.log(`\nMapa gravado em ${CAMINHO_CARDS_NOVO} com ${Object.keys(novo).length} entradas.`);
 
   if (semCorrespondencia.length > 0) {
-    console.warn(
-      `  ${semCorrespondencia.length} casos ficaram sem número novo: ${semCorrespondencia.join(', ')}`,
-    );
+    const amostra = semCorrespondencia.slice(0, 8).join(', ');
+    const resto = semCorrespondencia.length > 8 ? `, e mais ${semCorrespondencia.length - 8}` : '';
+    console.warn(`  ${semCorrespondencia.length} casos ficaram sem número novo: ${amostra}${resto}.`);
+    console.warn('  Rode de novo para transferir o que faltou, e depois --mapa para refazer o mapa.');
   }
 }
 
@@ -229,7 +241,12 @@ function principal() {
   for (const [indice, issue] of pendentes.entries()) {
     const posicao = `${String(indice + 1).padStart(3, ' ')}/${pendentes.length}`;
     try {
-      const saida = gh(['issue', 'transfer', String(issue.number), DESTINO], true);
+      // O --repo é obrigatório: sem ele o gh usa o repositório da pasta atual
+      // como origem, e o script roda de dentro do repositório de destino.
+      const saida = gh(
+        ['issue', 'transfer', String(issue.number), DESTINO, '--repo', ORIGEM],
+        'capturar',
+      );
       const numeroNovo = numeroDaUrl(saida);
       if (!numeroNovo) {
         falhas.push(`#${issue.number} (resposta inesperada: ${saida.slice(0, 60)})`);
@@ -243,8 +260,22 @@ function principal() {
         console.log(`${posicao} #${issue.number} -> #${numeroNovo}`);
       }
     } catch (erro) {
-      falhas.push(`#${issue.number}: ${erro.message.split('\n')[0]}`);
-      console.warn(`${posicao} falhou em #${issue.number}`);
+      // O motivo vai na própria linha, e não só no resumo do fim: falha em
+      // série sem explicação faz perder minutos até descobrir a causa.
+      const motivo = (erro.stderr || erro.message || '')
+        .toString().split('\n').map((l) => l.trim())
+        .filter((l) => l && !l.startsWith('Usage:'))[0] || 'motivo desconhecido';
+      falhas.push(`#${issue.number}: ${motivo}`);
+      console.warn(`${posicao} falhou em #${issue.number}: ${motivo}`);
+      if (transferidas === 0 && indice >= 2) {
+        console.error(
+          '\nTrês falhas seguidas logo no começo, então o problema é de ambiente, ' +
+            'não das issues. Parando aqui em vez de tentar as outras.\n' +
+            'Confira se as Issues estão ativadas no destino, em Settings, General, ' +
+            'Features, e o escopo do token com gh auth status.',
+        );
+        break;
+      }
     }
     esperar(PAUSA_MS);
   }

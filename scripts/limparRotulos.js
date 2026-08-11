@@ -51,7 +51,7 @@ const { execFileSync } = require('node:child_process');
 // Configuração
 // ---------------------------------------------------------------------------
 
-const REPOSITORIO = process.env.REPOSITORIO || 'pamelatf/cozinha-tests';
+const REPOSITORIO = process.env.REPOSITORIO || 'pamelatf/maluzices-cozinha-saudavel';
 
 const argumentos = process.argv.slice(2);
 const EXECUTAR = argumentos.includes('--executar');

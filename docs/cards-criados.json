@@ -1,0 +1,632 @@
+{
+  "CRIT-33.7": {
+    "numero": 6,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/6",
+    "numeroAnterior": 9
+  },
+  "CRIT-41": {
+    "numero": 7,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/7",
+    "numeroAnterior": 10
+  },
+  "CRIT-42.1": {
+    "numero": 8,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/8",
+    "numeroAnterior": 11
+  },
+  "CRIT-42.3": {
+    "numero": 9,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/9",
+    "numeroAnterior": 12
+  },
+  "CRIT-42.5": {
+    "numero": 1,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/1",
+    "numeroAnterior": 13
+  },
+  "CRIT-42.6": {
+    "numero": 10,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/10",
+    "numeroAnterior": 14
+  },
+  "CRIT-42.7": {
+    "numero": 11,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/11",
+    "numeroAnterior": 15
+  },
+  "CRIT-43.1": {
+    "numero": 12,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/12",
+    "numeroAnterior": 16
+  },
+  "CRIT-43.2": {
+    "numero": 13,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/13",
+    "numeroAnterior": 17
+  },
+  "CRIT-46": {
+    "numero": 14,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/14",
+    "numeroAnterior": 18
+  },
+  "CRIT-47.2": {
+    "numero": 15,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/15",
+    "numeroAnterior": 19
+  },
+  "CRIT-48": {
+    "numero": 16,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/16",
+    "numeroAnterior": 20
+  },
+  "CRIT-49.1": {
+    "numero": 17,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/17",
+    "numeroAnterior": 21
+  },
+  "CRIT-49.2": {
+    "numero": 18,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/18",
+    "numeroAnterior": 22
+  },
+  "CRIT-01": {
+    "numero": 19,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/19",
+    "numeroAnterior": 23
+  },
+  "CRIT-02": {
+    "numero": 20,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/20",
+    "numeroAnterior": 24
+  },
+  "CRIT-03.1": {
+    "numero": 21,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/21",
+    "numeroAnterior": 25
+  },
+  "CRIT-03.2": {
+    "numero": 22,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/22",
+    "numeroAnterior": 26
+  },
+  "CRIT-03.3": {
+    "numero": 23,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/23",
+    "numeroAnterior": 27
+  },
+  "CRIT-04.1": {
+    "numero": 24,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/24",
+    "numeroAnterior": 28
+  },
+  "CRIT-04.2": {
+    "numero": 25,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/25",
+    "numeroAnterior": 29
+  },
+  "CRIT-04.5": {
+    "numero": 26,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/26",
+    "numeroAnterior": 30
+  },
+  "CRIT-05.1": {
+    "numero": 27,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/27",
+    "numeroAnterior": 31
+  },
+  "CRIT-05.2": {
+    "numero": 28,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/28",
+    "numeroAnterior": 32
+  },
+  "CRIT-05.4": {
+    "numero": 29,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/29",
+    "numeroAnterior": 33
+  },
+  "CRIT-06.1": {
+    "numero": 30,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/30",
+    "numeroAnterior": 34
+  },
+  "CRIT-06.2": {
+    "numero": 31,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/31",
+    "numeroAnterior": 35
+  },
+  "CRIT-06.7": {
+    "numero": 32,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/32",
+    "numeroAnterior": 36
+  },
+  "CRIT-06.8": {
+    "numero": 33,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/33",
+    "numeroAnterior": 37
+  },
+  "CRIT-07.1": {
+    "numero": 34,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/34",
+    "numeroAnterior": 38
+  },
+  "CRIT-07.2": {
+    "numero": 35,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/35",
+    "numeroAnterior": 39
+  },
+  "CRIT-08.1": {
+    "numero": 36,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/36",
+    "numeroAnterior": 40
+  },
+  "CRIT-08.2": {
+    "numero": 37,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/37",
+    "numeroAnterior": 41
+  },
+  "CRIT-09.1": {
+    "numero": 38,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/38",
+    "numeroAnterior": 42
+  },
+  "CRIT-09.2": {
+    "numero": 39,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/39",
+    "numeroAnterior": 43
+  },
+  "CRIT-10.1": {
+    "numero": 40,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/40",
+    "numeroAnterior": 44
+  },
+  "CRIT-11": {
+    "numero": 41,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/41",
+    "numeroAnterior": 45
+  },
+  "CRIT-12.1": {
+    "numero": 42,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/42",
+    "numeroAnterior": 46
+  },
+  "CRIT-13.1": {
+    "numero": 43,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/43",
+    "numeroAnterior": 47
+  },
+  "CRIT-13.3": {
+    "numero": 44,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/44",
+    "numeroAnterior": 48
+  },
+  "CRIT-13.4": {
+    "numero": 45,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/45",
+    "numeroAnterior": 49
+  },
+  "CRIT-14.1": {
+    "numero": 46,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/46",
+    "numeroAnterior": 50
+  },
+  "CRIT-14.2": {
+    "numero": 47,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/47",
+    "numeroAnterior": 51
+  },
+  "CRIT-14.3": {
+    "numero": 48,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/48",
+    "numeroAnterior": 52
+  },
+  "CRIT-15.1": {
+    "numero": 49,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/49",
+    "numeroAnterior": 53
+  },
+  "CRIT-15.2": {
+    "numero": 50,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/50",
+    "numeroAnterior": 54
+  },
+  "CRIT-15.3": {
+    "numero": 51,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/51",
+    "numeroAnterior": 55
+  },
+  "CRIT-15.4": {
+    "numero": 52,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/52",
+    "numeroAnterior": 56
+  },
+  "CRIT-15.5": {
+    "numero": 53,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/53",
+    "numeroAnterior": 57
+  },
+  "CRIT-16.1": {
+    "numero": 54,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/54",
+    "numeroAnterior": 58
+  },
+  "CRIT-16.2": {
+    "numero": 55,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/55",
+    "numeroAnterior": 59
+  },
+  "CRIT-17": {
+    "numero": 56,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/56",
+    "numeroAnterior": 60
+  },
+  "CRIT-33.1": {
+    "numero": 57,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/57",
+    "numeroAnterior": 61
+  },
+  "CRIT-35.1": {
+    "numero": 58,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/58",
+    "numeroAnterior": 62
+  },
+  "PERF-02": {
+    "numero": 59,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/59",
+    "numeroAnterior": 63
+  },
+  "PERF-07.1": {
+    "numero": 60,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/60",
+    "numeroAnterior": 64
+  },
+  "CRIT-19.1": {
+    "numero": 61,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/61",
+    "numeroAnterior": 65
+  },
+  "CRIT-19.3": {
+    "numero": 62,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/62",
+    "numeroAnterior": 66
+  },
+  "CRIT-20.1": {
+    "numero": 63,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/63",
+    "numeroAnterior": 67
+  },
+  "CRIT-20.2": {
+    "numero": 64,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/64",
+    "numeroAnterior": 68
+  },
+  "CRIT-33.5": {
+    "numero": 65,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/65",
+    "numeroAnterior": 69
+  },
+  "PERF-03": {
+    "numero": 66,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/66",
+    "numeroAnterior": 70
+  },
+  "CRIT-18.1": {
+    "numero": 67,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/67",
+    "numeroAnterior": 71
+  },
+  "CRIT-18.2": {
+    "numero": 68,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/68",
+    "numeroAnterior": 72
+  },
+  "CRIT-18.4": {
+    "numero": 69,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/69",
+    "numeroAnterior": 73
+  },
+  "CRIT-29.1": {
+    "numero": 70,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/70",
+    "numeroAnterior": 74
+  },
+  "CRIT-30.1": {
+    "numero": 71,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/71",
+    "numeroAnterior": 75
+  },
+  "CRIT-30.2": {
+    "numero": 72,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/72",
+    "numeroAnterior": 76
+  },
+  "CRIT-31.1": {
+    "numero": 73,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/73",
+    "numeroAnterior": 77
+  },
+  "CRIT-32": {
+    "numero": 74,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/74",
+    "numeroAnterior": 78
+  },
+  "CRIT-33.3": {
+    "numero": 75,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/75",
+    "numeroAnterior": 79
+  },
+  "CRIT-50.1": {
+    "numero": 76,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/76",
+    "numeroAnterior": 80
+  },
+  "CRIT-51": {
+    "numero": 77,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/77",
+    "numeroAnterior": 81
+  },
+  "CRIT-52.1": {
+    "numero": 78,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/78",
+    "numeroAnterior": 82
+  },
+  "CRIT-52.2": {
+    "numero": 79,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/79",
+    "numeroAnterior": 83
+  },
+  "CRIT-53": {
+    "numero": 80,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/80",
+    "numeroAnterior": 84
+  },
+  "CRIT-54.1": {
+    "numero": 81,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/81",
+    "numeroAnterior": 85
+  },
+  "CRIT-55.1": {
+    "numero": 82,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/82",
+    "numeroAnterior": 86
+  },
+  "CRIT-55.3": {
+    "numero": 83,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/83",
+    "numeroAnterior": 87
+  },
+  "CRIT-55.5": {
+    "numero": 84,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/84",
+    "numeroAnterior": 88
+  },
+  "CRIT-55.7": {
+    "numero": 85,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/85",
+    "numeroAnterior": 89
+  },
+  "CRIT-56.1": {
+    "numero": 86,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/86",
+    "numeroAnterior": 90
+  },
+  "CRIT-57.1": {
+    "numero": 131,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/131",
+    "numeroAnterior": 135
+  },
+  "CRIT-21.1": {
+    "numero": 88,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/88",
+    "numeroAnterior": 92
+  },
+  "CRIT-21.2": {
+    "numero": 89,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/89",
+    "numeroAnterior": 93
+  },
+  "CRIT-21.3": {
+    "numero": 90,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/90",
+    "numeroAnterior": 94
+  },
+  "CRIT-22.1": {
+    "numero": 91,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/91",
+    "numeroAnterior": 95
+  },
+  "CRIT-22.2": {
+    "numero": 92,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/92",
+    "numeroAnterior": 96
+  },
+  "CRIT-23.1": {
+    "numero": 93,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/93",
+    "numeroAnterior": 97
+  },
+  "CRIT-24": {
+    "numero": 94,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/94",
+    "numeroAnterior": 98
+  },
+  "CRIT-25.1": {
+    "numero": 95,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/95",
+    "numeroAnterior": 99
+  },
+  "CRIT-26": {
+    "numero": 96,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/96",
+    "numeroAnterior": 100
+  },
+  "CRIT-27.1": {
+    "numero": 97,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/97",
+    "numeroAnterior": 101
+  },
+  "CRIT-27.2": {
+    "numero": 98,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/98",
+    "numeroAnterior": 102
+  },
+  "CRIT-28": {
+    "numero": 99,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/99",
+    "numeroAnterior": 103
+  },
+  "CRIT-33.4": {
+    "numero": 100,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/100",
+    "numeroAnterior": 104
+  },
+  "CRIT-33.6": {
+    "numero": 101,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/101",
+    "numeroAnterior": 105
+  },
+  "CRIT-33.8": {
+    "numero": 102,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/102",
+    "numeroAnterior": 106
+  },
+  "CRIT-33.9": {
+    "numero": 103,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/103",
+    "numeroAnterior": 107
+  },
+  "CRIT-33.10": {
+    "numero": 104,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/104",
+    "numeroAnterior": 108
+  },
+  "CRIT-34.1": {
+    "numero": 105,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/105",
+    "numeroAnterior": 109
+  },
+  "CRIT-34.2": {
+    "numero": 106,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/106",
+    "numeroAnterior": 110
+  },
+  "CRIT-47.4": {
+    "numero": 107,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/107",
+    "numeroAnterior": 111
+  },
+  "CRIT-44.1": {
+    "numero": 108,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/108",
+    "numeroAnterior": 112
+  },
+  "CRIT-44.2": {
+    "numero": 109,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/109",
+    "numeroAnterior": 113
+  },
+  "CRIT-45": {
+    "numero": 110,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/110",
+    "numeroAnterior": 114
+  },
+  "CRIT-36.1": {
+    "numero": 111,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/111",
+    "numeroAnterior": 115
+  },
+  "CRIT-36.2": {
+    "numero": 112,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/112",
+    "numeroAnterior": 116
+  },
+  "CRIT-60.1": {
+    "numero": 113,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/113",
+    "numeroAnterior": 117
+  },
+  "CRIT-60.2": {
+    "numero": 114,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/114",
+    "numeroAnterior": 118
+  },
+  "CRIT-60.3": {
+    "numero": 115,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/115",
+    "numeroAnterior": 119
+  },
+  "CRIT-60.4": {
+    "numero": 116,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/116",
+    "numeroAnterior": 120
+  },
+  "CRIT-61.1": {
+    "numero": 117,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/117",
+    "numeroAnterior": 121
+  },
+  "CRIT-61.2": {
+    "numero": 118,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/118",
+    "numeroAnterior": 122
+  },
+  "CRIT-61.3": {
+    "numero": 119,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/119",
+    "numeroAnterior": 123
+  },
+  "CRIT-61.4": {
+    "numero": 120,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/120",
+    "numeroAnterior": 124
+  },
+  "CRIT-61.5": {
+    "numero": 121,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/121",
+    "numeroAnterior": 125
+  },
+  "CRIT-61.6": {
+    "numero": 122,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/122",
+    "numeroAnterior": 126
+  },
+  "CRIT-62.1": {
+    "numero": 123,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/123",
+    "numeroAnterior": 127
+  },
+  "CRIT-62.2": {
+    "numero": 124,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/124",
+    "numeroAnterior": 128
+  },
+  "CRIT-63.1": {
+    "numero": 125,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/125",
+    "numeroAnterior": 129
+  },
+  "CRIT-63.2": {
+    "numero": 126,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/126",
+    "numeroAnterior": 130
+  },
+  "CRIT-63.3": {
+    "numero": 127,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/127",
+    "numeroAnterior": 131
+  },
+  "CRIT-64.1": {
+    "numero": 128,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/128",
+    "numeroAnterior": 132
+  },
+  "CRIT-64.2": {
+    "numero": 129,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/129",
+    "numeroAnterior": 133
+  },
+  "CRIT-64.3": {
+    "numero": 130,
+    "url": "https://github.com/pamelatf/maluzices-cozinha-saudavel/issues/130",
+    "numeroAnterior": 134
+  }
+}
