@@ -10,10 +10,14 @@ module.exports = {
         mensagem: 'Usuário ou senha inválidos.',
         detalhes: []
     },
-
-    campoObrigatorio: (campo) => ({
+    validacao: (detalhes) => ({
+    codigo: 'VALIDACAO',
+    mensagem: 'Payload inválido.',
+    detalhes
+}),
+    campoObrigatorio: (campo, problema = 'Required') => ({
         codigo: 'VALIDACAO',
         mensagem: 'Payload inválido.',
-        detalhes: [{ campo, problema: 'Campo obrigatório.' }]
+        detalhes: [{ campo, problema }]
     }),
 };

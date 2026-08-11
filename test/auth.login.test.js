@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const { api, credenciais } = require('../config/ambiente');
-const { credenciaisInvalidas, campoObrigatorio, metodoNaoPermitido } = require('../fixtures/erros');
+const { credenciaisInvalidas, campoObrigatorio, metodoNaoPermitido, validacao } = require('../fixtures/erros');
 
 
 const montarBodyLogin = () => ({
@@ -41,7 +41,7 @@ describe('/auth/login', () => {
         it('AUTH-03 - Deve retornar 400 com codigo VALIDACAO quando a senha não for informada', async () => {
             bodyLogin.senha = undefined;
 
-            const semSenhareposta = await api
+            const resposta = await api
                 .post('/auth/login')
                 .send(bodyLogin);
 
@@ -57,7 +57,9 @@ describe('/auth/login', () => {
                 .send(bodyLogin);
 
             expect(resposta.status).to.equal(400);
-            expect(resposta.body.erro).to.deep.equal(credenciaisInvalidas);
+            expect(resposta.body.erro).to.deep.equal(
+                validacao([{ campo: 'usuario', problema: 'Expected string, received number' }])
+            );
 
         });
 
@@ -69,8 +71,10 @@ describe('/auth/login', () => {
                 .send(bodyLogin);
 
             expect(resposta.status).to.equal(400);
-            expect(resposta.body.erro).to.deep.equal(campoObrigatorio('usuario'));
-            expect(resposta.body.erro).to.deep.equal(campoObrigatorio('senha'));
+            expect(resposta.body.erro.detalhes).to.have.deep.members([
+                { campo: 'usuario', problema: 'Required' },
+                { campo: 'senha', problema: 'Required' }
+            ]);
 
         });
 
