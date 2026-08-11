@@ -14,7 +14,7 @@ export function Topo({ aoAbrirModal, nomeUsuario, aoSair }: TopoProps) {
   return (
     <header className="topo">
       <div className="marca">
-        <div className="marca-nome" style={{ display: 'none' }}>
+        <div className="marca-nome">
           MALUZ
           <svg className="colher-i" viewBox="0 0 12 26">
             <ellipse cx="6" cy="4.2" rx="3" ry="3.9" />

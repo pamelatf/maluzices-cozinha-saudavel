@@ -132,7 +132,7 @@ export function App() {
         aoCancelar={aoCancelar}
         aoEditar={setPedidoEmEdicao}
       />
-      <p className="rodape" style={{ display: 'none' }}>
+      <p className="rodape">
         Protótipo visual · dados de demonstração em memória ·{' '}
         <span style={{ color: 'var(--taupe)' }}>Maluzices cozinha saudável</span>
       </p>
