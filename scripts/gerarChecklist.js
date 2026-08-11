@@ -391,7 +391,6 @@ function montarHtml(casos) {
   .sev-Alta    { background: #2a170d; color: #e8975b; border: 1px solid #4a2a1a; }
   .sev-Media   { background: #2a220a; color: var(--yellow); border: 1px solid #4a3a10; }
 
-  .ci-badge {
     font-size: 10px;
     font-weight: 600;
     padding: 2px 8px;
@@ -610,6 +609,26 @@ let verdicts = ler(VERDICT_KEY, '{}');
  * Os filtros se acumulam e valem juntos: com "críticos" e "automatizados"
  * ligados, sobra a interseção dos dois. Conjunto vazio significa sem filtro.
  */
+/**
+ * O que veio da matriz: caso já executado no CI entra com a caixa marcada, o
+ * veredicto selecionado e o campo Obtido preenchido. Só semeia o que o
+ * navegador ainda não tem, para nunca sobrescrever o que você escreveu aqui.
+ */
+function semear() {
+  let mudou = false;
+  for (const caso of DATA) {
+    if (!caso.veredictoCi) continue;
+    if (!done.has(caso.id)) { done.add(caso.id); mudou = true; }
+    if (!verdicts[caso.id]) { verdicts[caso.id] = caso.veredictoCi; mudou = true; }
+    if (!results[caso.id] && caso.observacaoCi) { results[caso.id] = caso.observacaoCi; mudou = true; }
+  }
+  if (mudou) {
+    gravar(STORAGE_KEY, [...done]);
+    gravar(VERDICT_KEY, verdicts);
+    gravar(RESULTS_KEY, results);
+  }
+}
+
 let filtrosAtivos = new Set();
 
 const FILTRO_ROTULOS = {
@@ -898,7 +917,6 @@ function render() {
         + '<span class="method-badge method-' + c.metodo + '">' + (c.metodo === 'OTHER' ? 'VÁRIOS' : c.metodo) + '</span>'
         + (c.vader ? '<span class="heur-badge vader-' + c.vader + '" title="VADER">' + c.vader + '</span>' : '')
         + '<span class="sev-badge sev-' + semAcento(c.severidade) + '">' + c.severidade + '</span>'
-        + (c.veredictoCi ? '<span class="ci-badge ci-' + c.veredictoCi + '" title="Última execução no CI">CI ' + c.veredictoCi + '</span>' : '')
         + (bloqueado ? '<span class="pend-badge">bloqueado</span>' : '')
         + '<span class="result-dot" title="Observação registrada"></span>'
         + '<span class="case-title">' + escapeHtml(c.titulo) + '</span>'
@@ -913,7 +931,6 @@ function render() {
         + linha('Lacuna', escapeHtml(c.lacuna), 'warn')
         + linha('Pendência', escapeHtml(c.pendencia), 'warn')
         + linha('Nota', escapeHtml(c.nota))
-        + linha('Última execução', c.veredictoCi ? escapeHtml(c.veredictoCi + '. ' + (c.observacaoCi || '')) : '')
         + linha('Comando', '<code>' + escapeHtml(c.comando) + '</code>')
         + '<div class="detail-row"><span class="detail-label">Veredicto</span>'
         + '<span class="detail-value"><span class="verdict-group">' + botoes + '</span></span></div>'
@@ -935,6 +952,7 @@ function render() {
   updateProgress();
 }
 
+semear();
 render();
 </script>
 </body>

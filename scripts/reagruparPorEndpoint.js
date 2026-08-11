@@ -155,13 +155,15 @@ const ENDPOINT_POR_GRUPO = {
 const GRUPO_DE_CARGA = 'CARGA';
 
 /**
- * Issues que existem no repositório mas não estão no cards-criados.json,
- * porque foram abertas depois, à mão. A #135 é o antigo CRIT-57.1 reaberto:
- * a issue original foi apagada por engano e o rascunho virou issue nova.
+ * Issues que existem no repositório mas não estão no cards-criados.json.
+ *
+ * Ficou vazio depois da migração: o #135 que morava aqui era o número do
+ * CRIT-57.1 no repositório antigo, e a transferência renumerou tudo. O
+ * cards-criados.json atual já traz o número novo de cada caso, então não há
+ * mais exceção a tratar. Mantido para o caso de uma issue voltar a ser aberta
+ * à mão fora do fluxo dos scripts.
  */
-const NUMEROS_EXTRAS = {
-  'CRIT-57.1': [135],
-};
+const NUMEROS_EXTRAS = {};
 
 const VADER = {
   V: 'Verbo HTTP',
