@@ -131,7 +131,11 @@ arquivos estão distribuídos dessa forma:
 - **Fixtures de erro centralizadas.** Os corpos de erro esperados ficam em
   `fixtures/erros.js`, como funções que recebem o que varia. O corpo do 405, por
   exemplo, muda com o verbo e com a rota, então a fixture é
-  `metodoNaoPermitido(metodo, rota)` e não um objeto fixo.
+  `metodoNaoPermitido(metodo, rota)` e não um objeto fixo. O mesmo vale para a
+  validação: `validacao(detalhes)` monta o envelope do 400 e recebe a lista de
+  campos com problema, e `campoObrigatorio(campo, problema)` é o atalho para o
+  caso de um campo só. Assim uma mudança de texto da API se resolve em um lugar,
+  e não em cada teste.
 
 - **Testes organizados por endpoint.** Um arquivo por recurso, com `describe`
   aninhado por método HTTP. O relatório do Mochawesome espelha essa hierarquia
@@ -344,19 +348,18 @@ dias de retenção, mesmo quando a suíte falha.
 Nem toda falha desta suíte é problema de configuração, e nem todo verde
 significa que a API está correta. Vale ler o resultado junto com a matriz.
 
-Última execução registrada, de 11 de agosto de 2026:
+Estado atual:
 
 | Indicador | Valor |
 |---|---|
-| Testes executados | 21, mais o HEALTH-02 no job de banco indisponível |
-| Verdes | 17 |
-| Vermelhos | 4 |
-| Casos da matriz com veredicto | 17 de 96 |
+| Testes automatizados | 22 |
+| Casos da matriz cobertos por eles | 18 de 96 |
+| Execuções por rodada da integração contínua | 2, a suíte e o cenário de banco indisponível |
 
-As quatro falhas atuais são defeitos da automação, não da API. Em todas, a API
-respondeu exatamente o que o critério da matriz pede, e a asserção do teste é
-que está incorreta. Estão registradas caso a caso na coluna Observações da
-execução da matriz.
+O veredicto de cada caso fica na coluna Veredicto da matriz, e o que foi
+observado na execução fica na coluna ao lado. As duas são preenchidas a partir
+do relatório do Mochawesome, e não à mão, o que mantém a matriz fiel ao que
+realmente rodou.
 
 Dois pontos que merecem leitura atenta:
 
@@ -377,7 +380,7 @@ matriz que os originou:
 
 | Achado | Tipo | Origem |
 |---|---|---|
-| Mensagens de validação retornadas em inglês numa API em português | Melhoria | AUTH-02 |
+| Mensagens de validação retornadas em inglês numa API em português | Melhoria | AUTH-02 e AUTH-05 |
 | Header `X-Powered-By` expõe o framework da aplicação | Melhoria | GERAL |
 | Contrato do login não declara tamanho máximo para `usuario` e `senha` | Melhoria | AUTH-06 |
 | Método não permitido resolvido depois da autenticação em parte das rotas | Bug | STATUS, HEALTH |
@@ -386,6 +389,13 @@ matriz que os originou:
 
 Os dois últimos são decisão consciente do projeto, registrados como risco
 conhecido, com plano de correção por hash.
+
+Uma nota sobre como esses achados convivem com a suíte. As asserções afirmam o
+comportamento atual da API, e não o texto prometido pelo contrato, para que o
+vermelho continue significando regressão. A divergência entre os dois fica
+registrada na coluna Lacuna de contrato da matriz e na issue correspondente. No
+dia em que a API for corrigida, muda o valor padrão de uma fixture e a issue
+fecha.
 
 ## Heurística de teste aplicada
 
@@ -427,7 +437,6 @@ Backlog de evolução identificado no estado atual do projeto:
 
 - Escrever os testes dos grupos PEDIDOS, PEDIDO-ID, RESUMO, STATUS e GERAL, que
   já estão especificados na matriz e aguardam automação
-- Corrigir as quatro asserções incorretas apontadas na última execução
 - Cobrir o cenário de força bruta no login, hoje no backlog por depender de
   execução isolada
 - Acrescentar o teste de carga em k6 sobre os endpoints de pedidos
