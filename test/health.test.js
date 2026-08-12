@@ -45,7 +45,7 @@ describe('/health', () => {
 
     });
 });
-    describe('Com token', () => {
+    describe('Com autenticação', () => {
 
         const tokenInvalido = 'Bearer token.invalido.aqui';
 

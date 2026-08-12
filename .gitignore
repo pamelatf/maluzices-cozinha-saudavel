@@ -10,3 +10,4 @@ vite.config.d.ts
 mochawesome-report/
 config/config.local.json
 .claude/
+scripts/

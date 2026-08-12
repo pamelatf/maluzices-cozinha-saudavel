@@ -11,13 +11,14 @@ module.exports = {
         detalhes: []
     },
     validacao: (detalhes) => ({
-    codigo: 'VALIDACAO',
-    mensagem: 'Payload inválido.',
-    detalhes
-}),
+        codigo: 'VALIDACAO',
+        mensagem: 'Payload inválido.',
+        detalhes
+    }),
     campoObrigatorio: (campo, problema = 'Required') => ({
         codigo: 'VALIDACAO',
         mensagem: 'Payload inválido.',
         detalhes: [{ campo, problema }]
     }),
+
 };

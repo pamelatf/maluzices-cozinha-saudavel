@@ -1,0 +1,16 @@
+{
+  "cliente": "Maria Souza",
+  "observacao": "Sem cebola",
+  "itens": [
+    {
+      "nome": "Bowl de quinoa",
+      "quantidade": 2,
+      "precoUnitario": 28.9
+    },
+    {
+      "nome": "Suco verde",
+      "quantidade": 1,
+      "precoUnitario": 12.5
+    }
+  ]
+}
