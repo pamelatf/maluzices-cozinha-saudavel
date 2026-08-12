@@ -131,23 +131,6 @@ describe('/auth/login', () => {
             expect(expiraEm - Date.now()).to.be.closeTo(60 * 60 * 1000, 5000);
         });
 
-        it('AUTH-11 — Credencial e token reais publicados como exemplo no contrato', async () => {
-            const resposta = await api
-                .post('/auth/login')
-                .send(bodyLogin);
-
-            expect(resposta.status).to.equal(200);
-
-            const carga = JSON.parse(
-                Buffer.from(resposta.body.token.split('.')[1], 'base64url').toString('utf8')
-            );
-
-            const expDoToken = carga.exp * 1000;
-            const expiraEm = new Date(resposta.body.expiraEm).getTime();
-
-            expect(expDoToken).to.be.closeTo(expiraEm, 2000);
-            expect(expiraEm - Date.now()).to.be.closeTo(60 * 60 * 1000, 5000);
-        });
     });
 
 
