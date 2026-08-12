@@ -166,9 +166,7 @@ describe('GET /auth/login', () => {
             .split(',')
             .map((verbo) => verbo.trim());
 
-        expect(verbosPermitidos).to.include('POST');
-        expect(verbosPermitidos).to.include('OPTIONS');
-
+        expect(verbosPermitidos).to.include('POST', 'OPTIONS');
         expect(resposta.body).to.not.have.property('token');
     });
 
