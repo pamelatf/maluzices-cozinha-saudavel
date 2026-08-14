@@ -22,6 +22,10 @@ module.exports = {
     }),
 
     transicaoInvalida: {
-    codigo: 'TRANSICAO_INVALIDA'
+        codigo: 'TRANSICAO_INVALIDA'
+    },
+
+    rotaNaoEncontrada : {
+        codigo: 'ROTA_NAO_ENCONTRADA'
     }
 };

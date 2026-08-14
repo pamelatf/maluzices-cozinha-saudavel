@@ -1,0 +1,21 @@
+[
+    {
+        "id": "PEDIDOS-04",
+        "nome": "Criação sem o campo cliente devolve 400 apontando cliente",
+        "campo": "cliente"
+    },
+    {
+        "id": "PEDIDOS-05",
+        "nome": "Criação sem o campo itens devolve 400 apontando itens",
+        "campo": "itens"
+    },
+    {
+        "id": "PEDIDOS-06",
+        "nome": "Campo obrigatório ausente no item do pedido",
+        "campos": [
+            "itens[0].nome",
+            "itens[0].quantidade",
+            "itens[0].precoUnitario"
+        ]
+    }
+]

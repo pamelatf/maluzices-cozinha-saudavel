@@ -1,0 +1,10 @@
+[
+    {
+        "valor": 28.905,
+        "descricao": "três casas decimais"
+    },
+    {
+        "valor": 0.001,
+        "descricao": "três casas decimais próximo de zero"
+    }
+]

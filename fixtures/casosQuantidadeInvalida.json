@@ -1,0 +1,14 @@
+[
+    {
+        "valor": 0,
+        "descricao": "zero"
+    },
+    {
+        "valor": -1,
+        "descricao": "negativa"
+    },
+    {
+        "valor": 1.5,
+        "descricao": "não inteira"
+    }
+]
