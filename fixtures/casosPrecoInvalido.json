@@ -1,0 +1,10 @@
+[
+    {
+        "valor": 0,
+        "descricao": "zero"
+    },
+    {
+        "valor": -10,
+        "descricao": "negativo"
+    }
+]

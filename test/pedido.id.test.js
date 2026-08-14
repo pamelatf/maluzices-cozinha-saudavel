@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const { api } = require('../config/ambiente');
 const { obterToken } = require('../helpers/autenticacao');
 const criarPedido = require('../fixtures/criarPedido.json');
-const { transicaoInvalida } = require('../fixtures/erros');
+const { transicaoInvalida, validacao } = require('../fixtures/erros');
 
 describe('PEDIDO/ID', () => {
 
@@ -326,6 +326,72 @@ describe('PEDIDO/ID', () => {
         expect(consulta.body.status).to.equal('CANCELADO');
     });
 
+    it('STATUS-01 — Ação fora do enum devolve 400 e não altera o status do pedido', async () => {
+
+        const pedido = await criarNovoPedido();
+        const pedidoId = pedido.id;
+
+        const resposta = await api
+            .patch(`/pedidos/${pedidoId}/status`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ acao: 'CANCELAR' });
+
+        expect(resposta.status).to.equal(400);
+        expect(resposta.body.erro.codigo).to.equal('VALIDACAO');
+
+        const consulta = await api
+            .get(`/pedidos/${pedidoId}`)
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(consulta.status).to.equal(200);
+        expect(consulta.body.status).to.equal('RECEBIDO');
+    });
+
+    it('STATUS-02 — Ação em caixa baixa registra comportamento da API', async () => {
+
+        const pedido = await criarNovoPedido();
+        const pedidoId = pedido.id;
+
+        const resposta = await api
+            .patch(`/pedidos/${pedidoId}/status`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ acao: 'avancar' });
+
+        expect(resposta.status).to.be.oneOf([200, 400]);
+    });
+
+    it('STATUS-03 — Ação vazia, nula, com tipo errado e corpo ausente', async () => {
+
+        const casos = [
+            { acao: '' },
+            { acao: null },
+            { acao: 1 },
+            {}
+        ];
+
+        for (const dados of casos) {
+
+            const pedido = await criarNovoPedido();
+            const pedidoId = pedido.id;
+
+            const resposta = await api
+                .patch(`/pedidos/${pedidoId}/status`)
+                .set('Authorization', `Bearer ${token}`)
+                .send(dados);
+
+            expect(resposta.status).to.equal(400);
+            expect(resposta.body.erro.codigo)
+                .to.equal(validacao().codigo);
+
+            const consulta = await api
+                .get(`/pedidos/${pedidoId}`)
+                .set('Authorization', `Bearer ${token}`);
+
+            expect(consulta.status).to.equal(200);
+            expect(consulta.body.status).to.equal('RECEBIDO');
+        }
+    });
+
     it('STATUS-04 — Avanço de status percorre a máquina de estados uma casa por vez', async () => {
 
         const pedido = await criarNovoPedido();
@@ -450,6 +516,28 @@ describe('PEDIDO/ID', () => {
         expect(consulta.body.status).to.equal('ENTREGUE');
     });
 
+    it('STATUS-07 — Retrocesso a partir de RECEBIDO devolve 409', async () => {
+
+        const pedido = await criarNovoPedido();
+        const pedidoId = pedido.id;
+
+        const resposta = await api
+            .patch(`/pedidos/${pedidoId}/status`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ acao: 'RETROCEDER' });
+
+        expect(resposta.status).to.equal(409);
+        expect(resposta.body.erro.codigo)
+            .to.equal(transicaoInvalida.codigo);
+
+        const consulta = await api
+            .get(`/pedidos/${pedidoId}`)
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(consulta.status).to.equal(200);
+        expect(consulta.body.status).to.equal('RECEBIDO');
+    });
+
     it('STATUS-08 — CANCELADO rejeita AVANCAR e RETROCEDER', async () => {
 
         const pedido = await criarNovoPedido();
@@ -481,6 +569,104 @@ describe('PEDIDO/ID', () => {
             .to.equal(transicaoInvalida.codigo);
     });
 
+    it('STATUS-09 — Concorrência no avanço de status do mesmo pedido', async () => {
+
+        const pedido = await criarNovoPedido();
+        const pedidoId = pedido.id;
+
+        const respostas = await Promise.all([
+            api
+                .patch(`/pedidos/${pedidoId}/status`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ acao: 'AVANCAR' }),
+
+            api
+                .patch(`/pedidos/${pedidoId}/status`)
+                .set('Authorization', `Bearer ${token}`)
+                .send({ acao: 'AVANCAR' })
+        ]);
+
+        const sucessos = respostas.filter(
+            resposta => resposta.status === 200
+        );
+
+        expect(sucessos.length).to.be.greaterThan(0);
+
+        const consulta = await api
+            .get(`/pedidos/${pedidoId}`)
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(consulta.status).to.equal(200);
+        expect(consulta.body.status).to.equal('EM_PREPARO');
+    });
+
+    it('STATUS-10 — Integridade dos dados do pedido após a transição', async () => {
+
+        const pedido = await criarNovoPedido();
+
+        const dadosOriginais = {
+            id: pedido.id,
+            cliente: pedido.cliente,
+            observacao: pedido.observacao,
+            valorTotal: pedido.valorTotal,
+            itens: pedido.itens,
+            criadoEm: pedido.criadoEm
+        };
+
+        const resposta = await api
+            .patch(`/pedidos/${pedido.id}/status`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ acao: 'AVANCAR' });
+
+        expect(resposta.status).to.equal(200);
+
+        expect({
+            id: resposta.body.id,
+            cliente: resposta.body.cliente,
+            observacao: resposta.body.observacao,
+            valorTotal: resposta.body.valorTotal,
+            itens: resposta.body.itens,
+            criadoEm: resposta.body.criadoEm
+        }).to.deep.equal(dadosOriginais);
+
+        expect(resposta.body.status).to.equal('EM_PREPARO');
+
+        const consulta = await api
+            .get(`/pedidos/${pedido.id}`)
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(consulta.status).to.equal(200);
+
+        expect({
+            id: consulta.body.id,
+            cliente: consulta.body.cliente,
+            observacao: consulta.body.observacao,
+            valorTotal: consulta.body.valorTotal,
+            itens: consulta.body.itens,
+            criadoEm: consulta.body.criadoEm,
+            status: consulta.body.status
+        }).to.deep.equal({
+            ...dadosOriginais,
+            status: 'EM_PREPARO'
+        });
+
+        expect(consulta.body.atualizadoEm)
+            .to.equal(resposta.body.atualizadoEm);
+    });
+
+    it('STATUS-11 — POST em /pedidos/{id}/status devolve 405', async () => {
+
+        const pedido = await criarNovoPedido();
+        const pedidoId = pedido.id;
+
+        const resposta = await api
+            .post(`/pedidos/${pedidoId}/status`);
+
+        expect(resposta.status).to.equal(405);
+        expect(resposta.headers.allow).to.include('PATCH');
+        expect(resposta.headers.allow).to.include('OPTIONS');
+    });
+
     it('STATUS-12 — PUT em /pedidos/{id}/status sem token devolve 405 e não muda o status', async () => {
 
         const pedido = await criarNovoPedido();
@@ -501,5 +687,26 @@ describe('PEDIDO/ID', () => {
 
         expect(consulta.status).to.equal(200);
         expect(consulta.body.status).to.equal(statusOriginal);
+    });
+
+    it('STATUS-13 — Header Allow correto na rota de status', async () => {
+
+    const pedido = await criarNovoPedido();
+    const pedidoId = pedido.id;
+
+    const resposta = await api
+        .post(`/pedidos/${pedidoId}/status`);
+
+    expect(resposta.status).to.equal(405);
+
+    const metodosPermitidos = resposta.headers.allow
+        .split(',')
+        .map(metodo => metodo.trim());
+
+    expect(metodosPermitidos)
+        .to.have.members(['PATCH', 'OPTIONS']);
+
+    expect(metodosPermitidos)
+        .to.have.lengthOf(2);
     });
 });
