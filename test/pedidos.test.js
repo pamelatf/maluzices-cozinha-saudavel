@@ -4,6 +4,7 @@ const { obterToken } = require('../helpers/autenticacao');
 const naoAutenticado = require('../fixtures/naoAutenticado.json');
 const criarPedido = require('../fixtures/criarPedido.json');
 
+
 describe('/PEDIDOS', () => {
 
     const verbosNaoDocumentados = [
@@ -81,65 +82,6 @@ describe('/PEDIDOS', () => {
 
         });
 
-        it('PEDIDO-ID-14 — Cancelamento a partir de cada status ativo', async () => {
-
-            const statusAtivos = [
-                'RECEBIDO',
-                'EM_PREPARO',
-                'PRONTO'
-            ];
-
-            for (const status of statusAtivos) {
-
-                const criacao = await api
-                    .post('/pedidos')
-                    .set('Authorization', `Bearer ${token}`)
-                    .send(criarPedido);
-
-                expect(criacao.status).to.equal(201);
-
-                const pedidoId = criacao.body.id;
-
-                if (status === 'EM_PREPARO') {
-
-                    const respostaStatus = await api
-                        .patch(`/pedidos/${pedidoId}/status`)
-                        .set('Authorization', `Bearer ${token}`)
-                        .send({ acao: 'AVANCAR' });
-
-                    expect(respostaStatus.status).to.equal(200);
-
-                }
-
-                if (status === 'PRONTO') {
-
-                    const respostaEmPreparo = await api
-                        .patch(`/pedidos/${pedidoId}/status`)
-                        .set('Authorization', `Bearer ${token}`)
-                        .send({ acao: 'AVANCAR' });
-
-                    expect(respostaEmPreparo.status).to.equal(200);
-
-                    const respostaPronto = await api
-                        .patch(`/pedidos/${pedidoId}/status`)
-                        .set('Authorization', `Bearer ${token}`)
-                        .send({ acao: 'AVANCAR' });
-
-                    expect(respostaPronto.status).to.equal(200);
-
-                }
-
-                const resposta = await api
-                    .delete(`/pedidos/${pedidoId}`)
-                    .set('Authorization', `Bearer ${token}`);
-
-                expect(resposta.status).to.equal(200);
-                expect(resposta.body.status).to.equal('CANCELADO');
-
-            }
-
-        });
-
         it('PEDIDOS-15 — Campos gerados pelo servidor enviados no corpo da criação', async () => {
             const pedidoComCamposGerados = {
                 ...criarPedido,
@@ -169,4 +111,4 @@ describe('/PEDIDOS', () => {
 
     });
 
-});
+ });

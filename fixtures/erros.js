@@ -21,4 +21,7 @@ module.exports = {
         detalhes: [{ campo, problema }]
     }),
 
+    transicaoInvalida: {
+    codigo: 'TRANSICAO_INVALIDA'
+    }
 };
