@@ -1,162 +1,212 @@
 # API de Pedidos da Cozinha de Comida Saudável
 
-API REST em Node.js com TypeScript, e a suíte de testes de API que a valida,
-no mesmo repositório. Os testes são escritos em Mocha, Chai e Supertest, e os
-cenários vêm da análise do contrato OpenAPI (`openapi.yaml`) pela heurística
-VADER.
+API REST em Node.js com TypeScript, com suíte de testes automatizados no mesmo repositório e aplicação web para acompanhamento operacional. O foco principal deste projeto é a qualidade de software e a validação de comportamento, com a API e a interface web desenvolvidas por mim aplicando os conhecimentos adquiridos nos módulos da Mentoria 2.0 do Júlio de Lima.
 
-O projeto vai além do caminho feliz: cobre validação de contrato, regras de
-negócio, autenticação e autorização, verbos não documentados e cenários de
-segurança, com cada caso rastreável até uma linha da matriz de testes.
+O projeto vai além do caminho feliz: cobre autenticação, regras de negócio, validação de contrato, verbos não documentados, erros de domínio e cenários de saúde da aplicação. A suíte automatizada foi pensada como parte essencial do resultado, e não como complemento secundário.
 
 ## Sobre o projeto
 
-A aplicação controla os pedidos de uma cozinha de comida saudável. Uma
-atendente registra o pedido de um cliente e acompanha o preparo até a entrega,
-passando pelos status `RECEBIDO`, `EM_PREPARO`, `PRONTO` e `ENTREGUE`, com
-`CANCELADO` disponível a qualquer momento antes da entrega.
+A aplicação simula o fluxo de atendimento de uma cozinha de comida saudável. Uma atendente registra o pedido do cliente e acompanha o preparo até a entrega, passando pelos status `RECEBIDO`, `EM_PREPARO`, `PRONTO` e `ENTREGUE`, com `CANCELADO` disponível em qualquer ponto antes da entrega.
 
-São sete endpoints: criar pedido, listar pedidos com filtro por status, buscar
-um pedido, avançar ou retroceder o status, cancelar, ver o resumo de contagem
-por status e o health check.
+Além disso, a API também registra a complexidade do ciclo real de uma operação: validação de entrada, regras de transição de status, autenticação de acesso, tratamento de erros e consistência entre endpoints.
 
-Diferente de uma suíte que aponta para uma API de terceiros, aqui a aplicação
-e os testes moram juntos. A consequência prática é que o mesmo pull request
-carrega a mudança e a evidência de que ela não quebrou nada, e a integração
-contínua sobe o ambiente inteiro do zero a cada execução.
+Este repositório reúne os três pilares fundamentais do projeto:
 
-O escopo de teste está especificado em `docs/matriz_vader_cozinha_v3.0.csv`:
-96 casos priorizados para esta entrega, mais 30 registrados em
-`docs/backlog_pos_entrega.csv` para depois dela. Cada caso tem identificador
-próprio, critério de aceite, comando de execução e uma issue correspondente no
-repositório.
+- API funcional e documentada
+- aplicação web para operação visual
+- suíte de testes orientada à qualidade e à rastreabilidade
 
-Estado atual da automação:
+## Objetivo principal
 
-| Grupo | Endpoint | Arquivo | Casos especificados | Com teste escrito |
-|---|---|---|---|---|
-| AUTH | `/auth/login` | `test/auth.login.test.js` | 13 | 11 |
-| PEDIDOS | `/pedidos` | `test/pedidos.test.js` | 32 | 0 |
-| PEDIDO-ID | `/pedidos/{id}` | `test/pedidos.id.test.js` | 19 | 0 |
-| RESUMO | `/pedidos/resumo` | `test/pedidos.resumo.test.js` | 6 | 0 |
-| STATUS | `/pedidos/{id}/status` | `test/pedidos.status.test.js` | 13 | 0 |
-| HEALTH | `/health` | `test/health.test.js` | 7 | 7 |
-| GERAL | Todos os endpoints | `test/geral.test.js` | 6 | 0 |
-| **Total** | | | **96** | **18** |
+O objetivo principal do projeto é demonstrar capacidade de:
+
+- desenvolver APIs REST robustas em Node.js e TypeScript
+- aplicar regras de negócio e validação em camadas
+- montar uma interface web funcional para operação do sistema
+- pensar em qualidade como parte do desenvolvimento, e não como etapa final
+- automatizar testes de API para validar contratos, fluxos e regressões
+
+Em outras palavras, o projeto foi construído com foco em qualidade de software e em evidência de comportamento, e isso é o que define a identidade do repositório.
+
+## Estrutura do repositório
+
+```text
+cozinha/
+├── src/                            API em TypeScript
+│   ├── domain/                     regras de negócio e estados do pedido
+│   ├── errors/                     tratamento de erros
+│   ├── middlewares/                autenticação e verbos permitidos
+│   ├── repositories/               acesso ao banco com Prisma
+│   ├── routes/                     rotas, schemas e validação com Zod
+│   ├── routing/                    mapeamento de rotas
+│   ├── services/                   lógica de aplicação e orquestração
+│   └── server.ts                  bootstrap da API
+├── web/                            aplicação front-end em React
+│   ├── src/
+│   ├── package.json
+│   ├── vite.config.*
+│   └── README.md
+├── prisma/                         schema e seeds do banco
+│   ├── schema.prisma
+│   ├── seed.ts
+│   └── seedUsuario.ts
+├── config/                         configuração e ambiente
+│   ├── ambiente.js
+│   └── config.example.json
+├── fixtures/                       corpos e respostas esperadas em testes
+├── helpers/                        suporte para autenticação e execução
+├── docs/                           regras, matriz e apoio documental
+│   ├── matriz_vader_cozinha_v3.0.csv
+│   ├── backlog_pos_entrega.csv
+│   ├── REGRAS-DE-NEGOCIO.md
+│   ├── checklist_vader_cozinha_v3.0.html
+│   ├── mapa_endpoint.md
+│   └── Como funciona o workflow testes-api.md
+├── defeitos/                       registro local dos achados, no padrão ISO/IEC/IEEE 29119-3
+├── scripts/                        utilitários e automações auxiliares
+├── test/                           suíte de testes automatizados da API
+├── .github/workflows/              CI e validação automatizada
+├── openapi.yaml                    contrato OpenAPI da API
+├── openapi.json                    export JSON do contrato
+├── README.md                      documentação do projeto
+├── package.json                   dependências e scripts da API
+├── tsconfig.json
+├── LICENSE
+├── projeto.json
+└── docs/
+```
 
 ## Tecnologias
 
 ### Aplicação
 
-- Node.js 20 ou superior e TypeScript em modo estrito
+- Node.js 20+
+- TypeScript
 - Express 4
-- Prisma ORM sobre MySQL 8
-- Zod para validação de entrada
-- `swagger-ui-express` servindo o contrato de `openapi.yaml`
+- Prisma ORM
+- MySQL 8
+- Zod
+- Swagger UI
 
-### Suíte de testes
+### Front-end
 
-- Mocha 11, framework de testes
-- Chai 6, biblioteca de asserções
-- Supertest 7, cliente HTTP para teste de API
-- Mochawesome 8, relatório visual em HTML
-- Dotenv, variáveis de ambiente
+- React 18
+- Vite
+- TypeScript
+- CSS personalizado
 
-### Automação e apoio
+### Testes e qualidade
 
-- GitHub Actions, integração contínua com banco em contêiner de serviço
-- Scripts próprios em Node, sem dependência externa, para gerar a matriz, o
-  checklist visual e as páginas da wiki
+- Mocha 11
+- Chai 6
+- Supertest 7
+- Mochawesome 8
+- ESLint
+- GitHub Actions
 
-## Estrutura
+## Fluxo de negócio
 
-```
-maluzices-cozinha-saudavel/
-├── src/                            aplicação
-│   ├── domain/                     regras puras de negócio, sem Express e sem Prisma
-│   ├── repositories/               acesso a dados via Prisma
-│   ├── services/                   orquestra domínio e repositório
-│   ├── routes/                     Express, validação Zod e tradução para HTTP
-│   ├── routing/                    tabela de rotas e verbos aceitos
-│   ├── middlewares/                verbos permitidos, autenticação e erros
-│   ├── errors/                     erros de aplicação e middleware de tratamento
-│   └── server.ts
-├── config/
-│   ├── ambiente.js                 instância única do Supertest e resolução da BASE_URL
-│   └── config.example.json         template de configuração local, versionado
-├── fixtures/
-│   └── erros.js                    corpos de erro esperados, por código
-├── helpers/
-│   └── autenticacao.js             obtenção de token reutilizável
-├── test/
-│   ├── auth.login.test.js          POST e GET em /auth/login
-│   ├── health.test.js              GET /health e verbos não permitidos
-│   └── pedidos.test.js             POST e GET em /pedidos
-├── prisma/
-│   ├── schema.prisma               modelo de dados
-│   ├── seed.ts                     pedidos de exemplo
-│   └── seedUsuario.ts              usuário de autenticação
-├── docs/
-│   ├── matriz_vader_cozinha_v3.0.csv     os 96 casos do escopo
-│   ├── backlog_pos_entrega.csv           os 30 casos fora do recorte
-│   ├── checklist_vader_cozinha_v3.0.html checklist visual de execução
-│   ├── mapa_endpoint.md                  mapa de casos por endpoint
-│   └── cards-criados.json                ligação entre caso e issue
-├── scripts/                        geração da matriz, do checklist e das issues
-├── web/                            painel de acompanhamento, em Vite
-├── .github/workflows/testes-api.yml
-├── openapi.yaml                    contrato da API
-├── .env.example                    template das variáveis de ambiente, versionado
-└── package.json
+A API trabalha com o ciclo de vida do pedido:
+
+```text
+RECEBIDO -> EM_PREPARO -> PRONTO -> ENTREGUE
+   │            │            │
+   └────────────┴────────────┴────-> CANCELADO
 ```
 
-## Boas práticas aplicadas
+### Funcionalidades principais
 
-Estas são as decisões de organização adotadas no projeto, e explicam por que os
-arquivos estão distribuídos dessa forma:
+- autenticação e geração de token
+- criação de pedidos
+- listagem com filtro por status
+- consulta de pedido por id
+- edição parcial de pedido
+- avanço e retrocesso de status
+- cancelamento de pedido
+- resumo por status
+- health check da aplicação e da dependência do banco
+- respostas para rota inexistente e método não permitido
 
-- **Configuração centralizada.** A `BASE_URL` é resolvida em um único lugar,
-  `config/ambiente.js`, e exportada como uma instância pronta do Supertest.
-  Nenhum arquivo de teste conhece a URL da API, então trocar de ambiente não
-  exige tocar em teste algum.
+## Qualidade de software e testes
 
-- **Segredos fora do versionamento.** O `.env` e o `config/config.local.json`
-  estão no `.gitignore`. O repositório versiona apenas os templates
-  `.env.example` e `config/config.example.json`.
+Este projeto foi pensado em uma abordagem de qualidade de software real, não apenas como entrega funcional.
 
-- **Credenciais fora do código.** O usuário e a senha válidos vêm do ambiente.
-  Nenhum arquivo de teste contém credencial real, e só permanecem literais os
-  valores inválidos de propósito, que são o próprio cenário do teste.
+A suíte de testes cobre cenários de:
 
-- **Fixtures de erro centralizadas.** Os corpos de erro esperados ficam em
-  `fixtures/erros.js`, como funções que recebem o que varia. O corpo do 405, por
-  exemplo, muda com o verbo e com a rota, então a fixture é
-  `metodoNaoPermitido(metodo, rota)` e não um objeto fixo. O mesmo vale para a
-  validação: `validacao(detalhes)` monta o envelope do 400 e recebe a lista de
-  campos com problema, e `campoObrigatorio(campo, problema)` é o atalho para o
-  caso de um campo só. Assim uma mudança de texto da API se resolve em um lugar,
-  e não em cada teste.
+- autenticação e autorização
+- dados inválidos
+- regras de negócio e transições de status
+- validação de contrato e resposta HTTP
+- erros da aplicação e da infraestrutura
+- verbos não documentados e rotas inexistentes
+- saúde do sistema e dependência de banco
 
-- **Testes organizados por endpoint.** Um arquivo por recurso, com `describe`
-  aninhado por método HTTP. O relatório do Mochawesome espelha essa hierarquia
-  e fica legível sem contexto adicional.
+A estratégia de testes foi guiada pela análise do contrato OpenAPI e pela heurística VADER, o que torna a execução mais rica e alinhada com cenários de regressão e risco real.
 
-- **Identificador no nome de cada teste.** Todo `it` começa pelo identificador
-  do caso, como `AUTH-01`. Isso permite rodar um caso isolado com `--grep`,
-  liga o relatório à matriz sem intervenção manual e faz o veredicto ser
-  preenchido por script, e não à mão.
+### Estado atual da automação
 
-- **Cobertura guiada por heurística.** Os cenários derivam da aplicação da
-  VADER sobre o contrato OpenAPI, e não de escolha caso a caso. É o que traz os
-  cenários negativos, de contrato e de segurança que não apareceriam por
-  intuição.
+| Métrica | Valor |
+|---|---|
+| Casos na matriz da entrega | 96 |
+| Casos automatizados | 64 (66,7%) |
+| Casos críticos automatizados | 23 de 24 |
+| Casos com veredicto na última execução de CI | 63 de 64 |
+| Casos passando | 58 |
+| Casos falhando de propósito, reproduzindo achado registrado | 5 |
+| Achados registrados (defeitos e lacunas) | 13 |
 
-- **Rastreabilidade em três níveis.** Cada caso existe na matriz, tem uma issue
-  no repositório e uma linha no checklist visual. O identificador é o mesmo nos
-  três, então nada se perde entre a especificação e a execução.
+As 5 falhas atuais não são ruído de automação: cada uma comprova, com teste
+automatizado, um achado já registrado como Issue no repositório — o detalhe
+caso a caso está na página [Defeitos encontrados](https://github.com/pamelatf/maluzices-cozinha-saudavel/wiki/09-Defeitos-encontrados)
+da wiki.
 
-- **Relatório fora do Git.** A pasta `mochawesome-report/` é ignorada. Os
-  relatórios de cada execução ficam como artefato da integração contínua.
+## Documentação e rastreabilidade
+
+A documentação do projeto está organizada em várias camadas:
+
+- [openapi.yaml](openapi.yaml): contrato da API
+- [docs/REGRAS-DE-NEGOCIO.md](docs/REGRAS-DE-NEGOCIO.md): regras e decisões do domínio
+- [docs/matriz_vader_cozinha_v3.0.csv](docs/matriz_vader_cozinha_v3.0.csv): casos de teste e rastreabilidade
+- [docs/backlog_pos_entrega.csv](docs/backlog_pos_entrega.csv): casos fora do escopo da entrega
+- [docs/checklist_vader_cozinha_v3.0.html](docs/checklist_vader_cozinha_v3.0.html): checklist visual de execução
+- [wiki do projeto](https://github.com/pamelatf/maluzices-cozinha-saudavel/wiki): visão mais ampla da API, do plano de testes e dos defeitos identificados
+
+Essa organização permite que cada cenário de teste tenha origem, contexto e evidência clara, o que é essencial para um projeto focado em garantia de qualidade.
+
+## Estrutura de testes do repositório
+
+A parte de testes está organizada com foco em clareza e manutenção:
+
+- `test/`: arquivos por contexto e endpoint
+- `fixtures/`: payloads de erro e dados esperados
+- `helpers/`: utilitários de autenticação e suporte
+- `docs/`: matriz de casos, regras e evidências de execução
+- `scripts/`: ferramentas para manutenção da documentação e rastreabilidade
+
+Esse tipo de organização é parte importante da proposta do projeto, porque reflete uma abordagem de QA e garantia de qualidade aplicada desde a concepção do sistema.
+
+## Regras de negócio relevantes
+
+- todo pedido nasce em `RECEBIDO`
+- o valor total é calculado no servidor
+- todas as rotas de negócio exigem `Authorization: Bearer <token>`
+- `POST /auth/login` e `GET /health` são públicos
+- transições inválidas retornam erro de negócio
+- métodos não suportados em rotas existentes respondem `405` com header `Allow`
+- rotas inexistentes respondem `404`
+- o contrato e a implementação não são sempre idênticos, e isso é registrado como lacuna de contrato e evidência de comportamento
+
+## Práticas de qualidade aplicadas
+
+Algumas decisões importantes do projeto foram:
+
+- configuração centralizada para ambiente e acesso à API
+- credenciais fora do código
+- fixtures para respostas esperadas em erro
+- organização dos testes por endpoint e comportamento
+- identificação clara dos casos por nome
+- rastreabilidade entre matriz, execução e evidência
+- relatórios gerados por Mochawesome para revisão e avaliação
 
 ## Pré-requisitos
 
@@ -164,7 +214,7 @@ arquivos estão distribuídos dessa forma:
 - npm
 - MySQL 8 rodando localmente
 
-## Instalação
+## Instalação e execução local
 
 ### 1. Clonar o repositório
 
@@ -173,14 +223,11 @@ git clone https://github.com/pamelatf/maluzices-cozinha-saudavel.git
 cd maluzices-cozinha-saudavel
 ```
 
-### 2. Criar o banco de dados
+### 2. Criar o banco
 
 ```bash
 mysql -u root -p < scripts/criar-banco.sql
 ```
-
-O script cria o banco `cozinha_pedidos` vazio. As tabelas vêm da migration do
-Prisma no passo 4.
 
 ### 3. Configurar as variáveis de ambiente
 
@@ -188,29 +235,22 @@ Prisma no passo 4.
 cp .env.example .env
 ```
 
-Edite o `.env` com os dados do seu ambiente:
+Exemplo de configuração:
 
-| Variável | Descrição | Exemplo |
-|---|---|---|
-| `DATABASE_URL` | Conexão do Prisma com o MySQL local | `mysql://root:senha@localhost:3306/cozinha_pedidos` |
-| `PORT` | Porta em que a API sobe | `2000` |
-| `JWT_SECRET` | Segredo de assinatura do token | valor aleatório e longo |
-| `BASE_URL` | URL da API que a suíte vai testar | `http://localhost:2000` |
-| `USUARIO` | Usuário válido usado para autenticar | preencher com o seu |
-| `SENHA` | Senha do usuário válido | preencher com a sua |
+```env
+DATABASE_URL="mysql://root:sua_senha@localhost:3306/cozinha_pedidos"
+PORT=2000
+JWT_SECRET=um_segredo_longo_e_seguro
+BASE_URL=http://localhost:2000
+USUARIO=pamela
+SENHA=1234
+```
 
-As três primeiras são da aplicação e as três últimas são da suíte de testes.
-Nenhuma delas é versionada. O `.env.example` existe justamente para documentar
-quais chaves precisam ser preenchidas.
-
-### 4. Instalar as dependências
+### 4. Instalar dependências
 
 ```bash
 npm install
 ```
-
-Um `npm install` só. As dependências da aplicação e as da suíte moram no mesmo
-`package.json` desde a unificação dos repositórios.
 
 ### 5. Criar as tabelas
 
@@ -218,16 +258,12 @@ Um `npm install` só. As dependências da aplicação e as da suíte moram no me
 npm run db:migrate
 ```
 
-### 6. Popular o banco
+### 6. Popular dados iniciais
 
 ```bash
 npm run db:seed
 npm run seed
 ```
-
-O primeiro cria pedidos de exemplo distribuídos entre todos os status. O
-segundo cria o usuário usado na autenticação. Sem ele, o login falha e a suíte
-inteira cai junto.
 
 ### 7. Subir a API
 
@@ -235,234 +271,113 @@ inteira cai junto.
 npm run dev
 ```
 
-A API sobe em `http://localhost:2000` e a documentação interativa fica em
-`http://localhost:2000/docs`, servida a partir do `openapi.yaml`. Deixe esse
-terminal aberto, porque é o servidor rodando.
+A API fica disponível em `http://localhost:2000` e a documentação Swagger em `http://localhost:2000/docs`.
+
+### 8. Subir a aplicação web
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+## Scripts disponíveis
+
+### API
+
+| Script | Descrição |
+|---|---|
+| `npm run dev` | sobe a API em modo desenvolvimento |
+| `npm run build` | compila o TypeScript |
+| `npm start` | executa a versão compilada |
+| `npm test` | executa a suíte de testes |
+| `npm run db:migrate` | aplica as migrations do Prisma |
+| `npm run db:seed` | popula o banco com pedidos de exemplo |
+| `npm run seed` | cria o usuário de autenticação |
+| `npm run lint` | executa o ESLint |
+
+### Web
+
+| Script | Descrição |
+|---|---|
+| `cd web && npm run dev` | inicia o painel de operação |
+| `cd web && npm run build` | gera a build de produção |
+| `cd web && npm run preview` | visualiza a build |
 
 ## Execução dos testes
 
-Com a API no ar em um terminal, abra outro terminal na pasta do repositório.
-
-Rodar a suíte inteira:
+Com a API já em execução, a suíte pode ser rodada completa ou por cenário:
 
 ```bash
 npm test
 ```
 
-Rodar um arquivo específico:
+Arquivo específico:
 
 ```bash
 npx mocha test/auth.login.test.js
 ```
 
-Rodar um único caso pelo identificador:
+Caso isolado por identificador:
 
 ```bash
 npx mocha --grep "AUTH-01"
 ```
 
-Rodar um grupo inteiro:
+Grupo por prefixo:
 
 ```bash
 npx mocha --grep "HEALTH-"
 ```
 
-Listar o que seria executado, sem executar:
+Listar sem executar:
 
 ```bash
 npx mocha --dry-run
 ```
 
-O `--grep` funciona porque todo `it` começa pelo identificador do caso. É o
-mesmo mecanismo que a coluna Comando da matriz documenta, caso a caso.
+## Endpoints principais
 
-## Scripts disponíveis
-
-| Script | Descrição |
-|---|---|
-| `npm run dev` | Sobe a API em modo desenvolvimento, com watch |
-| `npm run build` | Compila o TypeScript para `dist/` |
-| `npm start` | Roda a versão compilada |
-| `npm test` | Executa a suíte com o relatório Mochawesome |
-| `npm run db:migrate` | Aplica as migrations do Prisma |
-| `npm run db:seed` | Popula o banco com pedidos de exemplo |
-| `npm run seed` | Cria o usuário de autenticação |
-| `npm run lint` | Roda o ESLint sobre `src/` |
-
-## Endpoints
-
-| Método | Rota | Sucesso | Erros |
-|---|---|---|---|
-| `POST` | `/auth/login` | 200 | 400, 401 |
-| `POST` | `/pedidos` | 201 | 400, 401 |
-| `GET` | `/pedidos` | 200, com filtro opcional `?status=` | 400, 401 |
-| `GET` | `/pedidos/resumo` | 200 | 401 |
-| `GET` | `/pedidos/{id}` | 200 | 401, 404 |
-| `PATCH` | `/pedidos/{id}` | 200 | 400, 401, 404, 409 |
-| `PATCH` | `/pedidos/{id}/status` | 200 | 400, 401, 404, 409 |
-| `DELETE` | `/pedidos/{id}` | 200 | 401, 404, 409 |
-| `GET` | `/health` | 200, 503 | nenhum |
-
-`POST /auth/login` e `GET /health` são públicos. Todos os outros exigem
-`Authorization: Bearer <token>`.
-
-### Método não permitido e rota inexistente
-
-- Um verbo não aceito por uma rota existente responde **405**, com o header
-  `Allow` listando os verbos aceitos e o corpo padrão com
-  `codigo: METODO_NAO_PERMITIDO`.
-- Um caminho que não corresponde a rota nenhuma responde **404**, com
-  `codigo: ROTA_NAO_ENCONTRADA`.
-- `OPTIONS` numa rota existente responde **204** com o `Allow` preenchido, e
-  `HEAD` é aceito em qualquer rota que aceite `GET`.
-- Esses quatro casos são resolvidos **antes** da verificação de autenticação.
-  Nunca exigem `Authorization`, mesmo em rotas protegidas, porque descrevem o
-  recurso e não quem está pedindo.
-
-## Integração contínua
-
-O workflow `.github/workflows/testes-api.yml` roda a cada pull request aberto
-para a `master`, e também pode ser disparado à mão pela aba Actions.
-
-Ele sobe um ambiente inteiro e descartável: um contêiner de serviço com MySQL 8,
-o `.env` montado na hora, a API compilada e no ar, e a espera ativa até o
-`/health` responder, em vez de um `sleep` fixo.
-
-O Mocha roda duas vezes no mesmo job, e cada execução grava um relatório com
-nome próprio:
-
-| Execução | Comando | O que cobre |
+| Método | Rota | Descrição |
 |---|---|---|
-| Suíte | `--grep "HEALTH-02" --invert` | Todos os casos, com o banco no ar |
-| Banco indisponível | `--grep "HEALTH-02"` | Só o HEALTH-02, depois de um `docker stop` no MySQL |
+| `POST` | `/auth/login` | autenticação |
+| `POST` | `/pedidos` | criação de pedido |
+| `GET` | `/pedidos` | listagem com filtro por status |
+| `GET` | `/pedidos/resumo` | resumo por status |
+| `GET` | `/pedidos/{id}` | busca por id |
+| `PATCH` | `/pedidos/{id}` | edição |
+| `PATCH` | `/pedidos/{id}/status` | avanço/retrocesso |
+| `DELETE` | `/pedidos/{id}` | cancelamento |
+| `GET` | `/health` | verificação da API e do banco |
 
-A separação existe porque o HEALTH-02 verifica a resposta 503 quando a
-dependência cai. Com o banco no ar ele falharia por falta da condição que
-testa, e não por defeito.
+## Portfólio e trajetória
 
-Ao fim, o relatório do Mochawesome e o log da API sobem como artefatos, com 14
-dias de retenção, mesmo quando a suíte falha.
+Este projeto representa uma etapa importante da minha evolução como analista de qualidade e desenvolvedora, e foi construído aplicando os conhecimentos adquiridos nos módulos da Mentoria 2.0 do Júlio de Lima.
 
-## Estado atual da execução
+Durante esse processo, trabalhei com:
 
-Nem toda falha desta suíte é problema de configuração, e nem todo verde
-significa que a API está correta. Vale ler o resultado junto com a matriz.
+- desenvolvimento de API em Node.js e TypeScript
+- arquitetura e organização do código
+- regras de negócio e validação de requisitos
+- documentação de contrato e comportamento
+- testes automatizados e análise de regressão
+- interface web para operação e acompanhamento
 
-Estado atual:
+A combinação de backend, front-end e garantia de qualidade em um único projeto mostra a forma como tenho abordado desenvolvimento e validação de software: com foco em comportamento, clareza e evidência.
 
-| Indicador | Valor |
-|---|---|
-| Testes automatizados | 22 |
-| Casos da matriz cobertos por eles | 18 de 96 |
-| Execuções por rodada da integração contínua | 2, a suíte e o cenário de banco indisponível |
+## Contribuição
 
-O veredicto de cada caso fica na coluna Veredicto da matriz, e o que foi
-observado na execução fica na coluna ao lado. As duas são preenchidas a partir
-do relatório do Mochawesome, e não à mão, o que mantém a matriz fiel ao que
-realmente rodou.
-
-Dois pontos que merecem leitura atenta:
-
-- **Verde nem sempre é aprovação.** O AUTH-06 envia uma senha de cem mil
-  caracteres e espera 401. Ele passa, e o que isso confirma é a lacuna: o
-  contrato não declara tamanho máximo, então a API processa a entrada inteira.
-  O teste registra o comportamento atual e serve de evidência do defeito, não
-  de aprovação dele.
-
-- **Nem todo caso é automatizável.** O AUTH-11 e o AUTH-12 são verificações de
-  inspeção, do contrato e do banco. São executados à mão, e a evidência fica na
-  issue correspondente.
-
-## Achados registrados
-
-Achados abertos como issue no repositório, com rastreabilidade até o caso da
-matriz que os originou:
-
-| Achado | Tipo | Origem |
-|---|---|---|
-| Mensagens de validação retornadas em inglês numa API em português | Melhoria | AUTH-02 e AUTH-05 |
-| Header `X-Powered-By` expõe o framework da aplicação | Melhoria | GERAL |
-| Contrato do login não declara tamanho máximo para `usuario` e `senha` | Melhoria | AUTH-06 |
-| Método não permitido resolvido depois da autenticação em parte das rotas | Bug | STATUS, HEALTH |
-| Credencial real publicada como exemplo no contrato | Risco aceito | AUTH-11 |
-| Senha gravada em texto puro na tabela de usuários | Risco aceito | AUTH-12 |
-
-Os dois últimos são decisão consciente do projeto, registrados como risco
-conhecido, com plano de correção por hash.
-
-Uma nota sobre como esses achados convivem com a suíte. As asserções afirmam o
-comportamento atual da API, e não o texto prometido pelo contrato, para que o
-vermelho continue significando regressão. A divergência entre os dois fica
-registrada na coluna Lacuna de contrato da matriz e na issue correspondente. No
-dia em que a API for corrigida, muda o valor padrão de uma fixture e a issue
-fecha.
-
-## Heurística de teste aplicada
-
-Os cenários deste repositório não foram escritos por intuição. Partiram da
-análise do contrato `openapi.yaml` guiada pela VADER, uma heurística de teste
-exploratório de API. Cada letra é um ângulo de ataque que se aplica a cada
-endpoint, o que reduz a chance de a suíte ficar só no caminho feliz.
-
-| Letra | Dimensão | Como aparece na suíte |
-|---|---|---|
-| V | Verbo HTTP | Verbos não documentados em cada recurso, esperando 405 com o header `Allow` correto, e o fluxo completo de transição de status |
-| A | Autenticação e autorização | Requisição sem `Authorization`, token adulterado, esquema errado, token expirado e enumeração de usuários pela mensagem de erro |
-| D | Dados | Campos obrigatórios ausentes, vazios e com tipo errado, bordas de quantidade e de preço, arredondamento monetário e campos calculados pelo servidor enviados pelo cliente |
-| E | Erros e exceções | Corpo malformado, recurso inexistente, transição de status inválida, colisão de rota e concorrência |
-| R | Respostas | Contrato do corpo devolvido, coerência entre campos, contagens do resumo e ausência de paginação |
-
-A distribuição dos 96 casos do escopo por letra está no checklist visual, em
-`docs/checklist_vader_cozinha_v3.0.html`, que abre no navegador sem servidor e
-sem dependência.
-
-A heurística POISED também foi estudada durante a especificação, e os casos que
-nasceram por ela foram reclassificados em VADER na revisão de escopo, para que
-a matriz tivesse uma única chave de leitura.
-
-## Documentação do projeto
-
-| Onde | O que tem |
-|---|---|
-| [Wiki do repositório](https://github.com/pamelatf/maluzices-cozinha-saudavel/wiki) | Visão da API, regras de negócio, plano de testes, casos no formato da ISO/IEC/IEEE 29119-3 e os mesmos casos em Gherkin |
-| `docs/matriz_vader_cozinha_v3.0.csv` | Os 96 casos do escopo, com critério, dados, comando e veredicto |
-| `docs/backlog_pos_entrega.csv` | Os 30 casos fora do recorte da entrega |
-| `docs/checklist_vader_cozinha_v3.0.html` | Checklist visual de execução, com filtros e exportação de evidências |
-| Aba Projects do repositório | Quadro com o andamento de cada caso |
-| Aba Issues do repositório | Uma issue por caso, mais as issues de defeito e de melhoria |
-
-## Próximos passos
-
-Backlog de evolução identificado no estado atual do projeto:
-
-- Escrever os testes dos grupos PEDIDOS, PEDIDO-ID, RESUMO, STATUS e GERAL, que
-  já estão especificados na matriz e aguardam automação
-- Cobrir o cenário de força bruta no login, hoje no backlog por depender de
-  execução isolada
-- Acrescentar o teste de carga em k6 sobre os endpoints de pedidos
-- Sanitizar os exemplos do `openapi.yaml`, trocando a credencial real por
-  valores fictícios
-- Ligar a proteção de branch na `master`, exigindo a suíte verde antes do merge
-
-## Como contribuir
-
-1. Faça um fork do projeto
-2. Crie uma branch para a sua mudança (`git checkout -b feature/NomeDaMudanca`)
-3. Faça o commit (`git commit -m "feat: descrição da mudança"`)
-4. Envie a branch (`git push origin feature/NomeDaMudanca`)
-5. Abra um pull request para a `master`
-
-O workflow de testes roda automaticamente na abertura do pull request.
+O projeto pode ser usado como referência de estudo, evolução técnica e apresentação profissional. Sugestões, melhorias e pull requests são bem-vindos.
 
 ## Licença
 
-Este projeto está sob a licença MIT. O texto completo está em
-[`LICENSE`](LICENSE).
+Este projeto está sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ## Contato
 
-Autora: Pamela T. F.
+Pamela T. F.
 GitHub: [@pamelatf](https://github.com/pamelatf)
+Linkedin: Pâmela Tábata Fagundes da Silva - (https://www.linkedin.com/in/pamelatfagundes/)
 
 Versão do contrato: 2.1.0
-Última atualização: 2026-08-11
+Última atualização: 2026-08-15
