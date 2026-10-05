@@ -29,6 +29,7 @@ const estado = {
   // 30 dias em vez de "este mês": mês em andamento compara 5 dias com 30
   periodoPainel: '30dias',
   filtroFichas: 'vendidos',
+  buscaInsumo: '',
   pedidoEmEdicao: null,
   filtrosCadastro: {},
   proximoCustoId: 8
@@ -350,6 +351,10 @@ function telaFichas() {
       <td class="num">${formatarMoeda(r.custoPorcao)}</td>
       <td class="num">${ficha.vendavel ? formatarMoeda(ficha.precoPraticado) : '<span class="suave">não é vendida</span>'}</td>
       <td class="num">${ficha.vendavel ? `<span class="${r.acimaDaMeta ? 'valor-alerta' : 'valor-ok'}">${formatarPercentual(r.cmvReal)}</span>` : ''}</td>
+      <td><div class="acoes-linha">
+        <button class="acao-icone" data-acao="editar-ficha" data-id="${ficha.id}" aria-label="Editar ${esc(ficha.nome)}">${icone('editar')}</button>
+        <button class="acao-icone perigo" data-acao="remover-ficha" data-id="${ficha.id}" aria-label="Remover ${esc(ficha.nome)}">${icone('excluir')}</button>
+      </div></td>
     </tr>`;
   }).join('');
 
@@ -366,17 +371,20 @@ function telaFichas() {
         <h1 class="titulo">Produtos e fichas</h1>
         <p class="subtitulo">Cada produto tem uma ficha técnica. Uma ficha pode ser vendida, servir de insumo em outras fichas, ou as duas coisas ao mesmo tempo.</p>
       </div>
-      <label class="campo" style="min-width:230px">Mostrar
-        <select data-acao="filtro-fichas">
-          ${opcoes.map(([v, r]) => `<option value="${v}" ${v === filtro ? 'selected' : ''}>${r}</option>`).join('')}
-        </select>
-      </label>
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <label class="campo" style="min-width:230px">Mostrar
+          <select data-acao="filtro-fichas">
+            ${opcoes.map(([v, r]) => `<option value="${v}" ${v === filtro ? 'selected' : ''}>${r}</option>`).join('')}
+          </select>
+        </label>
+        <button class="botao" data-acao="novo-produto">Novo produto</button>
+      </div>
     </div>
     <section class="cartao">
       <div class="rolagem">
         <table>
-          <thead><tr><th>Produto</th><th>Categoria</th><th class="num">Rendimento</th><th class="num">Custo por porção</th><th class="num">Preço</th><th class="num">CMV real</th></tr></thead>
-          <tbody>${linhas || '<tr><td colspan="6" class="suave">Nenhuma ficha neste filtro.</td></tr>'}</tbody>
+          <thead><tr><th>Produto</th><th>Categoria</th><th class="num">Rendimento</th><th class="num">Custo por porção</th><th class="num">Preço</th><th class="num">CMV real</th><th></th></tr></thead>
+          <tbody>${linhas || '<tr><td colspan="7" class="suave">Nenhuma ficha neste filtro.</td></tr>'}</tbody>
         </table>
       </div>
     </section>`;
@@ -399,6 +407,10 @@ function telaFicha(id) {
       <td class="num calculada suave">${formatarPeso(bruto)}</td>
       <td class="num calculada suave">${formatarMoeda(preco)}</td>
       <td class="num calculada forte">${formatarMoeda(custoDoIngrediente(linha, estado.catalogo))}</td>
+      <td><div class="acoes-linha">
+        <button class="acao-icone" data-acao="editar-ingrediente" data-ficha="${ficha.id}" data-indice="${indice}" aria-label="Trocar ingrediente">${icone('editar')}</button>
+        <button class="acao-icone perigo" data-acao="remover-ingrediente" data-ficha="${ficha.id}" data-indice="${indice}" aria-label="Remover ingrediente">${icone('excluir')}</button>
+      </div></td>
     </tr>`;
   }).join('');
 
@@ -450,7 +462,10 @@ function telaFicha(id) {
         <h1 class="titulo">${esc(ficha.nome)}</h1>
         <p class="subtitulo">Digite apenas a quantidade de cada insumo. As colunas em destaque são calculadas e se atualizam sozinhas.</p>
       </div>
-      <a class="botao botao-claro" href="#/fichas" style="text-decoration:none">Voltar</a>
+      <div style="display:flex;gap:10px">
+        <a class="botao botao-claro" href="#/fichas" style="text-decoration:none">Voltar</a>
+        <button class="botao" data-acao="editar-ficha" data-id="${ficha.id}">Editar produto</button>
+      </div>
     </div>
 
     <section class="cartao grade grade-3">
@@ -468,14 +483,17 @@ function telaFicha(id) {
     <section class="cartao">
       <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:baseline">
         <h2 class="cartao-titulo">Ingredientes</h2>
-        <span class="cartao-nota">As colunas com fundo claro são calculadas pelo sistema</span>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <span class="cartao-nota">As colunas com fundo claro são calculadas pelo sistema</span>
+          <button class="botao botao-claro" data-acao="novo-ingrediente" data-ficha="${ficha.id}">Adicionar ingrediente</button>
+        </div>
       </div>
       <div class="rolagem" style="margin-top:14px">
         <table>
           <thead><tr>
             <th>Insumo</th><th class="num">Quantidade (kg)</th>
             <th class="num calculada">Fator de correção</th><th class="num calculada">Peso bruto</th>
-            <th class="num calculada">Preço por kg</th><th class="num calculada">Custo</th>
+            <th class="num calculada">Preço por kg</th><th class="num calculada">Custo</th><th></th>
           </tr></thead>
           <tbody>${linhas}</tbody>
         </table>
@@ -567,7 +585,13 @@ function telaAjuste() {
 }
 
 function telaInsumos() {
-  const linhas = estado.catalogo.insumos.map((insumo) => {
+  const busca = normalizar(estado.buscaInsumo || '');
+  const todos = estado.catalogo.insumos.filter((i) => i.ativo !== false);
+  const visiveis = busca
+    ? todos.filter((i) => normalizar(i.nome).includes(busca) || normalizar(i.fornecedor || '').includes(busca))
+    : todos;
+
+  const linhas = visiveis.map((insumo) => {
     const desatualizado = !!insumo.cotacao && insumo.cotacao < '2026-07-01';
     return `<tr>
       <td>${esc(insumo.nome)}${insumo.fichaId ? ' <span class="selo selo-neutro">preço vem da ficha</span>' : ''}</td>
@@ -581,14 +605,26 @@ function telaInsumos() {
       <td class="${desatualizado ? 'valor-alerta' : 'suave'}">${insumo.cotacao
         ? insumo.cotacao.split('-').reverse().join('/')
         : '<span class="suave">não informada</span>'}</td>
+      <td><div class="acoes-linha">
+        <button class="acao-icone" data-acao="editar-insumo" data-id="${insumo.id}" aria-label="Editar ${esc(insumo.nome)}">${icone('editar')}</button>
+        <button class="acao-icone perigo" data-acao="remover-insumo" data-id="${insumo.id}" aria-label="Remover ${esc(insumo.nome)}">${icone('excluir')}</button>
+      </div></td>
     </tr>`;
   }).join('');
+
+  const inativos = estado.catalogo.insumos.length - todos.length;
 
   return `
     <div class="cabecalho">
       <div>
         <h1 class="titulo">Insumos</h1>
-        <p class="subtitulo">O preço é informado por você, como na planilha. Alterar um preço aqui recalcula na hora o custo de toda ficha que usa esse insumo.</p>
+        <p class="subtitulo">O que você compra para produzir. Mudar um preço aqui recalcula na hora o custo de toda ficha que usa esse insumo.</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <label class="campo" style="min-width:220px">Buscar
+          <input type="search" value="${esc(estado.buscaInsumo || '')}" data-acao="buscar-insumo" placeholder="nome ou fornecedor">
+        </label>
+        <button class="botao" data-acao="novo-insumo">Novo insumo</button>
       </div>
     </div>
 
@@ -598,13 +634,14 @@ function telaInsumos() {
           <thead><tr>
             <th>Insumo</th><th>Unidade</th><th class="num">Peso líquido</th>
             <th class="num calculada">Fator de correção</th><th class="num">Preço por kg</th>
-            <th>Fornecedor</th><th>Cotação</th>
+            <th>Fornecedor</th><th>Cotação</th><th></th>
           </tr></thead>
-          <tbody>${linhas}</tbody>
+          <tbody>${linhas || '<tr><td colspan="8" class="suave">Nenhum insumo encontrado.</td></tr>'}</tbody>
         </table>
       </div>
       <p class="cartao-nota" style="margin-top:14px">
-        A data de cotação é a do último preço informado. Quando ela fica velha, aparece em destaque, porque o custo das fichas passa a ser calculado sobre um preço desatualizado.
+        Mostrando ${visiveis.length} de ${todos.length} insumos${inativos ? `, mais ${inativos} inativo${inativos > 1 ? 's' : ''}` : ''}.
+        A data de cotação é a do último preço informado. Quando fica velha, aparece em destaque, porque o custo das fichas passa a ser calculado sobre um preço vencido.
       </p>
     </section>`;
 }
@@ -829,8 +866,10 @@ let confirmacaoPendente = null;
 let formularioAtivo = null;
 let custoEmEdicao = null;
 
-function abrirDialogo(html) {
-  document.getElementById('diagCaixa').innerHTML = html;
+function abrirDialogo(html, largo = false) {
+  const caixa = document.getElementById('diagCaixa');
+  caixa.innerHTML = html;
+  caixa.classList.toggle('diag-caixa-larga', largo);
   document.getElementById('diagFundo').classList.add('aberto');
   const primeiro = document.querySelector('#diagCaixa input, #diagCaixa select');
   if (primeiro) setTimeout(() => primeiro.focus(), 40);
@@ -858,32 +897,65 @@ function confirmar({ titulo, texto, textoAcao = 'Remover', aoConfirmar }) {
   confirmacaoPendente = aoConfirmar;
 }
 
-function abrirFormulario({ titulo, campos, aoSalvar, textoSalvar = 'Salvar' }) {
-  const corpo = campos.map((c) => (c.tipo === 'checkbox'
-    ? `<label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer">
-         <input type="checkbox" id="campo-${c.id}" ${c.valor ? 'checked' : ''}> ${esc(c.rotulo)}
-       </label>`
-    : `<label class="campo">${esc(c.rotulo)}
-         <input type="${c.tipo || 'text'}" id="campo-${c.id}" value="${esc(c.valor || '')}" placeholder="${esc(c.placeholder || '')}">
-       </label>`)).join('');
+function campoDoFormulario(c) {
+  if (c.tipo === 'checkbox') {
+    return `<label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer">
+      <input type="checkbox" id="campo-${c.id}" ${c.valor ? 'checked' : ''}> ${esc(c.rotulo)}
+    </label>`;
+  }
 
+  if (c.tipo === 'select') {
+    return `<label class="campo">${esc(c.rotulo)}
+      <select id="campo-${c.id}">
+        ${c.opcoes.map((o) => `<option value="${esc(o.valor)}" ${String(o.valor) === String(c.valor) ? 'selected' : ''}>${esc(o.rotulo)}</option>`).join('')}
+      </select>
+    </label>`;
+  }
+
+  // só de leitura serve para mostrar um número que o sistema calcula
+  if (c.tipo === 'leitura') {
+    return `<label class="campo">${esc(c.rotulo)}
+      <input type="text" id="campo-${c.id}" value="${esc(c.valor || '')}" disabled>
+      ${c.nota ? `<span class="suave" style="font-size:12px">${esc(c.nota)}</span>` : ''}
+    </label>`;
+  }
+
+  return `<label class="campo">${esc(c.rotulo)}
+    <input type="${c.tipo || 'text'}" id="campo-${c.id}" value="${esc(c.valor == null ? '' : c.valor)}"
+           placeholder="${esc(c.placeholder || '')}" ${c.passo ? `step="${c.passo}"` : ''}>
+    ${c.nota ? `<span class="suave" style="font-size:12px">${esc(c.nota)}</span>` : ''}
+  </label>`;
+}
+
+function abrirFormulario({ titulo, nota, campos, aoSalvar, textoSalvar = 'Salvar', largo = false }) {
   abrirDialogo(`
     <h2 class="diag-titulo">${esc(titulo)}</h2>
-    <div class="diag-campos">${corpo}</div>
+    ${nota ? `<p class="diag-texto">${esc(nota)}</p>` : ''}
+    <div class="diag-campos${largo ? ' diag-campos-duplos' : ''}">${campos.map(campoDoFormulario).join('')}</div>
+    <div class="aviso aviso-atencao" id="diag-aviso" style="display:none"></div>
     <div class="diag-acoes">
       <button class="botao botao-claro" data-diag="cancelar">Cancelar</button>
       <button class="botao" data-diag="salvar">${esc(textoSalvar)}</button>
-    </div>`);
+    </div>`, largo);
   formularioAtivo = { campos, aoSalvar };
 }
 
 function lerFormularioAtivo() {
   const valores = {};
   formularioAtivo.campos.forEach((c) => {
+    if (c.tipo === 'leitura') return;
     const campo = document.getElementById(`campo-${c.id}`);
     valores[c.id] = c.tipo === 'checkbox' ? campo.checked : campo.value.trim();
   });
   return valores;
+}
+
+/** Recado dentro do diálogo, para o erro não fechar o que a pessoa digitou. */
+function avisarNoDialogo(texto) {
+  const aviso = document.getElementById('diag-aviso');
+  if (!aviso) return;
+  aviso.textContent = texto;
+  aviso.style.display = texto ? 'flex' : 'none';
 }
 
 /* ------------------------------------------------------------------
@@ -891,6 +963,8 @@ function lerFormularioAtivo() {
    formas de pagamento): edição e remoção em diálogo, com inativação
    no lugar da remoção quando o cadastro já está em uso.
 ------------------------------------------------------------------ */
+const novoId = (nome, lista) => slugify(nome, lista);
+
 function slugify(nome, listaExistente) {
   const base = String(nome).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'item';
@@ -1057,6 +1131,169 @@ function abrirFormularioCadastro(tipo, item) {
       if (!valores.nome) return;
       if (item) def.atualizar(item, valores);
       else def.lista().push(def.criar(valores));
+    }
+  });
+}
+
+/* ------------------------------------------------------------------
+   Insumos: cadastro manual.
+------------------------------------------------------------------ */
+const insumoEmUso = (insumo) =>
+  estado.catalogo.fichas.filter((f) => f.ingredientes.some((l) => l.insumoId === insumo.id));
+
+function abrirFormularioInsumo(insumo) {
+  const unidadesAtivas = estado.catalogo.unidades.filter((u) => u.ativa !== false);
+  const fichaDeOrigem = insumo && insumo.fichaId && acharFicha(insumo.fichaId);
+
+  const campos = [
+    { id: 'nome', rotulo: 'Nome', valor: insumo ? insumo.nome : '', placeholder: 'Farinha de arroz' },
+    {
+      id: 'unidade', rotulo: 'Como você compra', tipo: 'select',
+      valor: insumo ? insumo.unidade : 'kg',
+      opcoes: unidadesAtivas.map((u) => ({ valor: u.sigla, rotulo: `${u.nome} (${u.sigla})` }))
+    },
+    {
+      id: 'fornecedor', rotulo: 'Fornecedor', tipo: 'select',
+      valor: insumo ? insumo.fornecedor : '',
+      opcoes: [{ valor: '', rotulo: 'Não informado' }]
+        .concat(estado.catalogo.fornecedores.filter((f) => f.ativa !== false).map((f) => ({ valor: f.nome, rotulo: f.nome })))
+    },
+    { id: 'pesoBruto', rotulo: 'Peso bruto', tipo: 'number', passo: '0.001', valor: insumo ? insumo.pesoBruto : 1,
+      nota: 'Quanto você compra, antes de limpar.' },
+    { id: 'pesoLiquido', rotulo: 'Peso líquido', tipo: 'number', passo: '0.001', valor: insumo ? insumo.pesoLiquido : 1,
+      nota: 'Quanto sobra depois de descascar, limpar ou tirar o osso.' }
+  ];
+
+  // Insumo que vem de uma ficha tem o preço calculado, não digitado.
+  campos.push(fichaDeOrigem
+    ? {
+      id: 'preco', tipo: 'leitura', rotulo: 'Preço por quilo',
+      valor: formatarMoeda(precoPorQuilo(insumo, estado.catalogo)),
+      nota: `Calculado pela ficha "${fichaDeOrigem.nome}". Para mudar, altere a receita dela.`
+    }
+    : { id: 'preco', rotulo: 'Preço por quilo', valor: insumo ? formatarMoeda(insumo.preco) : '', placeholder: 'R$ 0,00' });
+
+  campos.push({ id: 'cotacao', rotulo: 'Data da cotação', tipo: 'date', valor: insumo ? insumo.cotacao || '' : HOJE,
+    nota: 'Quando você viu esse preço pela última vez.' });
+
+  if (insumo) campos.push({ id: 'ativo', rotulo: 'Insumo ativo', tipo: 'checkbox', valor: insumo.ativo !== false });
+
+  abrirFormulario({
+    titulo: insumo ? `Editar: ${insumo.nome}` : 'Novo insumo',
+    campos,
+    textoSalvar: insumo ? 'Salvar' : 'Adicionar',
+    aoSalvar: (v) => {
+      if (!v.nome) { avisarNoDialogo('Informe o nome do insumo.'); return false; }
+      const bruto = Number(v.pesoBruto) || 1;
+      const liquido = Number(v.pesoLiquido) || bruto;
+      if (liquido > bruto) {
+        avisarNoDialogo('O peso líquido não pode ser maior que o bruto: sobraria mais do que entrou.');
+        return false;
+      }
+      const dados = {
+        nome: v.nome, unidade: v.unidade, fornecedor: v.fornecedor,
+        pesoBruto: bruto, pesoLiquido: liquido, cotacao: v.cotacao || ''
+      };
+      if (v.preco !== undefined) dados.preco = lerMoeda(v.preco);
+      if (insumo) Object.assign(insumo, dados, { ativo: v.ativo });
+      else estado.catalogo.insumos.push({ id: novoId(v.nome, estado.catalogo.insumos), ...dados, ativo: true });
+      return true;
+    }
+  });
+}
+
+/* ------------------------------------------------------------------
+   Produtos e fichas: cadastro manual.
+------------------------------------------------------------------ */
+function abrirFormularioFicha(ficha) {
+  const categoriasAtivas = estado.catalogo.categorias.filter((c) => c.ativa !== false);
+
+  const campos = [
+    { id: 'nome', rotulo: 'Nome do produto', valor: ficha ? ficha.nome : '', placeholder: 'Quiche de frango' },
+    {
+      id: 'categoriaId', rotulo: 'Categoria', tipo: 'select',
+      valor: ficha ? ficha.categoriaId : (categoriasAtivas[0] || {}).id,
+      opcoes: categoriasAtivas.map((c) => ({ valor: c.id, rotulo: c.nome }))
+    },
+    { id: 'rendimento', rotulo: 'Rendimento da receita', tipo: 'number', passo: '0.001',
+      valor: ficha ? ficha.rendimento : 1, nota: 'Quantas porções saem de uma receita inteira.' },
+    { id: 'tamanhoPorcao', rotulo: 'Tamanho da porção', valor: ficha ? ficha.tamanhoPorcao : '',
+      placeholder: '400g', nota: 'Como você anuncia para o cliente.' },
+    { id: 'vendavel', rotulo: 'Este produto é vendido', tipo: 'checkbox', valor: ficha ? !!ficha.vendavel : true },
+    { id: 'precoPraticado', rotulo: 'Preço praticado', valor: ficha ? formatarMoeda(ficha.precoPraticado) : '',
+      placeholder: 'R$ 0,00', nota: 'Deixe vazio se ainda não for vendido.' },
+    { id: 'metaCmv', rotulo: 'Meta de CMV deste produto',
+      valor: ficha && ficha.metaCmv ? formatarPercentual(ficha.metaCmv, 0) : '',
+      placeholder: 'usa a da categoria', nota: 'Vazio herda a meta da categoria.' },
+    { id: 'rendimentoKg', rotulo: 'Quanto sai da receita, em kg', tipo: 'number', passo: '0.001',
+      valor: ficha && ficha.rendimentoKg ? ficha.rendimentoKg : '',
+      nota: 'Só quando esta receita vira ingrediente de outra. Vazio assume que nada se perde.' }
+  ];
+
+  if (ficha) campos.push({ id: 'ativo', rotulo: 'Produto ativo', tipo: 'checkbox', valor: ficha.ativo !== false });
+
+  abrirFormulario({
+    titulo: ficha ? `Editar: ${ficha.nome}` : 'Novo produto',
+    nota: ficha ? '' : 'Depois de criar, a ficha abre para você montar os ingredientes.',
+    largo: true,
+    campos,
+    textoSalvar: ficha ? 'Salvar' : 'Criar e montar a ficha',
+    aoSalvar: (v) => {
+      if (!v.nome) { avisarNoDialogo('Informe o nome do produto.'); return false; }
+      const rendimento = Number(v.rendimento) || 0;
+      if (rendimento <= 0) { avisarNoDialogo('O rendimento precisa ser maior que zero.'); return false; }
+
+      const dados = {
+        nome: v.nome,
+        categoriaId: v.categoriaId,
+        rendimento,
+        tamanhoPorcao: v.tamanhoPorcao,
+        vendavel: !!v.vendavel,
+        precoPraticado: lerMoeda(v.precoPraticado),
+        metaCmv: v.metaCmv ? lerMoeda(v.metaCmv) / 100 : undefined,
+        rendimentoKg: Number(v.rendimentoKg) || undefined
+      };
+
+      if (ficha) {
+        Object.assign(ficha, dados, { ativo: v.ativo });
+      } else {
+        const nova = { id: novoId(v.nome, estado.catalogo.fichas), ...dados, ingredientes: [], ativo: true };
+        estado.catalogo.fichas.push(nova);
+        location.hash = `#/ficha/${nova.id}`;
+      }
+      return true;
+    }
+  });
+}
+
+/** Linha de ingrediente: escolher o insumo e dizer quanto vai. */
+function abrirFormularioIngrediente(ficha, indice) {
+  const linha = indice === undefined ? null : ficha.ingredientes[indice];
+  const disponiveis = estado.catalogo.insumos
+    .filter((i) => i.ativo !== false && i.fichaId !== ficha.id)
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+
+  abrirFormulario({
+    titulo: linha ? 'Trocar ingrediente' : 'Adicionar ingrediente',
+    campos: [
+      {
+        id: 'insumoId', rotulo: 'Insumo', tipo: 'select',
+        valor: linha ? linha.insumoId : (disponiveis[0] || {}).id,
+        opcoes: disponiveis.map((i) => ({
+          valor: i.id,
+          rotulo: `${i.nome} (${formatarMoeda(precoPorQuilo(i, estado.catalogo))}/kg)`
+        }))
+      },
+      { id: 'quantidade', rotulo: 'Quantidade em quilos', tipo: 'number', passo: '0.001',
+        valor: linha ? linha.quantidade : '', nota: 'Peso líquido, já limpo. O peso bruto o sistema calcula.' }
+    ],
+    textoSalvar: linha ? 'Salvar' : 'Adicionar',
+    aoSalvar: (v) => {
+      const quantidade = Number(v.quantidade) || 0;
+      if (quantidade <= 0) { avisarNoDialogo('Informe uma quantidade maior que zero.'); return false; }
+      if (linha) Object.assign(linha, { insumoId: v.insumoId, quantidade });
+      else ficha.ingredientes.push({ insumoId: v.insumoId, quantidade });
+      return true;
     }
   });
 }
@@ -1446,6 +1683,14 @@ function preencherPrecoDoProduto(campo) {
 
 document.addEventListener('input', (evento) => {
   const alvo = evento.target;
+  if (alvo.dataset && alvo.dataset.acao === 'buscar-insumo') {
+    estado.buscaInsumo = alvo.value;
+    const foco = alvo.selectionStart;
+    renderizar();
+    const campo = document.querySelector('[data-acao="buscar-insumo"]');
+    if (campo) { campo.focus(); campo.setSelectionRange(foco, foco); }
+    return;
+  }
   if (alvo.id === 'campoTelefone') atualizarLinkZapDoModal();
   if (alvo.closest && alvo.closest('#listaItens')) {
     if (alvo.classList.contains('it-nome')) preencherPrecoDoProduto(alvo);
@@ -1489,9 +1734,9 @@ document.addEventListener('click', (evento) => {
 
     if (acaoDiag === 'salvar' && formularioAtivo) {
       const valores = lerFormularioAtivo();
-      const salvar = formularioAtivo.aoSalvar;
+      // devolver false mantém o diálogo aberto, com o aviso e o que foi digitado
+      if (formularioAtivo.aoSalvar(valores) === false) return;
       fecharDialogo();
-      salvar(valores);
       renderizar();
       return;
     }
@@ -1622,6 +1867,83 @@ document.addEventListener('click', (evento) => {
       texto: `Quer remover "${custo.descricao}", de ${formatarMoeda(custo.valor)}? O total do painel muda junto e não dá para desfazer.`,
       aoConfirmar: () => { estado.catalogo.custos = estado.catalogo.custos.filter((c) => c !== custo); }
     });
+  }
+
+  if (acao === 'novo-produto') abrirFormularioFicha(null);
+
+  if (acao === 'editar-ficha') abrirFormularioFicha(acharFicha(alvo.dataset.id));
+
+  if (acao === 'remover-ficha') {
+    const ficha = acharFicha(alvo.dataset.id);
+    const comoInsumo = estado.catalogo.fichas.filter((f) => f.ingredientes.some((l) => {
+      const i = acharInsumo(l.insumoId);
+      return i && i.fichaId === ficha.id;
+    }));
+    const temVenda = vendas.some((v) => v.fichaId === ficha.id);
+
+    if (comoInsumo.length || temVenda) {
+      const motivo = comoInsumo.length
+        ? `Ela é ingrediente de ${comoInsumo.map((f) => f.nome).join(', ')}`
+        : 'Ela já tem venda registrada no histórico';
+      confirmar({
+        titulo: `Inativar ${ficha.nome}?`,
+        texto: `${motivo}, então apagar quebraria o custo ou o histórico. Pode ficar inativa e sair das listas.`,
+        textoAcao: 'Inativar',
+        aoConfirmar: () => { ficha.ativo = false; }
+      });
+    } else {
+      confirmar({
+        titulo: `Remover ${ficha.nome}?`,
+        texto: 'Nenhuma outra receita usa esta ficha e ela não tem venda registrada. Pode ser apagada de vez, e isso não dá para desfazer.',
+        aoConfirmar: () => {
+          estado.catalogo.fichas = estado.catalogo.fichas.filter((f) => f !== ficha);
+        }
+      });
+    }
+  }
+
+  if (acao === 'novo-ingrediente') abrirFormularioIngrediente(acharFicha(alvo.dataset.ficha));
+
+  if (acao === 'editar-ingrediente') {
+    abrirFormularioIngrediente(acharFicha(alvo.dataset.ficha), Number(alvo.dataset.indice));
+  }
+
+  if (acao === 'remover-ingrediente') {
+    const ficha = acharFicha(alvo.dataset.ficha);
+    const indice = Number(alvo.dataset.indice);
+    const insumo = acharInsumo(ficha.ingredientes[indice].insumoId);
+    confirmar({
+      titulo: 'Remover ingrediente?',
+      texto: `${insumo ? insumo.nome : 'Este ingrediente'} sai da receita de ${ficha.nome} e o custo é recalculado na hora.`,
+      aoConfirmar: () => { ficha.ingredientes.splice(indice, 1); }
+    });
+  }
+
+  if (acao === 'novo-insumo') abrirFormularioInsumo(null);
+
+  if (acao === 'editar-insumo') {
+    abrirFormularioInsumo(acharInsumo(alvo.dataset.id));
+  }
+
+  if (acao === 'remover-insumo') {
+    const insumo = acharInsumo(alvo.dataset.id);
+    const usos = insumoEmUso(insumo);
+    if (usos.length) {
+      confirmar({
+        titulo: `Inativar ${insumo.nome}?`,
+        texto: `Ele é ingrediente de ${usos.length} ${usos.length === 1 ? 'receita' : 'receitas'} (${usos.slice(0, 3).map((f) => f.nome).join(', ')}${usos.length > 3 ? ' e outras' : ''}), então não pode ser apagado sem quebrar o custo delas. Pode ficar inativo e sair das listas de seleção.`,
+        textoAcao: 'Inativar',
+        aoConfirmar: () => { insumo.ativo = false; }
+      });
+    } else {
+      confirmar({
+        titulo: `Remover ${insumo.nome}?`,
+        texto: 'Nenhuma receita usa este insumo, então ele pode ser apagado de vez. Isso não dá para desfazer.',
+        aoConfirmar: () => {
+          estado.catalogo.insumos = estado.catalogo.insumos.filter((i) => i !== insumo);
+        }
+      });
+    }
   }
 
   if (acao === 'novo-cadastro') {
