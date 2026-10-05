@@ -5,9 +5,10 @@ aplicação estática, sem build e sem back-end.
 
 O site tem dois módulos:
 
-- **Painel de pedidos**, servido a partir de `web/painel-maluzices.html`, que o
-  workflow copia para dentro do site como `pedidos.html`. O arquivo não é
-  duplicado no repositório.
+- **Painel de pedidos**, em `pedidos.html`. Era o `web/painel-maluzices.html`,
+  movido para cá para que o site funcione tanto publicado pelo workflow quanto
+  publicado direto de uma branch. O front em React de `web/` continua sendo a
+  versão de produção dessa tela; esta é a estática.
 - **Módulo financeiro**, nesta pasta: ficha técnica, custo por porção, CMV e
   precificação.
 
@@ -57,7 +58,9 @@ python3 -m http.server 8777
 ```
 prototipo/
   index.html        capa com os dois módulos
+  pedidos.html      painel de pedidos, estático
   financeiro.html   casca do módulo financeiro
+  modelo-custos.csv modelo para a importação de custos
   css/estilos.css   paleta e tipografia da marca, iguais às de web/
   js/calculo.js     motor de cálculo, sem dependência de tela
   js/dados.js       dados de exemplo

@@ -1,7 +1,7 @@
 # Painel de Pedidos — Front-end
 
 Versão em React + TypeScript do painel de pedidos da Maluzices, portada
-1:1 a partir do protótipo estático [`painel-maluzices.html`](painel-maluzices.html)
+1:1 a partir do protótipo estático [`prototipo/pedidos.html`](../prototipo/pedidos.html)
 (mantido no repositório como referência visual — abra-o diretamente no
 navegador para comparar lado a lado com a versão em React).
 

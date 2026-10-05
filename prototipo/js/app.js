@@ -13,7 +13,8 @@ const estado = {
   parametros: { ...parametrosIniciais },
   abaConfig: 'parametros',
   selecionados: {},
-  novosPrecos: {}
+  novosPrecos: {},
+  importacao: null
 };
 
 const PAGINAS = [
@@ -416,6 +417,152 @@ function telaInsumos() {
     </section>`;
 }
 
+/**
+ * Importação de custos a partir de um CSV.
+ * A planilha é lida, validada linha a linha e mostrada numa prévia.
+ * Nada entra na base antes da confirmação.
+ */
+const COLUNAS_ESPERADAS = ['data', 'categoria', 'descricao', 'valor', 'status'];
+
+export function separarLinhaCsv(linha, separador = ';') {
+  const campos = [];
+  let atual = '';
+  let dentroDeAspas = false;
+  for (let i = 0; i < linha.length; i += 1) {
+    const caractere = linha[i];
+    if (caractere === '"') {
+      if (dentroDeAspas && linha[i + 1] === '"') { atual += '"'; i += 1; }
+      else dentroDeAspas = !dentroDeAspas;
+    } else if (caractere === separador && !dentroDeAspas) {
+      campos.push(atual.trim());
+      atual = '';
+    } else {
+      atual += caractere;
+    }
+  }
+  campos.push(atual.trim());
+  return campos;
+}
+
+/**
+ * O separador é decidido pelo cabeçalho. Não dá para aceitar ponto e vírgula
+ * e vírgula ao mesmo tempo: num arquivo brasileiro a vírgula é decimal, e
+ * tratá-la como separador parte "215,40" em dois campos.
+ */
+export function detectarSeparador(cabecalho) {
+  return cabecalho.split(';').length >= cabecalho.split(',').length ? ';' : ',';
+}
+
+function normalizar(texto) {
+  return String(texto).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+}
+
+function dataExiste(ano, mes, dia) {
+  const data = new Date(Date.UTC(ano, mes - 1, dia));
+  return data.getUTCFullYear() === ano && data.getUTCMonth() === mes - 1 && data.getUTCDate() === dia;
+}
+
+function lerData(texto) {
+  const valor = String(texto).trim();
+  const iso = valor.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso && dataExiste(+iso[1], +iso[2], +iso[3])) return valor;
+  const brasileira = valor.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (brasileira && dataExiste(+brasileira[3], +brasileira[2], +brasileira[1])) {
+    return `${brasileira[3]}-${brasileira[2]}-${brasileira[1]}`;
+  }
+  return null;
+}
+
+export function analisarCsvDeCustos(texto, categoriasConhecidas) {
+  const linhas = texto.split(/\r?\n/).filter((l) => l.trim().length);
+  if (!linhas.length) return { erroGeral: 'O arquivo está vazio.', linhas: [] };
+
+  const separador = detectarSeparador(linhas[0]);
+  const cabecalho = separarLinhaCsv(linhas[0], separador).map(normalizar);
+  const faltando = COLUNAS_ESPERADAS.filter((coluna) => !cabecalho.includes(coluna));
+  if (faltando.length) {
+    return {
+      erroGeral: `A planilha precisa ter as colunas ${COLUNAS_ESPERADAS.join(', ')}. Faltou: ${faltando.join(', ')}.`,
+      linhas: []
+    };
+  }
+
+  const indice = {};
+  COLUNAS_ESPERADAS.forEach((coluna) => { indice[coluna] = cabecalho.indexOf(coluna); });
+
+  const resultado = linhas.slice(1).map((linhaBruta, posicao) => {
+    const campos = separarLinhaCsv(linhaBruta, separador);
+    const problemas = [];
+
+    const data = lerData(campos[indice.data] || '');
+    if (!data) problemas.push('data inválida');
+
+    const categoria = (campos[indice.categoria] || '').trim();
+    if (!categoria) problemas.push('categoria vazia');
+    else if (!categoriasConhecidas.some((c) => normalizar(c) === normalizar(categoria))) problemas.push('categoria não cadastrada');
+
+    const descricao = (campos[indice.descricao] || '').trim();
+    if (!descricao) problemas.push('descrição vazia');
+
+    const valor = lerMoeda(campos[indice.valor] || '');
+    if (!valor) problemas.push('valor inválido');
+    else if (valor < 0) problemas.push('valor negativo');
+
+    const status = normalizar(campos[indice.status] || '');
+    const pago = status === 'pago';
+
+    return { numero: posicao + 2, data, categoria, descricao, valor, pago, problemas };
+  });
+
+  return { erroGeral: null, linhas: resultado };
+}
+
+function blocoImportacao() {
+  const { erroGeral, linhas, arquivo } = estado.importacao;
+
+  if (erroGeral) {
+    return `<section class="cartao">
+      <h2 class="cartao-titulo">Importar planilha</h2>
+      <div class="aviso aviso-atencao" style="margin-top:14px">${icone('alerta')}<div>${esc(erroGeral)}</div></div>
+      <div style="margin-top:16px"><button class="botao botao-claro" data-acao="cancelar-importacao">Fechar</button></div>
+    </section>`;
+  }
+
+  const validas = linhas.filter((l) => !l.problemas.length);
+  const invalidas = linhas.filter((l) => l.problemas.length);
+
+  const corpo = linhas.map((l) => `<tr>
+    <td class="suave">${l.numero}</td>
+    <td class="suave">${l.data ? l.data.split('-').reverse().join('/') : '—'}</td>
+    <td>${esc(l.categoria || '—')}</td>
+    <td class="suave">${esc(l.descricao || '—')}</td>
+    <td class="num">${l.valor ? formatarMoeda(l.valor) : '—'}</td>
+    <td>${l.problemas.length
+      ? `<span class="selo selo-alerta">${esc(l.problemas.join(', '))}</span>`
+      : '<span class="selo selo-ok">pronta para importar</span>'}</td>
+  </tr>`).join('');
+
+  return `<section class="cartao">
+    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:baseline">
+      <div>
+        <h2 class="cartao-titulo">Prévia da importação</h2>
+        <p class="cartao-nota">${esc(arquivo)}, ${linhas.length} ${linhas.length === 1 ? 'linha' : 'linhas'}. Nada é gravado antes de você confirmar.</p>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="botao botao-claro" data-acao="cancelar-importacao">Cancelar</button>
+        <button class="botao" data-acao="confirmar-importacao" ${validas.length ? '' : 'disabled'}>Importar ${validas.length} ${validas.length === 1 ? 'linha' : 'linhas'}</button>
+      </div>
+    </div>
+    ${invalidas.length ? `<div class="aviso aviso-atencao" style="margin-top:14px">${icone('alerta')}<div>${invalidas.length} ${invalidas.length === 1 ? 'linha será ignorada' : 'linhas serão ignoradas'} por causa dos problemas marcados abaixo. As demais podem ser importadas normalmente.</div></div>` : ''}
+    <div class="rolagem" style="margin-top:14px">
+      <table>
+        <thead><tr><th>Linha</th><th>Data</th><th>Categoria</th><th>Descrição</th><th class="num">Valor</th><th>Situação</th></tr></thead>
+        <tbody>${corpo}</tbody>
+      </table>
+    </div>
+  </section>`;
+}
+
 function telaCustos() {
   const doMes = estado.catalogo.custos.filter((c) => c.data.startsWith('2026-10'));
   const total = doMes.reduce((t, c) => t + c.valor, 0);
@@ -438,7 +585,14 @@ function telaCustos() {
         <h1 class="titulo">Custos</h1>
         <p class="subtitulo">Uma linha por gasto. Os totais do painel saem daqui.</p>
       </div>
+      <div style="display:flex;gap:10px">
+        <button class="botao botao-claro" data-acao="abrir-importacao">Importar planilha</button>
+        <a class="botao botao-claro" href="modelo-custos.csv" download style="text-decoration:none">Baixar modelo</a>
+      </div>
     </div>
+
+    ${estado.importacao ? blocoImportacao() : ''}
+    <input type="file" id="arquivo-importacao" accept=".csv,text/csv" style="display:none">
 
     <section class="grade grade-3">
       <div class="cartao indicador"><div class="rotulo">Total de outubro</div><div class="valor">${formatarMoeda(total)}</div></div>
@@ -620,6 +774,20 @@ document.addEventListener('input', (evento) => {
 
 document.addEventListener('change', (evento) => {
   const alvo = evento.target;
+
+  if (alvo.id === 'arquivo-importacao') {
+    const arquivo = alvo.files && alvo.files[0];
+    if (!arquivo) return;
+    const leitor = new FileReader();
+    leitor.onload = () => {
+      const analise = analisarCsvDeCustos(String(leitor.result), estado.catalogo.categoriasDeCusto);
+      estado.importacao = { ...analise, arquivo: arquivo.name };
+      renderizar();
+    };
+    leitor.readAsText(arquivo, 'utf-8');
+    return;
+  }
+
   const acao = alvo.dataset.acao;
   if (!acao) return;
 
@@ -700,6 +868,27 @@ document.addEventListener('click', (evento) => {
   if (acao === 'alternar-pago') {
     const custo = estado.catalogo.custos[Number(alvo.dataset.indice)];
     custo.pago = !custo.pago;
+    renderizar();
+  }
+
+  if (acao === 'abrir-importacao') {
+    document.getElementById('arquivo-importacao').click();
+  }
+
+  if (acao === 'cancelar-importacao') {
+    estado.importacao = null;
+    renderizar();
+  }
+
+  if (acao === 'confirmar-importacao') {
+    const validas = estado.importacao.linhas.filter((l) => !l.problemas.length);
+    validas.forEach((l) => {
+      estado.catalogo.custos.unshift({
+        data: l.data, categoria: l.categoria, descricao: l.descricao, valor: l.valor, pago: l.pago
+      });
+    });
+    estado.catalogo.custos.sort((a, b) => (a.data < b.data ? 1 : -1));
+    estado.importacao = null;
     renderizar();
   }
 
