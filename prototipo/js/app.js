@@ -30,6 +30,7 @@ const estado = {
   periodoPainel: '30dias',
   filtroFichas: 'vendidos',
   buscaInsumo: '',
+  paginas: {},
   pedidoEmEdicao: null,
   filtrosCadastro: {},
   proximoCustoId: 8
@@ -94,6 +95,54 @@ function fichasComDiferenca() {
   return fichasVendaveis()
     .map((ficha) => ({ ficha, resumo: resumoDaFicha(ficha, estado.catalogo, estado.parametros) }))
     .filter(({ resumo }) => Math.abs(resumo.diferenca) >= 0.01);
+}
+
+/* ------------------------------------------------------------------
+   Paginação.
+
+   Uma grid de 163 linhas não se lê. Cada tabela tem a sua página guardada
+   por uma chave, e qualquer busca ou filtro volta para a primeira: ficar
+   na página 5 de um resultado que agora tem uma página só é o jeito mais
+   fácil de alguém achar que o sistema perdeu os dados.
+------------------------------------------------------------------ */
+const POR_PAGINA = 25;
+
+function paginaDe(chave) {
+  return estado.paginas[chave] || 1;
+}
+
+function voltarPrimeiraPagina(chave) {
+  estado.paginas[chave] = 1;
+}
+
+function fatiar(chave, itens, porPagina = POR_PAGINA) {
+  const total = Math.max(1, Math.ceil(itens.length / porPagina));
+  const pagina = Math.min(paginaDe(chave), total);
+  estado.paginas[chave] = pagina;
+  const inicio = (pagina - 1) * porPagina;
+  return {
+    visiveis: itens.slice(inicio, inicio + porPagina),
+    pagina,
+    totalDePaginas: total,
+    primeiro: itens.length ? inicio + 1 : 0,
+    ultimo: Math.min(inicio + porPagina, itens.length),
+    total: itens.length
+  };
+}
+
+function blocoPaginacao(chave, f, nomeDoItem = 'registros') {
+  if (!f.total) return '';
+  const contagem = `<span class="pag-contagem">Mostrando ${f.primeiro} a ${f.ultimo} de ${f.total} ${nomeDoItem}</span>`;
+  if (f.totalDePaginas === 1) return `<div class="paginacao">${contagem}</div>`;
+
+  return `<div class="paginacao">
+    ${contagem}
+    <div class="pag-botoes">
+      <button class="botao botao-claro" data-acao="pagina" data-chave="${chave}" data-para="${f.pagina - 1}" ${f.pagina === 1 ? 'disabled' : ''}>Anterior</button>
+      <span class="pag-atual">Página ${f.pagina} de ${f.totalDePaginas}</span>
+      <button class="botao botao-claro" data-acao="pagina" data-chave="${chave}" data-para="${f.pagina + 1}" ${f.pagina === f.totalDePaginas ? 'disabled' : ''}>Próxima</button>
+    </div>
+  </div>`;
 }
 
 /* ------------------------------------------------------------------
@@ -269,7 +318,8 @@ function telaInicio() {
  * estimado pelo sistema.
  */
 function telaPainel() {
-  const linhas = fichasVendaveis().map((ficha) => {
+  const fm = fatiar('margem', fichasVendaveis());
+  const linhas = fm.visiveis.map((ficha) => {
     const r = resumoDaFicha(ficha, estado.catalogo, estado.parametros);
     const margem = ficha.precoPraticado ? (ficha.precoPraticado - r.custoPorcao) / ficha.precoPraticado : 0;
     return `<tr>
@@ -306,6 +356,7 @@ function telaPainel() {
           <tbody>${linhas}</tbody>
         </table>
       </div>
+      ${blocoPaginacao('margem', fm, 'produtos')}
       <p class="cartao-nota" style="margin-top:14px">
         O CMV real é o custo por porção dividido pelo preço praticado. A margem é o que sobra desse preço depois do custo por porção.
         O preço sugerido é o que levaria o produto à meta de CMV configurada.
@@ -338,7 +389,8 @@ function telaFichas() {
         : filtro === 'sem-preco' ? !f.vendavel && !usadaComoInsumo(f)
           : true));
 
-  const linhas = visiveis.map((ficha) => {
+  const f = fatiar('fichas', visiveis);
+  const linhas = f.visiveis.map((ficha) => {
     const r = resumoDaFicha(ficha, estado.catalogo, estado.parametros);
     const insumo = usadaComoInsumo(ficha);
     return `<tr>
@@ -387,6 +439,7 @@ function telaFichas() {
           <tbody>${linhas || '<tr><td colspan="7" class="suave">Nenhuma ficha neste filtro.</td></tr>'}</tbody>
         </table>
       </div>
+      ${blocoPaginacao('fichas', f, 'fichas')}
     </section>`;
 }
 
@@ -591,7 +644,8 @@ function telaInsumos() {
     ? todos.filter((i) => normalizar(i.nome).includes(busca) || normalizar(i.fornecedor || '').includes(busca))
     : todos;
 
-  const linhas = visiveis.map((insumo) => {
+  const f = fatiar('insumos', visiveis);
+  const linhas = f.visiveis.map((insumo) => {
     const desatualizado = !!insumo.cotacao && insumo.cotacao < '2026-07-01';
     return `<tr>
       <td>${esc(insumo.nome)}${insumo.fichaId ? ' <span class="selo selo-neutro">preço vem da ficha</span>' : ''}</td>
@@ -639,9 +693,9 @@ function telaInsumos() {
           <tbody>${linhas || '<tr><td colspan="8" class="suave">Nenhum insumo encontrado.</td></tr>'}</tbody>
         </table>
       </div>
+      ${blocoPaginacao('insumos', f, 'insumos')}
       <p class="cartao-nota" style="margin-top:14px">
-        Mostrando ${visiveis.length} de ${todos.length} insumos${inativos ? `, mais ${inativos} inativo${inativos > 1 ? 's' : ''}` : ''}.
-        A data de cotação é a do último preço informado. Quando fica velha, aparece em destaque, porque o custo das fichas passa a ser calculado sobre um preço vencido.
+        ${inativos ? `Fora da lista, ${inativos} insumo${inativos > 1 ? 's inativos' : ' inativo'}. ` : ''}A data de cotação é a do último preço informado. Quando fica velha, aparece em destaque, porque o custo das fichas passa a ser calculado sobre um preço vencido.
       </p>
     </section>`;
 }
@@ -797,7 +851,8 @@ function telaCustos() {
   const total = doMes.reduce((t, c) => t + c.valor, 0);
   const pago = doMes.filter((c) => c.pago).reduce((t, c) => t + c.valor, 0);
 
-  const linhas = estado.catalogo.custos.map((c) => `
+  const fp = fatiar('custos', estado.catalogo.custos);
+  const linhas = fp.visiveis.map((c) => `
     <tr>
       <td class="suave">${c.data.split('-').reverse().join('/')}</td>
       <td>${esc(c.categoria)}</td>
@@ -854,6 +909,7 @@ function telaCustos() {
           <tbody>${linhas}</tbody>
         </table>
       </div>
+      ${blocoPaginacao('custos', fp, 'lançamentos')}
     </section>`;
 }
 
@@ -1092,7 +1148,8 @@ function celulaSituacaoCadastro(ativa) {
 
 function tabelaCadastro(tipo, titulo, nota, colunasExtra, celulaExtra, textoNovo) {
   const todos = CADASTROS[tipo].lista();
-  const visiveis = aplicarFiltroCadastro(tipo, todos);
+  const f = fatiar(`cadastro-${tipo}`, aplicarFiltroCadastro(tipo, todos), 10);
+  const visiveis = f.visiveis;
   return `
     <div class="cartao">
       <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:flex-end">
@@ -1118,6 +1175,7 @@ function tabelaCadastro(tipo, titulo, nota, colunasExtra, celulaExtra, textoNovo
           </tbody>
         </table>
       </div>
+      ${blocoPaginacao(`cadastro-${tipo}`, f, 'cadastros')}
     </div>`;
 }
 
@@ -1528,10 +1586,12 @@ document.addEventListener('change', (evento) => {
     }
     case 'filtro-fichas':
       estado.filtroFichas = alvo.value;
+      voltarPrimeiraPagina('fichas');
       renderizar();
       break;
     case 'filtro-cadastro':
       estado.filtrosCadastro[alvo.dataset.tipo] = alvo.value;
+      voltarPrimeiraPagina(`cadastro-${alvo.dataset.tipo}`);
       renderizar();
       break;
     case 'mensagem-whatsapp':
@@ -1685,6 +1745,7 @@ document.addEventListener('input', (evento) => {
   const alvo = evento.target;
   if (alvo.dataset && alvo.dataset.acao === 'buscar-insumo') {
     estado.buscaInsumo = alvo.value;
+    voltarPrimeiraPagina('insumos');
     const foco = alvo.selectionStart;
     renderizar();
     const campo = document.querySelector('[data-acao="buscar-insumo"]');
@@ -1837,6 +1898,12 @@ document.addEventListener('click', (evento) => {
   if (acao === 'aba') {
     estado.abaConfig = alvo.dataset.aba;
     renderizar();
+  }
+
+  if (acao === 'pagina') {
+    estado.paginas[alvo.dataset.chave] = Number(alvo.dataset.para) || 1;
+    renderizar();
+    return;
   }
 
   if (acao === 'aplicar') {
