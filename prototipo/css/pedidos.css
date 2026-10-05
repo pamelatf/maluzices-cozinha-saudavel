@@ -107,15 +107,23 @@
 .pedidos-escopo .concluido .icone,
 .pedidos-escopo .cancelado .icone {width:14px;height:14px;stroke-width:1.8}
 
-/* link do WhatsApp */
-.pedidos-escopo .zap {display:inline-flex;align-items:center;gap:6px;font-size:12px;
-  color:var(--verde);text-decoration:none;padding:4px 8px;border-radius:8px;
-  border:1px solid transparent;letter-spacing:.03em;transition:.16s}
-.pedidos-escopo .zap:hover {background:#E4E9D6;border-color:#C3CDA9;color:#3F4A24}
-.pedidos-escopo .zap .icone {width:14px;height:14px}
+/* WhatsApp: ícone dentro do campo de telefone e no rodapé do cartão.
+   O balão é genérico de propósito; o símbolo do WhatsApp é marca da Meta. */
+.pedidos-escopo .campo-zap {position:relative}
+.pedidos-escopo .campo-zap input {padding-right:46px}
+.pedidos-escopo .zap-botao {position:absolute;right:5px;top:50%;transform:translateY(-50%);display:flex}
+.pedidos-escopo .zap-icone {width:32px;height:32px;border-radius:8px;display:grid;place-items:center;
+  color:#1A9E4B;text-decoration:none;transition:.16s}
+.pedidos-escopo .zap-icone .icone {width:18px;height:18px;stroke-width:1.7}
+.pedidos-escopo a.zap-icone:hover {background:#E2F3E4}
+.pedidos-escopo .zap-icone.inativo {color:var(--areia);cursor:not-allowed}
+.pedidos-escopo .zap-dica {margin-top:6px;min-height:16px;font-size:12px;color:var(--pedra)}
+
+.pedidos-escopo .zap {display:inline-grid;place-items:center;width:28px;height:28px;
+  color:#1A9E4B;text-decoration:none;border-radius:8px;transition:.16s}
+.pedidos-escopo .zap:hover {background:#E2F3E4}
+.pedidos-escopo .zap .icone {width:16px;height:16px;stroke-width:1.7}
 .pedidos-escopo .cartao-base .zap {margin-left:auto}
-.pedidos-escopo .zap-campo {margin-top:7px;min-height:20px;font-size:12px;color:var(--pedra)}
-.pedidos-escopo .zap-campo .zap {padding:2px 0}
 .pedidos-escopo .dupla {display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .pedidos-escopo .opcional {text-transform:none;letter-spacing:0;color:var(--pedra);font-size:11px}
 .pedidos-escopo .somente-leitura input,

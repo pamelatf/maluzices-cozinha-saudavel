@@ -185,7 +185,8 @@ function cartao(p, mensagemModelo) {
       <span class="total">${brl(totalDoPedido(p))}</span>
       ${zap
         ? `<a class="zap" href="${zap}" target="_blank" rel="noopener" data-pedido="zap"
-              aria-label="Falar com ${esc(p.cliente)} no WhatsApp" title="${esc(formatarTelefone(p.telefone))}">${svg('i-conversa')} WhatsApp</a>`
+              aria-label="Falar com ${esc(p.cliente)} no WhatsApp"
+              title="Abrir conversa com ${esc(formatarTelefone(p.telefone))}">${svg('i-conversa')}</a>`
         : ''}
       ${final ? selo : ''}
     </div>
@@ -245,8 +246,11 @@ export function telaPedidos(pedidos, opcoes = {}) {
               </div>
               <div>
                 <label for="campoTelefone">Telefone <span class="opcional">opcional</span></label>
-                <input id="campoTelefone" maxlength="20" placeholder="(46) 99999-0000" autocomplete="off" inputmode="tel">
-                <div id="linhaZap" class="zap-campo"></div>
+                <div class="campo-zap">
+                  <input id="campoTelefone" maxlength="20" placeholder="(46) 99999-0000" autocomplete="off" inputmode="tel">
+                  <span class="zap-botao" id="zapBotao"></span>
+                </div>
+                <div class="zap-dica" id="zapDica"></div>
               </div>
             </div>
             <div>
