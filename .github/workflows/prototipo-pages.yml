@@ -2,9 +2,10 @@ name: Publicar protótipo no GitHub Pages
 
 on:
   push:
-    branches: [master]
+    branches: [master, prototipo-financeiro]
     paths:
       - 'prototipo/**'
+      - 'web/painel-maluzices.html'
       - '.github/workflows/prototipo-pages.yml'
   workflow_dispatch:
 
@@ -26,11 +27,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Montar o site
+        # O painel de pedidos já existe como página estática em web/.
+        # Ele é copiado para dentro do site em vez de duplicado no repositório.
+        run: |
+          mkdir -p site
+          cp -r prototipo/. site/
+          cp web/painel-maluzices.html site/pedidos.html
+          rm -f site/README.md
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: prototipo
+          path: site
 
       - id: deploy
         uses: actions/deploy-pages@v4

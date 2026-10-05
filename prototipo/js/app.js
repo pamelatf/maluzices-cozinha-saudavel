@@ -576,10 +576,16 @@ function rotaAtual() {
 }
 
 function renderizarMenu(paginaAtiva) {
-  document.getElementById('menu').innerHTML = PAGINAS.map((p) => {
+  const itens = PAGINAS.map((p) => {
     const ativo = p.rota === paginaAtiva || (paginaAtiva === 'ficha' && p.rota === 'fichas');
     return `<a href="#/${p.rota}" class="${ativo ? 'ativo' : ''}">${icone(p.icone)}${p.titulo}</a>`;
   }).join('');
+  const externos = `
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)">
+      <a href="pedidos.html">${icone('cesta')}Painel de pedidos</a>
+      <a href="index.html">${icone('info')}Início</a>
+    </div>`;
+  document.getElementById('menu').innerHTML = itens + externos;
 }
 
 function renderizar() {

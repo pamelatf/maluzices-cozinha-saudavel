@@ -54,6 +54,7 @@ a:hover{color:var(--oliva)}
 .marca-tag{font-family:'Cormorant Garamond',Georgia,serif;font-size:13px;letter-spacing:.16em;color:#C9C6AE}
 
 .menu{display:flex;flex-direction:column;gap:3px}
+.menu div{display:flex;flex-direction:column;gap:3px}
 .menu a{
   display:flex;align-items:center;gap:11px;
   padding:11px 14px;border-radius:var(--raio-s);
