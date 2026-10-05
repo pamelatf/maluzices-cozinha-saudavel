@@ -101,7 +101,7 @@ export function graficoDiaDaSemana(dias) {
     const centro = L + faixa * i + faixa / 2;
     const altura = Math.max(0, y(0) - y(d.media));
     return `
-      <rect class="g-barra ${i === melhor ? 'destaque' : ''}" x="${centro - largura / 2}" y="${y(d.media)}"
+      <rect class="g-barra ${i === melhor ? "g-barra-forte" : ""}" x="${centro - largura / 2}" y="${y(d.media)}"
             width="${largura}" height="${altura}" rx="5">
         <title>${esc(d.dia)}: ${formatarMoeda(d.media)} em média por ${esc(d.dia.toLowerCase())}</title>
       </rect>

@@ -369,14 +369,10 @@ export const faturamentoMensal = (() => {
   }));
 })();
 
-export const historicoCastanha = [
-  { mes: 'mai', preco: 80.2 },
-  { mes: 'jun', preco: 81.5 },
-  { mes: 'jul', preco: 84.0 },
-  { mes: 'ago', preco: 87.3 },
-  { mes: 'set', preco: 90.1 },
-  { mes: 'out', preco: 94.9 }
-];
+/* Aqui havia um histórico de preço da castanha, que foi removido: o
+   sistema guarda só a cotação atual, informada pela usuária, então
+   qualquer série de preço antigo seria inventada. Gráfico dá ar de
+   medição para número que ninguém mediu. */
 
 export function catalogoInicial() {
   return {

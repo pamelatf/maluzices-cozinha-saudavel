@@ -180,8 +180,8 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .g-alvo{fill:transparent;cursor:crosshair}
 .g-barra{fill:var(--taupe-claro);fill-opacity:.42;transition:fill-opacity .16s}
 .g-barra:hover{fill-opacity:.7}
-.g-barra.destaque{fill:var(--verde);fill-opacity:.85}
-.g-barra.destaque:hover{fill-opacity:1}
+.g-barra-forte{fill:var(--verde);fill-opacity:.85}
+.g-barra-forte:hover{fill-opacity:1}
 
 /* barras horizontais */
 .barras-h{display:flex;flex-direction:column;gap:13px}

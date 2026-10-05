@@ -1,4 +1,4 @@
-import { catalogoInicial, parametrosIniciais, faturamentoMensal, historicoCastanha, vendas, HOJE } from './dados.js';
+import { catalogoInicial, parametrosIniciais, vendas, HOJE } from './dados.js';
 import {
   PERIODOS, indicadoresDoPeriodo, serieMensal, gastosPorCategoria,
   faturamentoPorDiaDaSemana, produtosVendidos, destaqueDoPeriodo,
@@ -26,7 +26,6 @@ const estado = {
   novosPrecos: {},
   importacao: null,
   pedidos: pedidosIniciais.map((p) => ({ ...p, itens: p.itens.map((i) => ({ ...i })) })),
-  mesPainel: '2026-10',
   // 30 dias em vez de "este mês": mês em andamento compara 5 dias com 30
   periodoPainel: '30dias',
   pedidoEmEdicao: null,
@@ -37,7 +36,7 @@ const estado = {
 const PAGINAS = [
   { rota: 'inicio', titulo: 'Início', icone: 'casa' },
   { rota: 'pedidos', titulo: 'Painel de pedidos', icone: 'comanda' },
-  { rota: 'painel', titulo: 'Painel financeiro', icone: 'grafico' },
+  { rota: 'painel', titulo: 'Margem por produto', icone: 'grafico' },
   { rota: 'fichas', titulo: 'Produtos e fichas', icone: 'livro' },
   { rota: 'ajuste', titulo: 'Ajuste de preços', icone: 'etiqueta' },
   { rota: 'insumos', titulo: 'Insumos', icone: 'cesta' },
@@ -90,25 +89,6 @@ function fichasComDiferenca() {
 /* ------------------------------------------------------------------
    Telas
 ------------------------------------------------------------------ */
-const MESES_PAINEL = [
-  { valor: '2026-10', rotulo: 'Outubro de 2026' },
-  { valor: '2026-09', rotulo: 'Setembro de 2026' },
-  { valor: '2026-08', rotulo: 'Agosto de 2026' },
-  { valor: 'ano', rotulo: 'Últimos 12 meses' }
-];
-
-function custosDoPeriodo() {
-  if (estado.mesPainel === 'ano') return estado.catalogo.custos;
-  return estado.catalogo.custos.filter((c) => c.data.startsWith(estado.mesPainel));
-}
-
-/** Sai da mesma série mensal da visão geral, para as duas telas não divergirem. */
-function faturamentoDoPeriodo() {
-  if (estado.mesPainel === 'ano') return faturamentoMensal.reduce((t, m) => t + m.faturamento, 0);
-  const mes = faturamentoMensal.find((m) => m.chave === estado.mesPainel);
-  return mes ? mes.faturamento : 0;
-}
-
 /* ------------------------------------------------------------------
    Visão geral: o painel de abertura.
 
@@ -270,111 +250,71 @@ function telaInicio() {
     </section>`;
 }
 
+/**
+ * Margem por produto.
+ *
+ * O panorama do mês mora na visão geral. Aqui fica só o que ela não
+ * responde: quanto custa e quanto sobra em cada produto. Tudo sai da
+ * ficha técnica e da meta que a própria usuária configurou, nada é
+ * estimado pelo sistema.
+ */
 function telaPainel() {
-  const faturamento = faturamentoDoPeriodo();
-  const custoMes = custosDoPeriodo().reduce((t, c) => t + c.valor, 0);
-  const lucro = faturamento - custoMes;
-  const aReceber = 740;
-
-  // mesma série da visão geral, só com os meses fechados
-  const serie = serieMensal({ vendas, custos: estado.catalogo.custos, catalogo: estado.catalogo, hoje: HOJE });
-  const maior = Math.max(...serie.map((m) => m.faturamento), 1);
-  const barras = serie.map((m) => `
-    <div class="coluna">
-      <div class="par">
-        <div class="barra barra-a" style="height:${(m.faturamento / maior) * 100}%"></div>
-        <div class="barra barra-b" style="height:${(m.gastos / maior) * 100}%"></div>
-      </div>
-      <div class="rotulo">${m.rotulo}</div>
-    </div>`).join('');
-
-  const margens = fichasVendaveis().map((ficha) => {
+  const linhas = fichasVendaveis().map((ficha) => {
     const r = resumoDaFicha(ficha, estado.catalogo, estado.parametros);
+    const margem = ficha.precoPraticado ? (ficha.precoPraticado - r.custoPorcao) / ficha.precoPraticado : 0;
     return `<tr>
-      <td>${esc(ficha.nome)}</td>
+      <td><a href="#/ficha/${ficha.id}">${esc(ficha.nome)}</a></td>
+      <td class="suave">${esc(nomeCategoria(ficha.categoriaId))}</td>
       <td class="num suave">${formatarMoeda(r.custoPorcao)}</td>
       <td class="num">${formatarMoeda(ficha.precoPraticado)}</td>
+      <td class="num suave">${formatarMoeda(r.precoSugerido)}</td>
       <td class="num ${r.acimaDaMeta ? 'valor-alerta' : 'valor-ok'}">${formatarPercentual(r.cmvReal)}</td>
+      <td class="num suave">${formatarPercentual(r.metaCmv, 0)}</td>
+      <td class="num">${formatarPercentual(margem)}</td>
     </tr>`;
   }).join('');
 
   const foraDaMeta = fichasVendaveis().filter((f) => resumoDaFicha(f, estado.catalogo, estado.parametros).acimaDaMeta);
-  const porCategoria = {};
-  custosDoPeriodo().forEach((c) => {
-    porCategoria[c.categoria] = (porCategoria[c.categoria] || 0) + c.valor;
-  });
-  const maiorCusto = Math.max(...Object.values(porCategoria), 1);
-  const linhasCusto = Object.entries(porCategoria)
-    .sort((a, b) => b[1] - a[1])
-    .map(([nome, valor]) => `
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:14.5px">
-          <span>${esc(nome)}</span><span class="suave">${formatarMoeda(valor)}</span>
-        </div>
-        <div class="trilho"><div style="width:${(valor / maiorCusto) * 100}%"></div></div>
-      </div>`).join('');
 
   return `
     <div class="cabecalho">
       <div>
-        <h1 class="titulo">Painel financeiro</h1>
-        <p class="subtitulo">Os números de margem vêm das fichas técnicas e mudam quando um preço de insumo muda.</p>
+        <h1 class="titulo">Margem por produto</h1>
+        <p class="subtitulo">Quanto custa e quanto sobra em cada produto. Os números vêm das fichas técnicas e mudam sozinhos quando um preço de insumo muda.</p>
       </div>
-      <label class="campo" style="min-width:210px">Período
-        <select data-acao="mes-painel">
-          ${MESES_PAINEL.map((m) => `<option value="${m.valor}" ${m.valor === estado.mesPainel ? 'selected' : ''}>${m.rotulo}</option>`).join('')}
-        </select>
-      </label>
     </div>
 
-    <section class="grade grade-4">
-      <div class="cartao indicador"><div class="rotulo">Faturamento</div><div class="valor">${formatarMoeda(faturamento)}</div><div class="apoio">${MESES_PAINEL.find((m) => m.valor === estado.mesPainel).rotulo}</div></div>
-      <div class="cartao indicador"><div class="rotulo">Custos</div><div class="valor">${formatarMoeda(custoMes)}</div><div class="apoio">${custosDoPeriodo().length} ${custosDoPeriodo().length === 1 ? 'lançamento' : 'lançamentos'} no período</div></div>
-      <div class="cartao indicador"><div class="rotulo">Lucro</div><div class="valor">${formatarMoeda(lucro)}</div><div class="apoio">margem de ${formatarPercentual(lucro / faturamento)}</div></div>
-      <div class="cartao indicador"><div class="rotulo">A receber</div><div class="valor">${formatarMoeda(aReceber)}</div><div class="apoio">3 pedidos em atraso</div></div>
+    <section class="cartao">
+      <div class="rolagem">
+        <table>
+          <thead><tr>
+            <th>Produto</th><th>Categoria</th>
+            <th class="num">Custo por porção</th><th class="num">Preço praticado</th>
+            <th class="num">Preço sugerido</th><th class="num">CMV real</th>
+            <th class="num">Meta de CMV</th><th class="num">Margem</th>
+          </tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>
+      </div>
+      <p class="cartao-nota" style="margin-top:14px">
+        O CMV real é o custo por porção dividido pelo preço praticado. A margem é o que sobra desse preço depois do custo por porção.
+        O preço sugerido é o que levaria o produto à meta de CMV configurada.
+      </p>
     </section>
 
     <section class="cartao">
-      <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:baseline">
-        <h2 class="cartao-titulo">Faturamento e custo</h2>
-        <div class="legenda">
-          <span><i style="background:var(--oliva)"></i>Faturamento</span>
-          <span><i style="background:var(--areia)"></i>Custo</span>
-        </div>
-      </div>
-      <div class="barras">${barras}</div>
-    </section>
-
-    <section class="grade grade-2">
-      <div class="cartao">
-        <h2 class="cartao-titulo">Margem por produto</h2>
-        <p class="cartao-nota">CMV real, calculado sobre o preço que está sendo praticado</p>
-        <div class="rolagem" style="margin-top:14px">
-          <table>
-            <thead><tr><th>Produto</th><th class="num">Custo</th><th class="num">Preço</th><th class="num">CMV</th></tr></thead>
-            <tbody>${margens}</tbody>
-          </table>
-        </div>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="cartao">
-          <h2 class="cartao-titulo">Precisam de atenção</h2>
-          <div style="display:flex;flex-direction:column;gap:11px;margin-top:14px">
-            ${foraDaMeta.length === 0
-              ? '<div class="aviso aviso-neutro">' + icone('info') + '<div>Todos os produtos estão dentro da meta de CMV.</div></div>'
-              : foraDaMeta.map((f) => {
-                  const r = resumoDaFicha(f, estado.catalogo, estado.parametros);
-                  return `<div class="aviso aviso-atencao">${icone('alerta')}<div><strong>${esc(f.nome)} está acima da meta.</strong> A meta é ${formatarPercentual(r.metaCmv, 0)} e o preço de ${formatarMoeda(f.precoPraticado)} resulta em ${formatarPercentual(r.cmvReal)}. O sugerido é ${formatarMoeda(r.precoSugerido)}.</div></div>`;
-                }).join('')}
-            ${foraDaMeta.length ? '<a class="botao" href="#/ajuste" style="text-decoration:none">Ajustar preços</a>' : ''}
-          </div>
-        </div>
-
-        <div class="cartao">
-          <h2 class="cartao-titulo">Para onde vai o dinheiro</h2>
-          <div style="display:flex;flex-direction:column;gap:13px;margin-top:14px">${linhasCusto}</div>
-        </div>
+      <h2 class="cartao-titulo">Acima da meta de CMV</h2>
+      <p class="cartao-nota">Produtos cujo CMV real passou da meta configurada para a categoria ou para o produto.</p>
+      <div style="display:flex;flex-direction:column;gap:11px;margin-top:14px">
+        ${foraDaMeta.length === 0
+          ? '<div class="aviso aviso-neutro">' + icone('info') + '<div>Nenhum produto está acima da meta de CMV.</div></div>'
+          : foraDaMeta.map((f) => {
+              const r = resumoDaFicha(f, estado.catalogo, estado.parametros);
+              return `<div class="aviso aviso-atencao">${icone('alerta')}<div>
+                <strong>${esc(f.nome)}</strong>: a meta é ${formatarPercentual(r.metaCmv, 0)} e o preço de ${formatarMoeda(f.precoPraticado)} resulta em ${formatarPercentual(r.cmvReal)}.
+              </div></div>`;
+            }).join('')}
+        ${foraDaMeta.length ? '<a class="botao" href="#/ajuste" style="text-decoration:none;align-self:flex-start">Ir para o ajuste de preços</a>' : ''}
       </div>
     </section>`;
 }
@@ -588,15 +528,6 @@ function telaInsumos() {
     </tr>`;
   }).join('');
 
-  const maior = Math.max(...historicoCastanha.map((h) => h.preco));
-  const menor = Math.min(...historicoCastanha.map((h) => h.preco));
-  const barras = historicoCastanha.map((h) => `
-    <div class="coluna">
-      <div class="par"><div class="barra barra-a" style="width:70%;height:${20 + ((h.preco - menor) / (maior - menor || 1)) * 80}%"></div></div>
-      <div class="rotulo">${h.mes}</div>
-    </div>`).join('');
-  const variacao = (historicoCastanha[historicoCastanha.length - 1].preco / historicoCastanha[0].preco) - 1;
-
   return `
     <div class="cabecalho">
       <div>
@@ -616,19 +547,9 @@ function telaInsumos() {
           <tbody>${linhas}</tbody>
         </table>
       </div>
-    </section>
-
-    <section class="cartao grade grade-2">
-      <div>
-        <h2 class="cartao-titulo">Histórico de preço</h2>
-        <p class="cartao-nota">Castanha de caju inteira, últimos seis meses</p>
-        <div class="barras" style="height:170px">${barras}</div>
-      </div>
-      <div style="background:var(--creme-col);border-radius:var(--raio);padding:20px">
-        <div class="suave" style="font-size:14px">Variação no período</div>
-        <div class="valor-alerta" style="font-family:'Cormorant Garamond',serif;font-size:31px;margin-top:4px">+${formatarPercentual(variacao)}</div>
-        <p class="suave" style="font-size:14px;line-height:1.5;margin-top:12px">Esse insumo entra no creme de castanha. Experimente mudar o preço dele na tabela acima e abrir a ficha: o custo e o preço sugerido mudam junto.</p>
-      </div>
+      <p class="cartao-nota" style="margin-top:14px">
+        A data de cotação é a do último preço informado. Quando ela fica velha, aparece em destaque, porque o custo das fichas passa a ser calculado sobre um preço desatualizado.
+      </p>
     </section>`;
 }
 
@@ -1339,10 +1260,6 @@ document.addEventListener('change', (evento) => {
       renderizar();
       break;
     }
-    case 'mes-painel':
-      estado.mesPainel = alvo.value;
-      renderizar();
-      break;
     case 'param': {
       const campo = alvo.dataset.campo;
       if (campo === 'arredondamento') estado.parametros.arredondamento = alvo.value;

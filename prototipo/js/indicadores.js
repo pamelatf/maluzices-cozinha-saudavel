@@ -222,7 +222,7 @@ export function destaqueDoPeriodo({ indicadores, serie, categorias, produtos, di
     return {
       tom: 'atencao',
       titulo: 'O mais vendido não é o que mais dá lucro',
-      texto: `${topQuantidade.nome} lidera em quantidade, mas quem mais gerou lucro no período foi ${topLucro.nome}. Vale olhar o preço e o custo do primeiro na ficha técnica.`
+      texto: `${topQuantidade.nome} lidera em quantidade, com ${topQuantidade.unidades} unidades. Quem mais gerou lucro no período foi ${topLucro.nome}.`
     };
   }
 
