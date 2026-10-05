@@ -81,12 +81,21 @@ export function pesoTotalDaReceita(ficha) {
   return ficha.ingredientes.reduce((total, linha) => total + linha.quantidade, 0);
 }
 
+/**
+ * Custo de uma porção.
+ *
+ * Embalagem só entra em ficha que é vendida: ninguém embala em pote a
+ * massa de quiche que vai dentro de outra receita. Perda de produção
+ * também não, porque a perda da sub-receita já aparece no rendimento dela.
+ */
 export function custoPorPorcao(ficha, catalogo, parametros) {
   if (!ficha.rendimento) return 0;
+  const custoIngredientes = custoDaReceita(ficha, catalogo) / ficha.rendimento;
+  if (!ficha.vendavel) return custoIngredientes;
+
   const perda = parametros && parametros.perdaProducao ? parametros.perdaProducao : 0;
   const embalagem = parametros && parametros.custoEmbalagem ? parametros.custoEmbalagem : 0;
-  const custoIngredientes = (custoDaReceita(ficha, catalogo) / ficha.rendimento) * (1 + perda);
-  return custoIngredientes + embalagem;
+  return custoIngredientes * (1 + perda) + embalagem;
 }
 
 export function metaDeCmv(ficha, catalogo, parametros) {

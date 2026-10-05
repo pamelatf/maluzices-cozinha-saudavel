@@ -1,57 +1,51 @@
 /**
- * Dados de demonstração do protótipo.
+ * Dados do protótipo.
  *
- * Os valores vieram da planilha de ficha técnica do Maluzices e são
- * fictícios, usados apenas para o protótipo funcionar sem back-end.
- * Tudo fica em memória: recarregar a página volta ao estado inicial.
+ * O catálogo (insumos, fichas, categorias, fornecedores e unidades) vem da
+ * planilha de ficha técnica da dona, convertida por
+ * `ferramentas/converter-planilha.py`. Não é exemplo: são os produtos e os
+ * custos dela.
+ *
+ * O que continua sendo de mentira é o movimento: as vendas e os custos
+ * lançados, gerados aqui para o painel ter o que mostrar enquanto não
+ * existe operação de verdade.
  */
+import { categorias, fornecedores, unidades, insumos, fichas } from './base.js';
 
+export { categorias, fornecedores, unidades, insumos, fichas };
+
+/**
+ * Embalagem e perda começam em zero de propósito: a planilha dela não
+ * considera nenhum dos dois, então com zero o sistema reproduz exatamente
+ * os números que ela já conhece e dá para conferir a migração linha a
+ * linha. Quando ela disser quanto gasta de pote e quanto perde na
+ * produção, é só preencher aqui e o custo sobe para o valor real.
+ *
+ * O arredondamento também nasce desligado, porque ela não arredonda o
+ * preço sugerido na planilha.
+ */
 export const parametrosIniciais = {
   metaCmvPadrao: 0.3,
-  custoEmbalagem: 0.85,
-  perdaProducao: 0.03,
-  arredondamento: 'inteiro', // inteiro | meio | nenhum
+  custoEmbalagem: 0,
+  perdaProducao: 0,
+  arredondamento: 'nenhum', // inteiro | meio | nenhum
   toleranciaCmv: 0.02,
   // marcadores trocados na hora de abrir a conversa: {cliente} {itens} {total} {situacao}
   mensagemWhatsapp: 'Oi {cliente}, aqui é do Maluzices. Seu pedido ({itens}), no valor de {total}, está {situacao}.'
 };
 
-export const categorias = [
-  { id: 'caldos', nome: 'Caldos', metaCmv: 0.3, ativa: true },
-  { id: 'assados', nome: 'Salgados assados', metaCmv: 0.24, ativa: true },
-  { id: 'fritos', nome: 'Salgados fritos', metaCmv: 0.17, ativa: true },
-  { id: 'paes', nome: 'Pães', metaCmv: 0.17, ativa: true },
-  { id: 'sanduiches', nome: 'Sanduíches', metaCmv: 0.2, ativa: true },
-  { id: 'base', nome: 'Sub-receitas', metaCmv: 0.3, ativa: true }
-];
-
+// As mesmas categorias que a planilha de controle oferece a ela.
 export const categoriasDeCusto = [
   { id: 'ingredientes', nome: 'Ingredientes', ativa: true },
   { id: 'embalagens', nome: 'Embalagens', ativa: true },
   { id: 'aluguel', nome: 'Aluguel', ativa: true },
   { id: 'energia', nome: 'Energia', ativa: true },
+  { id: 'agua', nome: 'Água', ativa: true },
   { id: 'gas', nome: 'Gás', ativa: true },
   { id: 'marketing', nome: 'Marketing', ativa: true },
-  { id: 'transporte', nome: 'Transporte', ativa: true }
-];
-
-// nome é a chave usada pelos insumos para referenciar o fornecedor.
-export const fornecedores = [
-  { id: 'ares', nome: 'Ares', telefone: '', email: '', ativa: true },
-  { id: 'equilibrium', nome: 'Equilibrium', telefone: '', email: '', ativa: true },
-  { id: 'feirinha', nome: 'Feirinha', telefone: '', email: '', ativa: true },
-  { id: 'mercado', nome: 'Mercado', telefone: '', email: '', ativa: true },
-  { id: 'cantina-da-fruta', nome: 'Cantina da Fruta', telefone: '', email: '', ativa: true },
-  { id: 'producao-propria', nome: 'Produção própria', telefone: '', email: '', ativa: true }
-];
-
-// sigla é a chave usada pelos insumos no campo unidade.
-export const unidades = [
-  { id: 'quilo', nome: 'Quilo', sigla: 'kg', conversao: 'base do cálculo', ativa: true },
-  { id: 'grama', nome: 'Grama', sigla: 'g', conversao: '1 kg = 1.000 g', ativa: true },
-  { id: 'litro', nome: 'Litro', sigla: 'L', conversao: '1 L = 1 kg', ativa: true },
-  { id: 'mililitro', nome: 'Mililitro', sigla: 'ml', conversao: '1 kg = 1.000 ml', ativa: true },
-  { id: 'unidade', nome: 'Unidade', sigla: 'un', conversao: 'peso informado por insumo', ativa: true }
+  { id: 'transporte', nome: 'Transporte', ativa: true },
+  { id: 'equipamentos', nome: 'Equipamentos', ativa: true },
+  { id: 'outros', nome: 'Outros', ativa: true }
 ];
 
 export const formasDePagamento = [
@@ -60,155 +54,6 @@ export const formasDePagamento = [
   { id: 'cartao-debito', nome: 'Cartão de débito', taxa: 0.019, ativa: true },
   { id: 'cartao-credito', nome: 'Cartão de crédito', taxa: 0.035, ativa: true },
   { id: 'transferencia', nome: 'Transferência', taxa: 0, ativa: true }
-];
-
-// pesoBruto e pesoLiquido dão o fator de correção; preco é por quilo.
-// fichaId presente significa sub-receita: o preço vem do custo da ficha.
-export const insumos = [
-  { id: 'abobora', nome: 'Abóbora cabotiá', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.97, preco: 6.0, fornecedor: 'Feirinha', cotacao: '2026-09-28' },
-  { id: 'alho-poro', nome: 'Alho-poró', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.9, preco: 50.0, fornecedor: 'Feirinha', cotacao: '2026-09-12' },
-  { id: 'batata-doce', nome: 'Batata doce', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.85, preco: 7.5, fornecedor: 'Feirinha', cotacao: '2026-09-28' },
-  { id: 'brocolis', nome: 'Brócolis', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.95, preco: 30.0, fornecedor: 'Feirinha', cotacao: '2026-09-20' },
-  { id: 'carne-moida', nome: 'Carne moída', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.95, preco: 60.0, fornecedor: 'Mercado', cotacao: '2026-04-20' },
-  { id: 'castanha-caju', nome: 'Castanha de caju inteira', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.95, preco: 94.9, fornecedor: 'Equilibrium', cotacao: '2026-10-02' },
-  { id: 'cebola', nome: 'Cebola sem casca', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.84, preco: 6.0, fornecedor: 'Feirinha', cotacao: '2026-09-28' },
-  { id: 'curry', nome: 'Curry', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.98, preco: 9.54, fornecedor: 'Ares', cotacao: '2026-08-14' },
-  { id: 'frango-cru', nome: 'Peito de frango', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.9, preco: 19.9, fornecedor: 'Mercado', cotacao: '2026-09-30' },
-  { id: 'mandioquinha', nome: 'Mandioquinha', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.8, preco: 9.0, fornecedor: 'Feirinha', cotacao: '2026-09-28' },
-  { id: 'mix-sem-gluten', nome: 'Mix sem glúten', unidade: 'kg', pesoBruto: 1, pesoLiquido: 1, preco: 16.07, fornecedor: 'Ares', cotacao: '2026-09-10' },
-  { id: 'noz-moscada', nome: 'Noz-moscada', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.98, preco: 105.0, fornecedor: 'Ares', cotacao: '2026-03-14' },
-  { id: 'ovo', nome: 'Ovo', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.88, preco: 18.0, fornecedor: 'Mercado', cotacao: '2026-09-28' },
-  { id: 'pimenta', nome: 'Pimenta-do-reino', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.95, preco: 25.16, fornecedor: 'Ares', cotacao: '2026-08-14' },
-  { id: 'sal', nome: 'Sal integral', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.98, preco: 5.0, fornecedor: 'Mercado', cotacao: '2026-09-28' },
-  { id: 'azeite', nome: 'Azeite de oliva', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.95, preco: 20.0, fornecedor: 'Mercado', cotacao: '2026-09-05' },
-  { id: 'leite-arroz', nome: 'Leite de arroz', unidade: 'kg', pesoBruto: 1, pesoLiquido: 1, preco: 1.53, fornecedor: 'Produção própria', cotacao: '2026-09-30' },
-  { id: 'agua', nome: 'Água filtrada', unidade: 'kg', pesoBruto: 1, pesoLiquido: 1, preco: 0.02, fornecedor: 'Mercado', cotacao: '2026-09-01' },
-  // sub-receitas: preço calculado a partir da própria ficha
-  { id: 'frango-desfiado', nome: 'Frango desfiado', unidade: 'kg', pesoBruto: 1, pesoLiquido: 0.5, fornecedor: 'Produção própria', cotacao: '2026-10-05', fichaId: 'frango-desfiado' },
-  { id: 'massa-quiche', nome: 'Massa para quiche', unidade: 'kg', pesoBruto: 1, pesoLiquido: 1, fornecedor: 'Produção própria', cotacao: '2026-10-05', fichaId: 'massa-quiche' }
-];
-
-export const fichas = [
-  {
-    id: 'frango-desfiado',
-    nome: 'Frango desfiado',
-    categoriaId: 'base',
-    rendimento: 1,
-    tamanhoPorcao: '1 kg',
-    subReceita: true,
-    precoPraticado: 0,
-    ingredientes: [
-      { insumoId: 'frango-cru', quantidade: 1.0 },
-      { insumoId: 'sal', quantidade: 0.015 },
-      { insumoId: 'pimenta', quantidade: 0.004 }
-    ]
-  },
-  {
-    id: 'massa-quiche',
-    nome: 'Massa para quiche',
-    categoriaId: 'base',
-    rendimento: 1,
-    tamanhoPorcao: '1 kg',
-    subReceita: true,
-    precoPraticado: 0,
-    ingredientes: [
-      { insumoId: 'mix-sem-gluten', quantidade: 0.6 },
-      { insumoId: 'ovo', quantidade: 0.2 },
-      { insumoId: 'azeite', quantidade: 0.15 },
-      { insumoId: 'sal', quantidade: 0.01 }
-    ]
-  },
-  {
-    id: 'caldo-cabotia',
-    nome: 'Caldo de cabotiá e frango',
-    categoriaId: 'caldos',
-    rendimento: 9,
-    tamanhoPorcao: '400 g',
-    precoPraticado: 18.0,
-    ingredientes: [
-      { insumoId: 'abobora', quantidade: 1.2 },
-      { insumoId: 'agua', quantidade: 1.6 },
-      { insumoId: 'frango-desfiado', quantidade: 0.45 },
-      { insumoId: 'cebola', quantidade: 0.2 },
-      { insumoId: 'sal', quantidade: 0.02 },
-      { insumoId: 'curry', quantidade: 0.01 },
-      { insumoId: 'noz-moscada', quantidade: 0.005 }
-    ]
-  },
-  {
-    id: 'quiche-frango',
-    nome: 'Quiche de frango',
-    categoriaId: 'assados',
-    rendimento: 8,
-    tamanhoPorcao: '160 g',
-    precoPraticado: 23.0,
-    ingredientes: [
-      { insumoId: 'massa-quiche', quantidade: 0.7 },
-      { insumoId: 'frango-desfiado', quantidade: 0.4 },
-      { insumoId: 'ovo', quantidade: 0.2 },
-      { insumoId: 'cebola', quantidade: 0.1 },
-      { insumoId: 'sal', quantidade: 0.01 }
-    ]
-  },
-  {
-    id: 'quiche-brocolis',
-    nome: 'Quiche de brócolis e alho-poró',
-    categoriaId: 'assados',
-    rendimento: 8,
-    tamanhoPorcao: '160 g',
-    precoPraticado: 22.0,
-    ingredientes: [
-      { insumoId: 'massa-quiche', quantidade: 0.7 },
-      { insumoId: 'brocolis', quantidade: 0.35 },
-      { insumoId: 'alho-poro', quantidade: 0.12 },
-      { insumoId: 'ovo', quantidade: 0.2 },
-      { insumoId: 'sal', quantidade: 0.01 }
-    ]
-  },
-  {
-    id: 'coxinha-batata-doce',
-    nome: 'Coxinha de batata doce',
-    categoriaId: 'fritos',
-    rendimento: 10,
-    tamanhoPorcao: '180 g',
-    precoPraticado: 20.0,
-    ingredientes: [
-      { insumoId: 'batata-doce', quantidade: 1.2 },
-      { insumoId: 'frango-desfiado', quantidade: 0.5 },
-      { insumoId: 'cebola', quantidade: 0.15 },
-      { insumoId: 'sal', quantidade: 0.02 }
-    ]
-  },
-  {
-    id: 'pao-mandioquinha',
-    nome: 'Pão de mandioquinha',
-    categoriaId: 'paes',
-    rendimento: 12,
-    tamanhoPorcao: '150 g',
-    precoPraticado: 16.0,
-    ingredientes: [
-      { insumoId: 'mandioquinha', quantidade: 0.8 },
-      { insumoId: 'mix-sem-gluten', quantidade: 0.5 },
-      { insumoId: 'ovo', quantidade: 0.15 },
-      { insumoId: 'azeite', quantidade: 0.08 },
-      { insumoId: 'sal', quantidade: 0.012 }
-    ]
-  },
-  {
-    id: 'creme-castanha',
-    nome: 'Creme de castanha',
-    categoriaId: 'caldos',
-    rendimento: 10,
-    tamanhoPorcao: '400 g',
-    precoPraticado: 16.0,
-    ingredientes: [
-      { insumoId: 'castanha-caju', quantidade: 0.4 },
-      { insumoId: 'leite-arroz', quantidade: 3.4 },
-      { insumoId: 'cebola', quantidade: 0.15 },
-      { insumoId: 'sal', quantidade: 0.02 },
-      { insumoId: 'noz-moscada', quantidade: 0.004 }
-    ]
-  }
 ];
 
 /* ------------------------------------------------------------------
@@ -227,15 +72,18 @@ export const HOJE = '2026-10-05';
 // domingo a sábado. Sábado é o dia forte, domingo o fraco.
 const PESO_DO_DIA = [0.55, 0.85, 0.9, 0.95, 1.05, 1.25, 1.45];
 
-// participação de cada produto no total de unidades vendidas
-const MIX_DE_PRODUTOS = [
-  { fichaId: 'caldo-cabotia', peso: 0.22 },
-  { fichaId: 'quiche-frango', peso: 0.2 },
-  { fichaId: 'coxinha-batata-doce', peso: 0.18 },
-  { fichaId: 'pao-mandioquinha', peso: 0.15 },
-  { fichaId: 'creme-castanha', peso: 0.13 },
-  { fichaId: 'quiche-brocolis', peso: 0.12 }
-];
+/**
+ * Participação de cada produto nas vendas. Sai dos produtos que a planilha
+ * dela marca como vendidos, e não de uma lista fixa aqui, para o dia em que
+ * ela precificar um produto novo ele já entrar no movimento sozinho.
+ * Os pesos caem do mais vendido para o menos, só para a série ter forma.
+ */
+const MIX_DE_PRODUTOS = (() => {
+  const vendaveis = fichas.filter((f) => f.vendavel && f.ativo !== false);
+  const pesos = vendaveis.map((_, i) => 1 / (i + 1.6));
+  const soma = pesos.reduce((t, p) => t + p, 0);
+  return vendaveis.map((f, i) => ({ fichaId: f.id, peso: pesos[i] / soma }));
+})();
 
 /** Gerador congruente simples, só para ter ruído estável entre recargas. */
 function sorteador(semente) {

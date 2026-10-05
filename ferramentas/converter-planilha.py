@@ -154,6 +154,8 @@ def ler_planilha(caminho):
             'pesoLiquido': round(liquido, 4),
             'preco': round(b['preco'], 4),
             'fornecedor': titulo(b['fornecedor']) if b['fornecedor'] else '',
+            # a planilha não guarda data de cotação; fica em branco até a primeira compra lançada
+            'cotacao': '',
             'ativo': True,
         }
         if unidade == 'un':
@@ -281,13 +283,32 @@ def ler_planilha(caminho):
     # usa, e é esse número que guardamos. Assim o sistema chega no mesmo
     # preço que ela já pratica, em vez de dividir pelo peso do que entrou,
     # que inclui a água que vai pro ralo.
+    # O nome da aba vale mais que o nome escrito dentro dela. A aba
+    # "porção REQUEIJU" tem "REQUEIJU" como nome do prato, e sem essa
+    # preferência o insumo requeijão apontaria para a ficha da porção, que
+    # usa requeijão: a ficha viraria ingrediente de si mesma.
+    for preferir_aba in (True, False):
+        for f in fichas:
+            if f.get('insumoGemeoId'):
+                continue
+            chave = normalizar(f['aba']) if preferir_aba else normalizar(f['nome'])
+            gemeo = next((i for i in insumos
+                          if normalizar(i['nome']) == chave and not i.get('fichaId')), None)
+            if not gemeo:
+                continue
+            # a ficha não pode se alimentar do próprio insumo
+            if any(ing.get('insumoId') == gemeo['id'] for ing in f['ingredientes']):
+                relatorio['pendencias'].append(
+                    f"{f['nome']}: a receita lista '{gemeo['nome']}' como ingrediente dela mesma. "
+                    f"Mantivemos o preço digitado e não ligamos a ficha, senão o cálculo entra em laço.")
+                continue
+            f['insumoGemeoId'] = gemeo['id']
+            gemeo['fichaId'] = f['id']
+
     for f in fichas:
-        chaves = {normalizar(f['aba']), normalizar(f['nome'])}
-        gemeo = next((i for i in insumos if normalizar(i['nome']) in chaves), None)
+        gemeo = next((i for i in insumos if i['id'] == f.get('insumoGemeoId')), None)
         if not gemeo:
             continue
-        f['insumoGemeoId'] = gemeo['id']
-        gemeo['fichaId'] = f['id']
         custo = f.get('custoReceitaPlanilha')
         if isinstance(custo, (int, float)) and custo > 0 and gemeo['preco'] > 0:
             f['rendimentoKg'] = round(custo / gemeo['preco'], 4)

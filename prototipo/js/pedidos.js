@@ -35,21 +35,21 @@ const ROTULO_SITUACAO = {
 
 let proximoId = 7;
 
-// Os itens são os produtos do catálogo, com o preço praticado da ficha:
-// é o que permite o painel calcular margem e produto mais vendido.
+// Os itens são os produtos reais do catálogo dela, com o preço que ela
+// pratica: é o que permite o painel calcular margem e produto mais vendido.
 export const pedidosIniciais = [
   { id: 1, cliente: 'Ana Beatriz', telefone: '46999180422', status: 'RECEBIDO', hora: 'há 4 min', obs: 'sem cebola, por favor',
-    itens: [{ nome: 'Caldo de cabotiá e frango', qtd: 2, preco: 18.0 }, { nome: 'Pão de mandioquinha', qtd: 1, preco: 16.0 }] },
+    itens: [{ nome: 'Caldo de Cabotia', qtd: 2, preco: 18.0 }, { nome: 'Pão de Mandioquinha', qtd: 1, preco: 12.0 }] },
   { id: 2, cliente: 'Rafael Antunes', telefone: '', status: 'RECEBIDO', hora: 'há 9 min', obs: '',
-    itens: [{ nome: 'Quiche de frango', qtd: 1, preco: 23.0 }, { nome: 'Creme de castanha', qtd: 2, preco: 16.0 }] },
+    itens: [{ nome: 'Quiche de Frango', qtd: 1, preco: 17.0 }, { nome: 'Cracker sem Glúten', qtd: 2, preco: 12.0 }] },
   { id: 3, cliente: 'Juliana Moraes', telefone: '4699712 3344', status: 'EM_PREPARO', hora: 'há 18 min', obs: 'entregar até 12h30, por favor',
-    itens: [{ nome: 'Coxinha de batata doce', qtd: 3, preco: 20.0 }] },
+    itens: [{ nome: 'Coxinha Massa Trad', qtd: 3, preco: 20.0 }] },
   { id: 4, cliente: 'Marcos Vinícius', telefone: '', status: 'EM_PREPARO', hora: 'há 23 min', obs: '',
-    itens: [{ nome: 'Quiche de brócolis e alho-poró', qtd: 1, preco: 22.0 }, { nome: 'Caldo de cabotiá e frango', qtd: 1, preco: 18.0 }] },
+    itens: [{ nome: 'Quiche de Brócolis', qtd: 1, preco: 17.0 }, { nome: 'Caldo de Batata Doce', qtd: 1, preco: 18.0 }] },
   { id: 5, cliente: 'Camila Ribeiro', telefone: '46998887766', status: 'PRONTO', hora: 'há 31 min', obs: 'embalar separado',
-    itens: [{ nome: 'Creme de castanha', qtd: 2, preco: 16.0 }, { nome: 'Pão de mandioquinha', qtd: 3, preco: 16.0 }] },
+    itens: [{ nome: 'Esfira de Carne', qtd: 2, preco: 18.0 }, { nome: 'Pão de Mandioquinha', qtd: 3, preco: 12.0 }] },
   { id: 6, cliente: 'Escritório 4º andar', telefone: '4633334455', status: 'ENTREGUE', hora: 'há 1 h', obs: '',
-    itens: [{ nome: 'Quiche de frango', qtd: 6, preco: 23.0 }, { nome: 'Caldo de cabotiá e frango', qtd: 6, preco: 18.0 }] }
+    itens: [{ nome: 'Quiche de Frango', qtd: 6, preco: 17.0 }, { nome: 'Caldo de Legumes e Frango', qtd: 6, preco: 18.0 }] }
 ];
 
 const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });

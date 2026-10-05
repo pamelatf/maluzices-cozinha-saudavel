@@ -269,6 +269,7 @@ export const insumos = [
     "pesoLiquido": 0.88,
     "preco": 20.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -279,6 +280,7 @@ export const insumos = [
     "pesoLiquido": 0.9,
     "preco": 50.0,
     "fornecedor": "Feirinha",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -289,6 +291,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 23.0,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -299,6 +302,7 @@ export const insumos = [
     "pesoLiquido": 0.9,
     "preco": 62.0,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -309,6 +313,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 5.3,
     "fornecedor": "Cedro",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -319,6 +324,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 16.9,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -329,6 +335,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 20.0,
     "fornecedor": "Argentina",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -339,6 +346,7 @@ export const insumos = [
     "pesoLiquido": 0.62,
     "preco": 10.0,
     "fornecedor": "Cantina da Fruta",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -349,6 +357,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 6.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -359,6 +368,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 5.44,
     "fornecedor": "Organicos e Cia",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -369,6 +379,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 30.0,
     "fornecedor": "Fruteira",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -379,6 +390,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 67.5,
     "fornecedor": "Equilibrium",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -389,6 +401,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 27.0,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -399,6 +412,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 60.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -409,6 +423,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 94.9,
     "fornecedor": "Equilibrium",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -419,6 +434,7 @@ export const insumos = [
     "pesoLiquido": 0.84,
     "preco": 6.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -429,6 +445,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 7.9,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -439,6 +456,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 34.89,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -449,6 +467,7 @@ export const insumos = [
     "pesoLiquido": 0.9,
     "preco": 200.0,
     "fornecedor": "Cacau Show",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -459,6 +478,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 64.0,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -469,6 +489,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 10.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -479,6 +500,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 38.9,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -489,6 +511,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 33.9,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -499,6 +522,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 63.52,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -509,6 +533,7 @@ export const insumos = [
     "pesoLiquido": 0.5,
     "preco": 14.6668,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
     "fichaId": "creme-para-quiche"
   },
@@ -520,6 +545,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 11.0,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -530,6 +556,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 9.54,
     "fornecedor": "Equilibrium",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -540,6 +567,7 @@ export const insumos = [
     "pesoLiquido": 0.9,
     "preco": 24.0,
     "fornecedor": "Equilibrium",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -550,6 +578,7 @@ export const insumos = [
     "pesoLiquido": 0.85,
     "preco": 8.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -560,6 +589,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 65.0,
     "fornecedor": "Equi",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -570,6 +600,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 7.49,
     "fornecedor": "Equi",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -580,6 +611,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 10.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -590,6 +622,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 45.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -600,6 +633,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 22.5,
     "fornecedor": "Equi",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -610,6 +644,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 15.0,
     "fornecedor": "Equi",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -620,6 +655,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 11.8,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -630,6 +666,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 14.9,
     "fornecedor": "Marcon Atacado Beltrao",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -640,6 +677,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 55.96,
     "fornecedor": "Cedro",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -650,8 +688,9 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 9.34,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
-    "fichaId": "pao-caseiro"
+    "fichaId": "pao-roberta"
   },
   {
     "id": "frango-desfiado-com-molho-de-tomate",
@@ -661,6 +700,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 34,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
     "fichaId": "frango-desfiado-com-molho-de-to"
   },
@@ -672,6 +712,7 @@ export const insumos = [
     "pesoLiquido": 0.5,
     "preco": 22.2528,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
     "fichaId": "frango-desfiado"
   },
@@ -683,6 +724,7 @@ export const insumos = [
     "pesoLiquido": 0.85,
     "preco": 53.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -693,6 +735,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 2.89,
     "fornecedor": "Cedro",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -703,6 +746,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 48.85,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -713,6 +757,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 41.42,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -723,6 +768,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 6.3,
     "fornecedor": "Marcon Atadaco Beltrao",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -733,6 +779,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 36.86,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -743,6 +790,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 15.0,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -753,6 +801,7 @@ export const insumos = [
     "pesoLiquido": 0.2,
     "preco": 24.64,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -763,6 +812,7 @@ export const insumos = [
     "pesoLiquido": 0.94,
     "preco": 2.99,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -773,6 +823,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 3.0612,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
     "fichaId": "leite-de-amendoim"
   },
@@ -784,6 +835,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 1.5306,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
     "fichaId": "leite-de-arroz"
   },
@@ -795,6 +847,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 21.4,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -805,6 +858,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 16.0,
     "fornecedor": "Cedro",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -815,6 +869,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 63.7,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -825,6 +880,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 19.04,
     "fornecedor": "Equi",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -835,6 +891,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 28.75,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -845,6 +902,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 44.55,
     "fornecedor": "Organicos e Cia",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -855,6 +913,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 3.5,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -865,6 +924,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 7.5,
     "fornecedor": "Feirinha",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -875,6 +935,7 @@ export const insumos = [
     "pesoLiquido": 0.75,
     "preco": 11.9,
     "fornecedor": "Cantina da Fruta",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -885,6 +946,7 @@ export const insumos = [
     "pesoLiquido": 0.87,
     "preco": 22.5,
     "fornecedor": "Ademir",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -895,6 +957,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 14.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -905,6 +968,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 9.0,
     "fornecedor": "Feirinha",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -915,6 +979,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 14.0501,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -925,6 +990,7 @@ export const insumos = [
     "pesoLiquido": 0.97,
     "preco": 18.64,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -935,6 +1001,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 16.0746,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -945,6 +1012,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 11.3219,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -955,6 +1023,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 35.0,
     "fornecedor": "Feirinha",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -965,6 +1034,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 105.0,
     "fornecedor": "Oraganicos e Cia",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -975,6 +1045,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 45.0,
     "fornecedor": "Mercado Livre",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -985,6 +1056,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 9.5,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -995,6 +1067,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 10.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1005,6 +1078,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 15.0,
     "fornecedor": "Cantina da Fruta",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1015,6 +1089,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 54.9,
     "fornecedor": "Organicos e Cia",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1025,6 +1100,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 25.16,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1035,6 +1111,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 5.0,
     "fornecedor": "Cedro",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1045,6 +1122,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 12.0,
     "fornecedor": "Cedro",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1055,6 +1133,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 54.4,
     "fornecedor": "Equi",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1065,6 +1144,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 30.5,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1075,6 +1155,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 30.5,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1085,6 +1166,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 35.0,
     "fornecedor": "Cometa",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1095,6 +1177,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 3.73,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1105,6 +1188,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 5.0,
     "fornecedor": "Cedro",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1115,6 +1199,7 @@ export const insumos = [
     "pesoLiquido": 0.83,
     "preco": 22.5,
     "fornecedor": "Ademir",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1125,6 +1210,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 78.9,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1135,6 +1221,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 34.06,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1145,6 +1232,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 18.36,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1155,6 +1243,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 9.9,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1165,6 +1254,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 25.0,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1175,6 +1265,7 @@ export const insumos = [
     "pesoLiquido": 0.22,
     "preco": 25.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1185,6 +1276,7 @@ export const insumos = [
     "pesoLiquido": 8.44,
     "preco": 8.0,
     "fornecedor": "Melo",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1195,6 +1287,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 59.0,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1205,6 +1298,7 @@ export const insumos = [
     "pesoLiquido": 0.05,
     "preco": 4.0,
     "fornecedor": "Feirinha",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1215,6 +1309,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 1.5,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1225,6 +1320,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 6.0,
     "fornecedor": "Cedro",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1235,6 +1331,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 16.0,
     "fornecedor": "Rafa",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1245,6 +1342,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 10.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1255,6 +1353,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 19.99,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1265,6 +1364,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 4.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1275,6 +1375,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 9.0,
     "fornecedor": "Equi",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1285,6 +1386,7 @@ export const insumos = [
     "pesoLiquido": 2.039,
     "preco": 5.69,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1295,6 +1397,7 @@ export const insumos = [
     "pesoLiquido": 1.917,
     "preco": 12.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1305,6 +1408,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 25.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1315,6 +1419,7 @@ export const insumos = [
     "pesoLiquido": 0.97,
     "preco": 15.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1325,6 +1430,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 36.8,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1335,6 +1441,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 30.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1345,6 +1452,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 18.26,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1355,6 +1463,7 @@ export const insumos = [
     "pesoLiquido": 0.29,
     "preco": 8.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1365,6 +1474,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 10.8,
     "fornecedor": "Peperina",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1375,6 +1485,7 @@ export const insumos = [
     "pesoLiquido": 0.49,
     "preco": 4.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1385,6 +1496,7 @@ export const insumos = [
     "pesoLiquido": 0.83,
     "preco": 13.7,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1395,6 +1507,7 @@ export const insumos = [
     "pesoLiquido": 0.97,
     "preco": 25.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1405,6 +1518,7 @@ export const insumos = [
     "pesoLiquido": 0.53,
     "preco": 7.45,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1415,6 +1529,7 @@ export const insumos = [
     "pesoLiquido": 0.015,
     "preco": 105.8,
     "fornecedor": "Cipra",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1425,6 +1540,7 @@ export const insumos = [
     "pesoLiquido": 0.63,
     "preco": 4.0,
     "fornecedor": "Cantina",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1435,6 +1551,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 20.0,
     "fornecedor": "Feirinha",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1445,6 +1562,7 @@ export const insumos = [
     "pesoLiquido": 0.47,
     "preco": 15.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1455,6 +1573,7 @@ export const insumos = [
     "pesoLiquido": 0.97,
     "preco": 6.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1465,6 +1584,7 @@ export const insumos = [
     "pesoLiquido": 0.97,
     "preco": 26.2,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1475,8 +1595,9 @@ export const insumos = [
     "pesoLiquido": 1.18,
     "preco": 16.77,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
-    "fichaId": "porcao-requeiju"
+    "fichaId": "requeiju"
   },
   {
     "id": "feijao-fradinho",
@@ -1486,6 +1607,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 8.9,
     "fornecedor": "Oraganicos e Cia Beltrao",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1496,6 +1618,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 69.9,
     "fornecedor": "Ares da Natureza",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1506,6 +1629,7 @@ export const insumos = [
     "pesoLiquido": 0.88,
     "preco": 90.0,
     "fornecedor": "Ares da Natureza",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1516,6 +1640,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 149.9,
     "fornecedor": "Mercado Livre",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1526,6 +1651,7 @@ export const insumos = [
     "pesoLiquido": 0.88,
     "preco": 24.99,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1536,8 +1662,9 @@ export const insumos = [
     "pesoLiquido": 1.134,
     "preco": 6.06,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
-    "fichaId": "porcao-maionese-verde"
+    "fichaId": "maionese-verde"
   },
   {
     "id": "pao-para-sanduiche",
@@ -1547,6 +1674,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 1.1125,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1557,6 +1685,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 70.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1567,6 +1696,7 @@ export const insumos = [
     "pesoLiquido": 0.79,
     "preco": 5.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1577,6 +1707,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 37.55,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1587,6 +1718,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 0.9532,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1597,6 +1729,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 69.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1607,6 +1740,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 34.5,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1617,6 +1751,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 33.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1627,6 +1762,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 70.0,
     "fornecedor": "Ares",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1637,6 +1773,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 326.0,
     "fornecedor": "Mercado Livre",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1647,6 +1784,7 @@ export const insumos = [
     "pesoLiquido": 0.198,
     "preco": 42.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1657,6 +1795,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 55.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1667,6 +1806,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 2.49,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1677,6 +1817,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 6.29,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1687,6 +1828,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 101.35,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1697,6 +1839,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 87.9,
     "fornecedor": "Ingredientes Online",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1707,6 +1850,7 @@ export const insumos = [
     "pesoLiquido": 0.88,
     "preco": 28.08,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1717,6 +1861,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 120.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1727,6 +1872,7 @@ export const insumos = [
     "pesoLiquido": 0.8,
     "preco": 25.2831,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
     "fichaId": "manteiga-vegana"
   },
@@ -1738,6 +1884,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 5.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1748,6 +1895,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 6.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1758,6 +1906,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 30.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1768,6 +1917,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 1.33,
     "fornecedor": "Farmacia",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1778,6 +1928,7 @@ export const insumos = [
     "pesoLiquido": 0.8,
     "preco": 6.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1788,6 +1939,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 17.2616,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1798,6 +1950,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 20.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1808,6 +1961,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 40.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1818,6 +1972,7 @@ export const insumos = [
     "pesoLiquido": 0.9,
     "preco": 5.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1828,6 +1983,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 27.66,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
     "fichaId": "creme-de-castanha"
   },
@@ -1839,6 +1995,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 60.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1849,6 +2006,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 14.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
     "fichaId": "massa-esfira"
   },
@@ -1860,6 +2018,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 40.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1870,6 +2029,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 12.199,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
     "fichaId": "pure-de-batatas"
   },
@@ -1881,6 +2041,7 @@ export const insumos = [
     "pesoLiquido": 1.0,
     "preco": 45.9219,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
     "fichaId": "mix-de-sementes-p-pao"
   },
@@ -1892,6 +2053,7 @@ export const insumos = [
     "pesoLiquido": 0.95,
     "preco": 7.0,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true
   },
   {
@@ -1902,6 +2064,7 @@ export const insumos = [
     "pesoLiquido": 0.98,
     "preco": 10.22,
     "fornecedor": "",
+    "cotacao": "",
     "ativo": true,
     "fichaId": "mix-sem-gluten-cris-gutierrez"
   }
@@ -2843,8 +3006,6 @@ export const fichas = [
     "custoReceitaPlanilha": 8.2597,
     "vendavel": false,
     "ativo": true,
-    "insumoGemeoId": "pao-roberta",
-    "rendimentoKg": 0.8843,
     "precoPraticado": 0,
     "tamanhoPorcao": ""
   },
@@ -3865,8 +4026,6 @@ export const fichas = [
     "custoReceitaPlanilha": 0.5685,
     "vendavel": false,
     "ativo": true,
-    "insumoGemeoId": "requeiju",
-    "rendimentoKg": 0.0339,
     "precoPraticado": 0,
     "tamanhoPorcao": ""
   },
@@ -3886,8 +4045,6 @@ export const fichas = [
     "custoReceitaPlanilha": 0.2672,
     "vendavel": false,
     "ativo": true,
-    "insumoGemeoId": "maionese-verde",
-    "rendimentoKg": 0.0441,
     "precoPraticado": 0,
     "tamanhoPorcao": ""
   },

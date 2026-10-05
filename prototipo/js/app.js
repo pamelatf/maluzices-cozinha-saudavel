@@ -12,7 +12,7 @@ import {
 import {
   resumoDaFicha, custoDoIngrediente, fatorDeCorrecao, precoPorQuilo,
   custoPorPorcao, precoSugerido, metaDeCmv, cmvReal,
-  formatarMoeda, formatarPercentual, formatarPeso, lerMoeda
+  formatarMoeda, formatarPercentual, formatarPeso, lerMoeda, rendimentoEmQuilos
 } from './calculo.js';
 
 /* ------------------------------------------------------------------
@@ -28,6 +28,7 @@ const estado = {
   pedidos: pedidosIniciais.map((p) => ({ ...p, itens: p.itens.map((i) => ({ ...i })) })),
   // 30 dias em vez de "este mês": mês em andamento compara 5 dias com 30
   periodoPainel: '30dias',
+  filtroFichas: 'vendidos',
   pedidoEmEdicao: null,
   filtrosCadastro: {},
   proximoCustoId: 8
@@ -66,7 +67,15 @@ const esc = (texto) => String(texto).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', 
 /* ------------------------------------------------------------------
    Utilidades de domínio
 ------------------------------------------------------------------ */
-const fichasVendaveis = () => estado.catalogo.fichas.filter((f) => !f.subReceita);
+/**
+ * Produto vendido é o que tem preço e está ativo. Ser usada como insumo em
+ * outra ficha não impede: o frango desfiado pode continuar entrando na
+ * coxinha e ser vendido em pote. São duas coisas independentes.
+ */
+const fichasVendaveis = () => estado.catalogo.fichas.filter((f) => f.vendavel && f.ativo !== false);
+
+/** Deduzido, não é campo: basta existir um insumo apontando para a ficha. */
+const usadaComoInsumo = (ficha) => estado.catalogo.insumos.some((i) => i.fichaId === ficha.id);
 const acharFicha = (id) => estado.catalogo.fichas.find((f) => f.id === id);
 const acharInsumo = (id) => estado.catalogo.insumos.find((i) => i.id === id);
 const nomeCategoria = (id) => {
@@ -320,30 +329,54 @@ function telaPainel() {
 }
 
 function telaFichas() {
-  const linhas = estado.catalogo.fichas.map((ficha) => {
+  const filtro = estado.filtroFichas;
+  const todas = estado.catalogo.fichas.filter((f) => f.ativo !== false);
+  const visiveis = todas.filter((f) => (
+    filtro === 'vendidos' ? f.vendavel
+      : filtro === 'insumos' ? usadaComoInsumo(f)
+        : filtro === 'sem-preco' ? !f.vendavel && !usadaComoInsumo(f)
+          : true));
+
+  const linhas = visiveis.map((ficha) => {
     const r = resumoDaFicha(ficha, estado.catalogo, estado.parametros);
+    const insumo = usadaComoInsumo(ficha);
     return `<tr>
-      <td><a href="#/ficha/${ficha.id}">${esc(ficha.nome)}</a>${ficha.subReceita ? ' <span class="selo selo-neutro">sub-receita</span>' : ''}</td>
+      <td>
+        <a href="#/ficha/${ficha.id}">${esc(ficha.nome)}</a>
+        ${insumo ? ' <span class="selo selo-neutro">usada como insumo</span>' : ''}
+      </td>
       <td class="suave">${esc(nomeCategoria(ficha.categoriaId))}</td>
-      <td class="num suave">${ficha.rendimento} ${ficha.subReceita ? 'kg' : 'porções'}</td>
+      <td class="num suave">${ficha.rendimento} ${ficha.vendavel ? 'porções' : 'kg'}</td>
       <td class="num">${formatarMoeda(r.custoPorcao)}</td>
-      <td class="num">${ficha.subReceita ? '<span class="suave">não é vendida</span>' : formatarMoeda(ficha.precoPraticado)}</td>
-      <td class="num">${ficha.subReceita ? '' : `<span class="${r.acimaDaMeta ? 'valor-alerta' : 'valor-ok'}">${formatarPercentual(r.cmvReal)}</span>`}</td>
+      <td class="num">${ficha.vendavel ? formatarMoeda(ficha.precoPraticado) : '<span class="suave">não é vendida</span>'}</td>
+      <td class="num">${ficha.vendavel ? `<span class="${r.acimaDaMeta ? 'valor-alerta' : 'valor-ok'}">${formatarPercentual(r.cmvReal)}</span>` : ''}</td>
     </tr>`;
   }).join('');
+
+  const opcoes = [
+    ['todos', `Todas (${todas.length})`],
+    ['vendidos', `Vendidas (${todas.filter((f) => f.vendavel).length})`],
+    ['insumos', `Usadas como insumo (${todas.filter(usadaComoInsumo).length})`],
+    ['sem-preco', `Sem preço e sem uso (${todas.filter((f) => !f.vendavel && !usadaComoInsumo(f)).length})`]
+  ];
 
   return `
     <div class="cabecalho">
       <div>
         <h1 class="titulo">Produtos e fichas</h1>
-        <p class="subtitulo">Cada produto tem uma ficha técnica. Sub-receitas, como o frango desfiado, entram como insumo em outras fichas.</p>
+        <p class="subtitulo">Cada produto tem uma ficha técnica. Uma ficha pode ser vendida, servir de insumo em outras fichas, ou as duas coisas ao mesmo tempo.</p>
       </div>
+      <label class="campo" style="min-width:230px">Mostrar
+        <select data-acao="filtro-fichas">
+          ${opcoes.map(([v, r]) => `<option value="${v}" ${v === filtro ? 'selected' : ''}>${r}</option>`).join('')}
+        </select>
+      </label>
     </div>
     <section class="cartao">
       <div class="rolagem">
         <table>
           <thead><tr><th>Produto</th><th>Categoria</th><th class="num">Rendimento</th><th class="num">Custo por porção</th><th class="num">Preço</th><th class="num">CMV real</th></tr></thead>
-          <tbody>${linhas}</tbody>
+          <tbody>${linhas || '<tr><td colspan="6" class="suave">Nenhuma ficha neste filtro.</td></tr>'}</tbody>
         </table>
       </div>
     </section>`;
@@ -369,10 +402,30 @@ function telaFicha(id) {
     </tr>`;
   }).join('');
 
-  const blocoPreco = ficha.subReceita
+  // Os dois blocos podem aparecer juntos: a mesma ficha pode virar insumo
+  // em outra receita e também ser vendida em porção.
+  const saida = rendimentoEmQuilos(ficha);
+  const usadas = estado.catalogo.fichas.filter((f) => f.ingredientes.some((l) => {
+    const i = acharInsumo(l.insumoId);
+    return i && i.fichaId === ficha.id;
+  }));
+
+  const blocoUso = usadaComoInsumo(ficha)
     ? `<div class="cartao">
-         <h2 class="cartao-titulo">Uso</h2>
-         <p class="cartao-nota" style="margin-top:10px">Esta ficha não é vendida direto. Ela vira insumo com custo de ${formatarMoeda(r.custoReceita / r.pesoTotal)} por quilo, usado automaticamente nas fichas que a incluem.</p>
+         <h2 class="cartao-titulo">Uso como insumo</h2>
+         <p class="cartao-nota" style="margin-top:10px">
+           Esta receita rende <strong>${formatarPeso(saida)}</strong> de produto, então ela entra nas outras fichas
+           a <strong>${formatarMoeda(r.custoReceita / (saida || 1))}</strong> por quilo. Esse preço se atualiza sozinho
+           quando o custo de algum ingrediente daqui muda.
+         </p>
+         ${usadas.length ? `<p class="cartao-nota" style="margin-top:10px">Usada em: ${usadas.map((f) => `<a href="#/ficha/${f.id}">${esc(f.nome)}</a>`).join(', ')}.</p>` : ''}
+       </div>`
+    : '';
+
+  const blocoPreco = !ficha.vendavel
+    ? `<div class="cartao">
+         <h2 class="cartao-titulo">Não é vendida</h2>
+         <p class="cartao-nota" style="margin-top:10px">Esta ficha não tem preço de venda. ${usadaComoInsumo(ficha) ? 'Ela existe para servir de insumo em outras receitas.' : 'Ela também não é usada como insumo em nenhuma outra ficha.'}</p>
        </div>`
     : `<div class="cartao" style="background:var(--oliva);color:var(--creme);border-color:var(--oliva)">
          <h2 class="cartao-titulo" style="color:var(--creme)">Preço</h2>
@@ -440,6 +493,7 @@ function telaFicha(id) {
           <div style="display:flex;justify-content:space-between;padding:14px 0 0;font-size:17px"><strong>Custo por porção</strong><strong data-vivo="custoPorcao">${formatarMoeda(r.custoPorcao)}</strong></div>
         </div>
       </div>
+      ${blocoUso}
       ${blocoPreco}
     </section>`;
 }
@@ -514,7 +568,7 @@ function telaAjuste() {
 
 function telaInsumos() {
   const linhas = estado.catalogo.insumos.map((insumo) => {
-    const desatualizado = insumo.cotacao < '2026-07-01';
+    const desatualizado = !!insumo.cotacao && insumo.cotacao < '2026-07-01';
     return `<tr>
       <td>${esc(insumo.nome)}${insumo.fichaId ? ' <span class="selo selo-neutro">preço vem da ficha</span>' : ''}</td>
       <td class="suave">${esc(insumo.unidade)}</td>
@@ -524,7 +578,9 @@ function telaInsumos() {
         ? `<span class="suave">${formatarMoeda(precoPorQuilo(insumo, estado.catalogo))}</span>`
         : `<input type="text" class="entrada-num" value="${formatarMoeda(insumo.preco)}" data-acao="preco-insumo" data-insumo="${insumo.id}" aria-label="Preço de ${esc(insumo.nome)}" style="max-width:130px">`}</td>
       <td class="suave">${esc(insumo.fornecedor)}</td>
-      <td class="${desatualizado ? 'valor-alerta' : 'suave'}">${insumo.cotacao.split('-').reverse().join('/')}</td>
+      <td class="${desatualizado ? 'valor-alerta' : 'suave'}">${insumo.cotacao
+        ? insumo.cotacao.split('-').reverse().join('/')
+        : '<span class="suave">não informada</span>'}</td>
     </tr>`;
   }).join('');
 
@@ -1233,6 +1289,10 @@ document.addEventListener('change', (evento) => {
       renderizar();
       break;
     }
+    case 'filtro-fichas':
+      estado.filtroFichas = alvo.value;
+      renderizar();
+      break;
     case 'filtro-cadastro':
       estado.filtrosCadastro[alvo.dataset.tipo] = alvo.value;
       renderizar();
