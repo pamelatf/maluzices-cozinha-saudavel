@@ -13,9 +13,13 @@ permissions:
   pages: write
   id-token: write
 
+# false, e não true, porque quem publica de fato é a etapa interna do
+# GitHub, que entra no mesmo grupo. Com cancel-in-progress ligado, um push
+# novo mata a publicação que ainda estava em andamento e o site pode ficar
+# na versão anterior sem ninguém perceber.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   publicar:
