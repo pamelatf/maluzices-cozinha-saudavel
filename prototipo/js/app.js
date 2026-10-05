@@ -1,4 +1,5 @@
 import { catalogoInicial, parametrosIniciais, faturamentoMensal, historicoCastanha } from './dados.js';
+import { telaPedidos, pedidosIniciais, aplicarAcaoNoPedido, validarPedido, criarPedido, totalDoPedido } from './pedidos.js';
 import {
   resumoDaFicha, custoDoIngrediente, fatorDeCorrecao, precoPorQuilo,
   custoPorPorcao, precoSugerido, metaDeCmv, cmvReal,
@@ -14,20 +15,24 @@ const estado = {
   abaConfig: 'parametros',
   selecionados: {},
   novosPrecos: {},
-  importacao: null
+  importacao: null,
+  pedidos: pedidosIniciais.map((p) => ({ ...p, itens: p.itens.map((i) => ({ ...i })) })),
+  mesPainel: '2026-10'
 };
 
 const PAGINAS = [
-  { rota: 'painel', titulo: 'Painel', icone: 'grafico' },
+  { rota: 'pedidos', titulo: 'Painel de pedidos', icone: 'comanda' },
+  { rota: 'painel', titulo: 'Painel financeiro', icone: 'grafico' },
   { rota: 'fichas', titulo: 'Produtos e fichas', icone: 'livro' },
   { rota: 'ajuste', titulo: 'Ajuste de preços', icone: 'etiqueta' },
   { rota: 'insumos', titulo: 'Insumos', icone: 'cesta' },
   { rota: 'custos', titulo: 'Custos', icone: 'carteira' },
-  { rota: 'config', titulo: 'Configuração', icone: 'engrenagem' }
+  { rota: 'config', titulo: 'Configurações', icone: 'engrenagem' }
 ];
 
 const ICONES = {
   grafico: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  comanda: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
   livro: '<path d="M4 4h7a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H4zM20 4h-6"/><path d="M20 4v16h-6"/>',
   etiqueta: '<path d="M3 11V4h7l10 10-7 7z"/><circle cx="7.5" cy="7.5" r="1.3"/>',
   cesta: '<path d="M3 9h18l-2 11H5z"/><path d="M8 9 12 3l4 6"/>',
@@ -60,11 +65,27 @@ function fichasComDiferenca() {
 /* ------------------------------------------------------------------
    Telas
 ------------------------------------------------------------------ */
+const MESES_PAINEL = [
+  { valor: '2026-10', rotulo: 'Outubro de 2026' },
+  { valor: '2026-09', rotulo: 'Setembro de 2026' },
+  { valor: '2026-08', rotulo: 'Agosto de 2026' },
+  { valor: 'ano', rotulo: 'Últimos 12 meses' }
+];
+
+function custosDoPeriodo() {
+  if (estado.mesPainel === 'ano') return estado.catalogo.custos;
+  return estado.catalogo.custos.filter((c) => c.data.startsWith(estado.mesPainel));
+}
+
+function faturamentoDoPeriodo() {
+  const porMes = { '2026-10': 3200, '2026-09': 2600, '2026-08': 5200 };
+  if (estado.mesPainel === 'ano') return faturamentoMensal.reduce((t, m) => t + m.faturamento, 0);
+  return porMes[estado.mesPainel] || 0;
+}
+
 function telaPainel() {
-  const faturamento = 3200;
-  const custoMes = estado.catalogo.custos
-    .filter((c) => c.data.startsWith('2026-10'))
-    .reduce((t, c) => t + c.valor, 0);
+  const faturamento = faturamentoDoPeriodo();
+  const custoMes = custosDoPeriodo().reduce((t, c) => t + c.valor, 0);
   const lucro = faturamento - custoMes;
   const aReceber = 740;
 
@@ -90,7 +111,7 @@ function telaPainel() {
 
   const foraDaMeta = fichasVendaveis().filter((f) => resumoDaFicha(f, estado.catalogo, estado.parametros).acimaDaMeta);
   const porCategoria = {};
-  estado.catalogo.custos.filter((c) => c.data.startsWith('2026-10')).forEach((c) => {
+  custosDoPeriodo().forEach((c) => {
     porCategoria[c.categoria] = (porCategoria[c.categoria] || 0) + c.valor;
   });
   const maiorCusto = Math.max(...Object.values(porCategoria), 1);
@@ -108,13 +129,18 @@ function telaPainel() {
     <div class="cabecalho">
       <div>
         <h1 class="titulo">Painel financeiro</h1>
-        <p class="subtitulo">Outubro de 2026. Os números de margem vêm das fichas técnicas e mudam quando um preço de insumo muda.</p>
+        <p class="subtitulo">Os números de margem vêm das fichas técnicas e mudam quando um preço de insumo muda.</p>
       </div>
+      <label class="campo" style="min-width:210px">Período
+        <select data-acao="mes-painel">
+          ${MESES_PAINEL.map((m) => `<option value="${m.valor}" ${m.valor === estado.mesPainel ? 'selected' : ''}>${m.rotulo}</option>`).join('')}
+        </select>
+      </label>
     </div>
 
     <section class="grade grade-4">
-      <div class="cartao indicador"><div class="rotulo">Faturamento</div><div class="valor">${formatarMoeda(faturamento)}</div><div class="apoio">23% acima de setembro</div></div>
-      <div class="cartao indicador"><div class="rotulo">Custos</div><div class="valor">${formatarMoeda(custoMes)}</div><div class="apoio">lançados na tela de custos</div></div>
+      <div class="cartao indicador"><div class="rotulo">Faturamento</div><div class="valor">${formatarMoeda(faturamento)}</div><div class="apoio">${MESES_PAINEL.find((m) => m.valor === estado.mesPainel).rotulo}</div></div>
+      <div class="cartao indicador"><div class="rotulo">Custos</div><div class="valor">${formatarMoeda(custoMes)}</div><div class="apoio">${custosDoPeriodo().length} ${custosDoPeriodo().length === 1 ? 'lançamento' : 'lançamentos'} no período</div></div>
       <div class="cartao indicador"><div class="rotulo">Lucro</div><div class="valor">${formatarMoeda(lucro)}</div><div class="apoio">margem de ${formatarPercentual(lucro / faturamento)}</div></div>
       <div class="cartao indicador"><div class="rotulo">A receber</div><div class="valor">${formatarMoeda(aReceber)}</div><div class="apoio">3 pedidos em atraso</div></div>
     </section>
@@ -724,7 +750,7 @@ function telaConfig() {
    Roteamento e eventos
 ------------------------------------------------------------------ */
 function rotaAtual() {
-  const bruto = (location.hash || '#/painel').replace('#/', '');
+  const bruto = (location.hash || '#/pedidos').replace('#/', '');
   const [pagina, parametro] = bruto.split('/');
   return { pagina: pagina || 'painel', parametro };
 }
@@ -734,18 +760,14 @@ function renderizarMenu(paginaAtiva) {
     const ativo = p.rota === paginaAtiva || (paginaAtiva === 'ficha' && p.rota === 'fichas');
     return `<a href="#/${p.rota}" class="${ativo ? 'ativo' : ''}">${icone(p.icone)}${p.titulo}</a>`;
   }).join('');
-  const externos = `
-    <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)">
-      <a href="pedidos.html">${icone('cesta')}Painel de pedidos</a>
-      <a href="index.html">${icone('info')}Início</a>
-    </div>`;
-  document.getElementById('menu').innerHTML = itens + externos;
+  document.getElementById('menu').innerHTML = itens;
 }
 
 function renderizar() {
   const { pagina, parametro } = rotaAtual();
   renderizarMenu(pagina);
   const telas = {
+    pedidos: () => telaPedidos(estado.pedidos),
     painel: telaPainel,
     fichas: telaFichas,
     ficha: () => telaFicha(parametro),
@@ -754,9 +776,9 @@ function renderizar() {
     custos: telaCustos,
     config: telaConfig
   };
-  const render = telas[pagina] || telaPainel;
+  const render = telas[pagina] || telaPedidos.bind(null, estado.pedidos);
   document.getElementById('conteudo').innerHTML = render() + `
-    <p class="rodape-proto">Protótipo funcional do módulo financeiro do Maluzices. Os cálculos de custo, CMV e preço sugerido são reais; os dados são de exemplo e ficam só na memória do navegador, então recarregar a página volta ao estado inicial.</p>`;
+    <p class="rodape-proto">Protótipo funcional do sistema do Maluzices. Os cálculos de custo, CMV e preço sugerido são reais; os dados são de exemplo e ficam só na memória do navegador, então recarregar a página volta ao estado inicial.</p>`;
   window.scrollTo(0, 0);
 }
 
@@ -831,6 +853,10 @@ document.addEventListener('change', (evento) => {
       renderizar();
       break;
     }
+    case 'mes-painel':
+      estado.mesPainel = alvo.value;
+      renderizar();
+      break;
     case 'param': {
       const campo = alvo.dataset.campo;
       if (campo === 'arredondamento') estado.parametros.arredondamento = alvo.value;
@@ -844,7 +870,119 @@ document.addEventListener('change', (evento) => {
   }
 });
 
+/* ---------- painel de pedidos ---------- */
+function abrirModalPedido() {
+  const fundo = document.getElementById('fundoModal');
+  const lista = document.getElementById('listaItens');
+  lista.innerHTML = '';
+  adicionarLinhaDeItem();
+  document.getElementById('campoCliente').value = '';
+  document.getElementById('campoObs').value = '';
+  document.getElementById('aviso').classList.remove('visivel');
+  atualizarPreviaDoPedido();
+  fundo.classList.add('aberto');
+  setTimeout(() => document.getElementById('campoCliente').focus(), 40);
+}
+
+function fecharModalPedido() {
+  const fundo = document.getElementById('fundoModal');
+  if (fundo) fundo.classList.remove('aberto');
+}
+
+function adicionarLinhaDeItem() {
+  const lista = document.getElementById('listaItens');
+  const linha = document.createElement('div');
+  linha.className = 'linha-item';
+  const produtos = fichasVendaveis();
+  linha.innerHTML = `
+    <input class="it-nome" list="lista-produtos" placeholder="Nome do item" autocomplete="off">
+    <input class="it-qtd" type="number" min="1" step="1" value="1" aria-label="Quantidade">
+    <input class="it-preco" type="number" min="0" step="0.01" placeholder="0,00" aria-label="Preço unitário">
+    <button class="rm-item" data-pedido="remover-item" aria-label="Remover item">×</button>`;
+  lista.appendChild(linha);
+  if (!document.getElementById('lista-produtos')) {
+    const datalist = document.createElement('datalist');
+    datalist.id = 'lista-produtos';
+    datalist.innerHTML = produtos.map((f) => `<option value="${esc(f.nome)}"></option>`).join('');
+    lista.appendChild(datalist);
+  }
+}
+
+function itensDoFormulario() {
+  return [...document.querySelectorAll('#listaItens .linha-item')].map((l) => ({
+    nome: l.querySelector('.it-nome').value.trim(),
+    qtd: parseInt(l.querySelector('.it-qtd').value, 10) || 0,
+    preco: parseFloat(l.querySelector('.it-preco').value) || 0
+  }));
+}
+
+function atualizarPreviaDoPedido() {
+  const total = itensDoFormulario().reduce((s, i) => s + i.qtd * i.preco, 0);
+  const alvo = document.getElementById('previaTotal');
+  if (alvo) alvo.textContent = formatarMoeda(total);
+}
+
+/** Ao escolher um produto da lista, o preço praticado vem preenchido. */
+function preencherPrecoDoProduto(campo) {
+  const ficha = fichasVendaveis().find((f) => f.nome === campo.value.trim());
+  if (!ficha) return;
+  const campoPreco = campo.closest('.linha-item').querySelector('.it-preco');
+  if (!campoPreco.value || Number(campoPreco.value) === 0) campoPreco.value = ficha.precoPraticado.toFixed(2);
+}
+
+document.addEventListener('input', (evento) => {
+  const alvo = evento.target;
+  if (alvo.closest && alvo.closest('#listaItens')) {
+    if (alvo.classList.contains('it-nome')) preencherPrecoDoProduto(alvo);
+    atualizarPreviaDoPedido();
+  }
+});
+
+document.addEventListener('keydown', (evento) => {
+  if (evento.key === 'Escape') fecharModalPedido();
+});
+
 document.addEventListener('click', (evento) => {
+  const fundo = document.getElementById('fundoModal');
+  if (fundo && evento.target === fundo) fecharModalPedido();
+
+  const botao = evento.target.closest('[data-pedido]');
+  if (botao) {
+    const acao = botao.dataset.pedido;
+    if (acao === 'novo') { abrirModalPedido(); return; }
+    if (acao === 'fechar') { fecharModalPedido(); return; }
+    if (acao === 'adicionar-item') { adicionarLinhaDeItem(); atualizarPreviaDoPedido(); return; }
+    if (acao === 'remover-item') {
+      const lista = document.getElementById('listaItens');
+      if (lista.querySelectorAll('.linha-item').length > 1) {
+        botao.closest('.linha-item').remove();
+        atualizarPreviaDoPedido();
+      }
+      return;
+    }
+    if (acao === 'salvar') {
+      const cliente = document.getElementById('campoCliente').value.trim();
+      const itens = itensDoFormulario().filter((i) => i.nome);
+      const erros = validarPedido(cliente, itens);
+      if (erros.length) {
+        const aviso = document.getElementById('aviso');
+        aviso.textContent = erros.join(' · ');
+        aviso.classList.add('visivel');
+        return;
+      }
+      estado.pedidos.unshift(criarPedido(cliente, itens, document.getElementById('campoObs').value.trim()));
+      fecharModalPedido();
+      renderizar();
+      return;
+    }
+    const cartao = botao.closest('.cartao');
+    if (cartao) {
+      estado.pedidos = aplicarAcaoNoPedido(estado.pedidos, Number(cartao.dataset.id), acao);
+      renderizar();
+      return;
+    }
+  }
+
   const alvo = evento.target.closest('[data-acao]');
   if (!alvo) return;
   const acao = alvo.dataset.acao;

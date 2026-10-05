@@ -1,16 +1,17 @@
-# Protótipo do módulo financeiro
+# Protótipo do sistema
 
 Protótipo navegável do sistema do Maluzices, publicado no GitHub Pages. É uma
 aplicação estática, sem build e sem back-end.
 
-O site tem dois módulos:
+É uma página só, com menu lateral fixo, e duas áreas:
 
-- **Painel de pedidos**, em `pedidos.html`. Era o `web/painel-maluzices.html`,
-  movido para cá para que o site funcione tanto publicado pelo workflow quanto
-  publicado direto de uma branch. O front em React de `web/` continua sendo a
-  versão de produção dessa tela; esta é a estática.
-- **Módulo financeiro**, nesta pasta: ficha técnica, custo por porção, CMV e
-  precificação.
+- **Painel de pedidos**, o quadro por situação. Veio do antigo
+  `web/painel-maluzices.html` e virou uma seção da aplicação; os estilos dele
+  ficam em `css/pedidos.css`, escopados em `.pedidos-escopo` porque reusam
+  nomes de classe do financeiro. O front em React de `web/` segue sendo a
+  versão de produção dessa tela.
+- **Módulo financeiro**: ficha técnica, custo por porção, CMV, precificação,
+  insumos, custos e configurações.
 
 ## O que é real e o que é de mentira
 
@@ -57,14 +58,14 @@ python3 -m http.server 8777
 
 ```
 prototipo/
-  index.html        capa com os dois módulos
-  pedidos.html      painel de pedidos, estático
-  financeiro.html   casca do módulo financeiro
+  index.html        casca da aplicação
   modelo-custos.csv modelo para a importação de custos
   css/estilos.css   paleta e tipografia da marca, iguais às de web/
+  css/pedidos.css   estilos do painel de pedidos, escopados
   js/calculo.js     motor de cálculo, sem dependência de tela
   js/dados.js       dados de exemplo
-  js/app.js         telas e eventos
+  js/pedidos.js     painel de pedidos: marcação, regras de situação e validação
+  js/app.js         telas, rotas e eventos
 ```
 
 `calculo.js` não depende do navegador, de propósito: ele pode ser importado
