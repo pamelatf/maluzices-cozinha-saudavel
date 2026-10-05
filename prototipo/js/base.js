@@ -4,7 +4,7 @@
  * ESTE ARQUIVO É GERADO. Não edite à mão: rode
  *   python3 ferramentas/converter-planilha.py <planilha>.xlsx
  *
- * Insumos: 163 | Fichas: 73 | Vendáveis: 12
+ * Insumos: 165 | Fichas: 73 | Vendáveis: 12
  */
 
 export const categorias = [
@@ -230,6 +230,13 @@ export const fornecedores = [
   {
     "id": "rafa",
     "nome": "Rafa",
+    "telefone": "",
+    "email": "",
+    "ativa": true
+  },
+  {
+    "id": "cozinha",
+    "nome": "cozinha",
     "telefone": "",
     "email": "",
     "ativa": true
@@ -2067,6 +2074,30 @@ export const insumos = [
     "cotacao": "",
     "ativo": true,
     "fichaId": "mix-sem-gluten-cris-gutierrez"
+  },
+  {
+    "id": "pao-nobis",
+    "nome": "Pão-nóbis",
+    "unidade": "kg",
+    "pesoBruto": 1.0,
+    "pesoLiquido": 1.0,
+    "preco": 0.0,
+    "fornecedor": "cozinha",
+    "cotacao": "",
+    "ativo": true,
+    "fichaId": "pao-nobis"
+  },
+  {
+    "id": "massa-low-carb-para-quiche",
+    "nome": "Massa Low Carb para Quiche",
+    "unidade": "kg",
+    "pesoBruto": 1.0,
+    "pesoLiquido": 1.0,
+    "preco": 0.0,
+    "fornecedor": "cozinha",
+    "cotacao": "",
+    "ativo": true,
+    "fichaId": "massa-de-quiche"
   }
 ];
 
@@ -3229,6 +3260,7 @@ export const fichas = [
     "custoReceitaPlanilha": 14.0501,
     "vendavel": false,
     "ativo": true,
+    "insumoGemeoId": "massa-low-carb-para-quiche",
     "precoPraticado": 0,
     "tamanhoPorcao": ""
   },
@@ -3510,7 +3542,7 @@ export const fichas = [
       },
       {
         "quantidade": 0.02,
-        "fichaId": "creme-de-castanha"
+        "insumoId": "creme-de-castanha"
       }
     ],
     "tempoPreparo": "10 min",
@@ -4130,7 +4162,7 @@ export const fichas = [
       },
       {
         "quantidade": 0.08,
-        "fichaId": "pao-nobis"
+        "insumoId": "pao-nobis"
       },
       {
         "insumoId": "cenoura-com-casca",
@@ -4447,7 +4479,7 @@ export const fichas = [
     "ingredientes": [
       {
         "quantidade": 0.02,
-        "fichaId": "massa-de-quiche"
+        "insumoId": "massa-low-carb-para-quiche"
       },
       {
         "insumoId": "requeiju",
@@ -4718,6 +4750,7 @@ export const fichas = [
     "custoReceitaPlanilha": 9.968,
     "vendavel": false,
     "ativo": true,
+    "insumoGemeoId": "pao-nobis",
     "precoPraticado": 0,
     "tamanhoPorcao": ""
   },
@@ -4737,7 +4770,7 @@ export const fichas = [
       },
       {
         "quantidade": 0.5,
-        "fichaId": "massa-de-quiche"
+        "insumoId": "massa-low-carb-para-quiche"
       },
       {
         "insumoId": "creme-para-quiche",
@@ -4764,7 +4797,7 @@ export const fichas = [
       },
       {
         "quantidade": 0.4,
-        "fichaId": "massa-de-quiche"
+        "insumoId": "massa-low-carb-para-quiche"
       },
       {
         "insumoId": "creme-para-quiche",
@@ -4799,7 +4832,7 @@ export const fichas = [
       },
       {
         "quantidade": 0.8,
-        "fichaId": "massa-de-quiche"
+        "insumoId": "massa-low-carb-para-quiche"
       }
     ],
     "tempoPreparo": "1H",
@@ -4830,7 +4863,7 @@ export const fichas = [
       },
       {
         "quantidade": 0.75,
-        "fichaId": "massa-de-quiche"
+        "insumoId": "massa-low-carb-para-quiche"
       }
     ],
     "tempoPreparo": "1H",
@@ -4857,7 +4890,7 @@ export const fichas = [
       },
       {
         "quantidade": 0.5,
-        "fichaId": "massa-de-quiche"
+        "insumoId": "massa-low-carb-para-quiche"
       },
       {
         "insumoId": "creme-para-quiche",

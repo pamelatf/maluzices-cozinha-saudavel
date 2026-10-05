@@ -58,7 +58,9 @@
     "Massa Low Carb para Quiche: a receita soma 0.512 kg de ingredientes mas rende 1.0 kg de produto, segundo o preço de R$ 14.6668 que ela usa. A diferença é o que se perde no preparo.",
     "Maionese Verde: a receita soma 0.924 kg de ingredientes mas rende 1.8043 kg de produto, segundo o preço de R$ 6.06 que ela usa. A diferença é o que se perde no preparo.",
     "Leite de Amendoim: a receita soma 2.0 kg de ingredientes mas rende 1.0 kg de produto, segundo o preço de R$ 3.0612 que ela usa. A diferença é o que se perde no preparo.",
-    "Frango Desfiado: a receita soma 4.92 kg de ingredientes mas rende 2.0 kg de produto, segundo o preço de R$ 22.2528 que ela usa. A diferença é o que se perde no preparo."
+    "Frango Desfiado: a receita soma 4.92 kg de ingredientes mas rende 2.0 kg de produto, segundo o preço de R$ 22.2528 que ela usa. A diferença é o que se perde no preparo.",
+    "Pão-nóbis: a receita era usada dentro de outra ficha mas não existia na lista de insumos. Criamos o insumo, com o preço saindo do custo da própria receita.",
+    "Massa Low Carb para Quiche: a receita era usada dentro de outra ficha mas não existia na lista de insumos. Criamos o insumo, com o preço saindo do custo da própria receita."
   ],
   "descartados": [
     "insumo COBERTURA BEIJINHO: sem preço na planilha.",

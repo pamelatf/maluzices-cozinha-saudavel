@@ -319,6 +319,44 @@ def ler_planilha(caminho):
                     f"{f['rendimentoKg']} kg de produto, segundo o preço de R$ {gemeo['preco']} "
                     f"que ela usa. A diferença é o que se perde no preparo.")
 
+    # ------------------- sub-receita citada direto, sem insumo correspondente
+    # Em algumas abas ela puxa o custo de outra aba sem ter cadastrado aquilo
+    # na lista de insumos (massa de quiche, pão de nobis). A linha fica
+    # apontando para a ficha e para nenhum insumo, e quem for calcular o custo
+    # depois não acha preço nenhum e conta zero, barateando o produto.
+    # Aqui cada uma dessas vira um insumo de verdade, marcado como
+    # sub-receita, para toda linha de ingrediente apontar para um insumo.
+    por_id = {f['id']: f for f in fichas}
+    for f in fichas:
+        for ing in f['ingredientes']:
+            if not ing.get('fichaId') or ing.get('insumoId'):
+                continue
+            alvo = por_id.get(ing['fichaId'])
+            if not alvo:
+                continue
+            gemeo = next((i for i in insumos if i.get('fichaId') == alvo['id']), None)
+            if gemeo is None:
+                gemeo = {
+                    'id': apelido(alvo["nome"], usados_id),
+                    'nome': alvo['nome'],
+                    'unidade': 'kg',
+                    'pesoBruto': 1.0,
+                    'pesoLiquido': 1.0,
+                    'preco': 0.0,
+                    'fornecedor': 'cozinha',
+                    'cotacao': '',
+                    'ativo': True,
+                    'fichaId': alvo['id'],
+                }
+                insumos.append(gemeo)
+                alvo['insumoGemeoId'] = gemeo['id']
+                relatorio['decisoes'].append(
+                    f"{alvo['nome']}: a receita era usada dentro de outra ficha mas não existia "
+                    f"na lista de insumos. Criamos o insumo, com o preço saindo do custo da "
+                    f"própria receita.")
+            ing['insumoId'] = gemeo['id']
+            ing.pop('fichaId', None)
+
     # ---------------------------------------------------------- preços
     ws = wb['CMV']
     precos = []
