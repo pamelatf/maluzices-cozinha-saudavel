@@ -151,9 +151,73 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .trilho{height:8px;background:var(--creme-col);border-radius:99px;overflow:hidden;margin-top:6px}
 .trilho div{height:100%;background:var(--verde)}
 
-/* ---------- tela de início ---------- */
-.inicio{flex:1;display:flex;align-items:center;justify-content:center;min-height:60vh}
-.inicio-logo{width:min(250px,60vw);height:auto;display:block}
+/* ---------- visão geral ---------- */
+.grade-painel{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}
+.indicador-variacao{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;font-size:13px;margin-top:8px}
+.variacao-boa{color:var(--verde);font-weight:400}
+.variacao-ruim{color:var(--terracota);font-weight:400}
+.sem-base{color:var(--pedra);font-size:12.5px}
+.indicador-link{display:block;text-decoration:none;color:inherit;transition:border-color .16s,transform .16s}
+.indicador-link:hover{border-color:var(--taupe-claro);transform:translateY(-1px);color:inherit}
+.atalho{font-size:13px;color:var(--terracota);text-decoration:none;white-space:nowrap}
+.atalho:hover{color:var(--oliva);text-decoration:underline}
+
+/* gráficos */
+.grafico{display:block;width:100%;height:auto;margin-top:16px;overflow:visible}
+.g-grade{stroke:var(--areia);stroke-width:1}
+.g-eixo{font-size:12px;fill:var(--pedra);font-family:'Jost',sans-serif}
+.g-valor{font-size:12px;fill:var(--texto-suave);font-family:'Jost',sans-serif}
+.g-nota{font-size:11.5px;fill:var(--pedra);font-family:'Jost',sans-serif}
+.g-serie{font-size:12.5px;font-family:'Jost',sans-serif;letter-spacing:.03em}
+.g-area-gastos{fill:var(--terracota);fill-opacity:.13}
+.g-area-lucro{fill:var(--verde);fill-opacity:.22}
+.g-linha-faturamento{fill:none;stroke:var(--oliva);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.g-linha-gastos{fill:none;stroke:var(--terracota);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.g-ponto-faturamento{fill:var(--oliva)}
+.g-ponto-gastos{fill:var(--terracota)}
+.g-tracejado{stroke:var(--pedra);stroke-width:1;stroke-dasharray:2 3}
+.g-guia{stroke:var(--taupe-claro);stroke-width:1;stroke-dasharray:3 3;opacity:0}
+.g-alvo{fill:transparent;cursor:crosshair}
+.g-barra{fill:var(--taupe-claro);fill-opacity:.42;transition:fill-opacity .16s}
+.g-barra:hover{fill-opacity:.7}
+.g-barra.destaque{fill:var(--verde);fill-opacity:.85}
+.g-barra.destaque:hover{fill-opacity:1}
+
+/* barras horizontais */
+.barras-h{display:flex;flex-direction:column;gap:13px}
+.barra-h{display:grid;grid-template-columns:minmax(96px,1.1fr) minmax(0,2.4fr) minmax(92px,auto);gap:12px;align-items:center}
+.barra-h-nome{font-size:14px;line-height:1.3}
+.barra-h-trilho{height:10px;background:var(--creme-col);border-radius:99px;overflow:hidden}
+.barra-h-trilho div{height:100%;background:var(--verde);border-radius:99px}
+.barra-h.alerta .barra-h-trilho div{background:var(--terracota)}
+.barra-h-valor{text-align:right;font-size:14px;line-height:1.25}
+.barra-h-valor span{display:block;font-size:12px;color:var(--texto-suave)}
+
+/* pedidos por situação */
+.situacoes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:16px}
+.situacao{background:var(--creme-col);border-radius:var(--raio-s);padding:12px 10px;text-align:center;
+  text-decoration:none;color:inherit;transition:background .16s}
+.situacao:hover{background:var(--areia);color:inherit}
+.situacao-num{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-size:25px;font-weight:500;line-height:1}
+.situacao-nome{display:block;font-size:12px;color:var(--texto-suave);margin-top:4px}
+
+/* destaque do período */
+.destaque{display:flex;gap:14px;align-items:flex-start;padding:18px 20px;border-radius:var(--raio);line-height:1.5}
+.destaque .icone{font-size:21px;margin-top:2px;flex:none}
+.destaque-rotulo{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--texto-suave);margin-bottom:5px}
+.destaque strong{font-family:'Cormorant Garamond',Georgia,serif;font-size:21px;font-weight:500;display:block}
+.destaque p{font-size:14.5px;color:var(--texto-suave);margin-top:5px;max-width:760px}
+.destaque-atencao{background:#F6EDE4;border:1px solid #E6D2C2;color:#6B4330}
+.destaque-bom{background:#E8EDDC;border:1px solid #CBD4B2;color:#3F4A24}
+.destaque-neutro{background:var(--creme-col);border:1px solid var(--areia)}
+
+/* dica dos gráficos */
+.dica-grafico{position:fixed;pointer-events:none;opacity:0;transition:opacity .12s;z-index:70;
+  background:var(--oliva);color:var(--creme);border-radius:var(--raio-s);padding:11px 13px;
+  font-size:13px;line-height:1.5;box-shadow:0 8px 24px rgba(70,64,40,.22);min-width:200px}
+.dica-grafico b{font-weight:400;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:#C9C6AE}
+.dica-grafico .l{display:flex;justify-content:space-between;gap:18px;margin-top:5px}
+.dica-grafico i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:7px}
 
 /* ---------- atendimento ---------- */
 .previa-zap{
@@ -191,8 +255,17 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
   border-top:1px solid var(--areia);padding-top:16px;
 }
 
+@media (max-width:1150px){
+  .grade-painel{grid-template-columns:1fr}
+  .grade-4{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
 @media (max-width:860px){
-  .grade-4,.grade-3,.grade-2{grid-template-columns:1fr}
+  .grade-4,.grade-3,.grade-2,.grade-painel{grid-template-columns:1fr}
+  .barra-h{grid-template-columns:1fr auto;gap:4px 12px}
+  .barra-h-trilho{grid-column:1/-1;order:3}
+  .barra-h-valor{text-align:right}
+  .situacoes{grid-template-columns:repeat(3,minmax(0,1fr))}
   .conteudo{padding:22px 18px 48px}
   .lateral{max-width:none;flex-basis:100%}
   .menu{flex-direction:row;flex-wrap:wrap}

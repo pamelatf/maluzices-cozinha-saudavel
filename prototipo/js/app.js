@@ -1,4 +1,10 @@
-import { catalogoInicial, parametrosIniciais, faturamentoMensal, historicoCastanha } from './dados.js';
+import { catalogoInicial, parametrosIniciais, faturamentoMensal, historicoCastanha, vendas, HOJE } from './dados.js';
+import {
+  PERIODOS, indicadoresDoPeriodo, serieMensal, gastosPorCategoria,
+  faturamentoPorDiaDaSemana, produtosVendidos, destaqueDoPeriodo,
+  vendasDoIntervalo, custosDoIntervalo
+} from './indicadores.js';
+import { graficoFaturamentoLucro, graficoDiaDaSemana, barrasHorizontais } from './graficos.js';
 import {
   telaPedidos, pedidosIniciais, aplicarAcaoNoPedido, validarPedido, criarPedido, totalDoPedido,
   ehFinal, telefoneValido, linkWhatsapp, montarMensagem, formatarTelefone, rotuloSituacao
@@ -21,6 +27,8 @@ const estado = {
   importacao: null,
   pedidos: pedidosIniciais.map((p) => ({ ...p, itens: p.itens.map((i) => ({ ...i })) })),
   mesPainel: '2026-10',
+  // 30 dias em vez de "este mês": mês em andamento compara 5 dias com 30
+  periodoPainel: '30dias',
   pedidoEmEdicao: null,
   filtrosCadastro: {},
   proximoCustoId: 8
@@ -94,17 +102,171 @@ function custosDoPeriodo() {
   return estado.catalogo.custos.filter((c) => c.data.startsWith(estado.mesPainel));
 }
 
+/** Sai da mesma série mensal da visão geral, para as duas telas não divergirem. */
 function faturamentoDoPeriodo() {
-  const porMes = { '2026-10': 3200, '2026-09': 2600, '2026-08': 5200 };
   if (estado.mesPainel === 'ano') return faturamentoMensal.reduce((t, m) => t + m.faturamento, 0);
-  return porMes[estado.mesPainel] || 0;
+  const mes = faturamentoMensal.find((m) => m.chave === estado.mesPainel);
+  return mes ? mes.faturamento : 0;
 }
 
-/** Tela de abertura. Por enquanto só a marca, sem conteúdo. */
+/* ------------------------------------------------------------------
+   Visão geral: o painel de abertura.
+
+   Tudo aqui sai da mesma base das outras telas, então os números batem
+   com a tela de Custos e com o quadro de pedidos. Cada bloco leva para
+   a tela onde o assunto se resolve: número que não leva a lugar nenhum
+   é enfeite.
+------------------------------------------------------------------ */
+function dadosDaVisaoGeral() {
+  const periodo = estado.periodoPainel;
+  const base = { vendas, custos: estado.catalogo.custos, catalogo: estado.catalogo, hoje: HOJE };
+  const indicadores = indicadoresDoPeriodo({ ...base, periodo });
+  const { inicio, fim } = indicadores.intervalo;
+
+  const vendasPeriodo = vendasDoIntervalo(vendas, inicio, fim);
+  const custosPeriodo = custosDoIntervalo(estado.catalogo.custos, inicio, fim);
+  const categorias = gastosPorCategoria(custosPeriodo);
+  const dias = faturamentoPorDiaDaSemana(vendasPeriodo, estado.catalogo);
+  const produtos = produtosVendidos({ vendas: vendasPeriodo, catalogo: estado.catalogo, parametros: estado.parametros });
+  const serie = serieMensal({ ...base });
+
+  return {
+    indicadores, categorias, dias, produtos, serie,
+    destaque: destaqueDoPeriodo({ indicadores, serie, categorias, produtos, dias })
+  };
+}
+
+function cartaoIndicador({ rotulo, valor, variacao, diferenca, bomSeSobe = true, destino }) {
+  let marca = '<span class="sem-base">sem base de comparação</span>';
+  if (variacao !== null && variacao !== undefined) {
+    const sobe = variacao >= 0;
+    const bom = sobe === bomSeSobe;
+    marca = `<span class="${bom ? 'variacao-boa' : 'variacao-ruim'}">${sobe ? '↑' : '↓'} ${formatarPercentual(Math.abs(variacao))}</span>
+             <span class="suave">vs. período anterior</span>`;
+  } else if (diferenca !== null && diferenca !== undefined) {
+    const sobe = diferenca >= 0;
+    marca = `<span class="${sobe ? 'variacao-boa' : 'variacao-ruim'}">${sobe ? '↑' : '↓'} ${(Math.abs(diferenca) * 100).toFixed(1).replace('.', ',')} p.p.</span>
+             <span class="suave">vs. período anterior</span>`;
+  }
+
+  const corpo = `
+    <div class="rotulo">${rotulo}</div>
+    <div class="valor">${valor}</div>
+    <div class="indicador-variacao">${marca}</div>`;
+
+  return destino
+    ? `<a class="cartao indicador indicador-link" href="${destino}">${corpo}</a>`
+    : `<div class="cartao indicador">${corpo}</div>`;
+}
+
 function telaInicio() {
+  const { indicadores, categorias, dias, produtos, serie, destaque } = dadosDaVisaoGeral();
+  const i = indicadores;
+
+  const porSituacao = {};
+  estado.pedidos.forEach((p) => { porSituacao[p.status] = (porSituacao[p.status] || 0) + 1; });
+  const SITUACOES = [
+    { chave: 'RECEBIDO', nome: 'Recebidos' },
+    { chave: 'EM_PREPARO', nome: 'Em preparo' },
+    { chave: 'PRONTO', nome: 'Prontos' },
+    { chave: 'ENTREGUE', nome: 'Entregues' },
+    { chave: 'CANCELADO', nome: 'Cancelados' }
+  ];
+
+  const topQuantidade = produtos.porQuantidade[0];
+  const topLucro = produtos.porLucro[0];
+
   return `
-    <section class="inicio">
-      <img class="inicio-logo" src="img/logo-maluzices.png" alt="Maluzices, cozinha saudável" width="250" height="250">
+    <div class="cabecalho">
+      <div>
+        <h1 class="titulo">Visão geral</h1>
+        <p class="subtitulo">Acompanhe o desempenho do seu negócio.</p>
+      </div>
+      <label class="campo" style="min-width:200px">Período
+        <select data-acao="periodo-painel">
+          ${PERIODOS.map((p) => `<option value="${p.valor}" ${p.valor === estado.periodoPainel ? 'selected' : ''}>${p.rotulo}</option>`).join('')}
+        </select>
+      </label>
+    </div>
+
+    <section class="grade grade-4">
+      ${cartaoIndicador({ rotulo: 'Faturamento', valor: formatarMoeda(i.faturamento.valor), variacao: i.faturamento.variacao })}
+      ${cartaoIndicador({ rotulo: 'Gastos', valor: formatarMoeda(i.gastos.valor), variacao: i.gastos.variacao, bomSeSobe: false, destino: '#/custos' })}
+      ${cartaoIndicador({ rotulo: 'Lucro', valor: formatarMoeda(i.lucro.valor), variacao: i.lucro.variacao })}
+      ${cartaoIndicador({ rotulo: 'Margem', valor: formatarPercentual(i.margem.valor), diferenca: i.margem.diferenca })}
+    </section>
+
+    <section class="grade grade-painel">
+      <div class="cartao">
+        <h2 class="cartao-titulo">Faturamento x Lucro</h2>
+        <p class="cartao-nota">A faixa de baixo é o gasto e a de cima é o lucro. Quando a faixa verde afina, a margem apertou, mesmo com o faturamento subindo.</p>
+        ${graficoFaturamentoLucro(serie)}
+      </div>
+
+      <div class="cartao">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
+          <h2 class="cartao-titulo">Gastos por categoria</h2>
+          <a class="atalho" href="#/custos">ver lançamentos</a>
+        </div>
+        <p class="cartao-nota">Para onde foi o dinheiro no período.</p>
+        <div style="margin-top:16px">
+          ${barrasHorizontais(categorias, { apoio: (c) => formatarPercentual(c.fatia) })}
+        </div>
+      </div>
+    </section>
+
+    <section class="cartao">
+      <h2 class="cartao-titulo">Faturamento por dia da semana</h2>
+      <p class="cartao-nota">Média por dia no período, para o dia que apareceu mais vezes não levar vantagem.</p>
+      ${graficoDiaDaSemana(dias)}
+    </section>
+
+    <section class="grade grade-painel">
+      <div class="cartao">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
+          <h2 class="cartao-titulo">Produtos mais vendidos</h2>
+          <a class="atalho" href="#/fichas">ver fichas</a>
+        </div>
+        <p class="cartao-nota">Quantidade vendida, com a margem de contribuição de cada um ao lado. Produto que vende muito com margem baixa aparece marcado.</p>
+        <div style="margin-top:16px">
+          ${barrasHorizontais(
+            produtos.porQuantidade.map((p) => ({ nome: p.nome, valor: p.unidades, alerta: p.acimaDaMeta })),
+            { formatar: (v) => `${v} un.`, apoio: (item) => {
+              const p = produtos.porQuantidade.find((x) => x.nome === item.nome);
+              return `margem ${formatarPercentual(p.margem)}`;
+            } }
+          )}
+        </div>
+        ${topQuantidade && topLucro && topQuantidade.fichaId !== topLucro.fichaId
+          ? `<p class="cartao-nota" style="margin-top:14px;padding-top:12px;border-top:1px solid #EDEDE0">
+               Quem mais gerou lucro no período foi <strong>${esc(topLucro.nome)}</strong>, com ${formatarMoeda(topLucro.lucro)}, e não o mais vendido.
+             </p>`
+          : ''}
+      </div>
+
+      <div class="cartao">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
+          <h2 class="cartao-titulo">Pedidos de hoje</h2>
+          <a class="atalho" href="#/pedidos">abrir o quadro</a>
+        </div>
+        <p class="cartao-nota">Situação do que está no quadro agora.</p>
+        <div class="situacoes">
+          ${SITUACOES.map((s) => `
+            <a class="situacao" href="#/pedidos">
+              <span class="situacao-num">${porSituacao[s.chave] || 0}</span>
+              <span class="situacao-nome">${s.nome}</span>
+            </a>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <section class="destaque destaque-${destaque.tom}">
+      ${icone(destaque.tom === 'atencao' ? 'alerta' : 'info')}
+      <div>
+        <div class="destaque-rotulo">Destaque do período</div>
+        <strong>${esc(destaque.titulo)}</strong>
+        <p>${esc(destaque.texto)}</p>
+      </div>
     </section>`;
 }
 
@@ -114,14 +276,16 @@ function telaPainel() {
   const lucro = faturamento - custoMes;
   const aReceber = 740;
 
-  const maior = Math.max(...faturamentoMensal.map((m) => m.faturamento));
-  const barras = faturamentoMensal.map((m) => `
+  // mesma série da visão geral, só com os meses fechados
+  const serie = serieMensal({ vendas, custos: estado.catalogo.custos, catalogo: estado.catalogo, hoje: HOJE });
+  const maior = Math.max(...serie.map((m) => m.faturamento), 1);
+  const barras = serie.map((m) => `
     <div class="coluna">
       <div class="par">
         <div class="barra barra-a" style="height:${(m.faturamento / maior) * 100}%"></div>
-        <div class="barra barra-b" style="height:${(m.custo / maior) * 100}%"></div>
+        <div class="barra barra-b" style="height:${(m.gastos / maior) * 100}%"></div>
       </div>
-      <div class="rotulo">${m.mes}</div>
+      <div class="rotulo">${m.rotulo}</div>
     </div>`).join('');
 
   const margens = fichasVendaveis().map((ficha) => {
@@ -1156,6 +1320,10 @@ document.addEventListener('change', (evento) => {
       estado.parametros.mensagemWhatsapp = alvo.value;
       renderizar();
       break;
+    case 'periodo-painel':
+      estado.periodoPainel = alvo.value;
+      renderizar();
+      break;
     case 'novo-preco':
       estado.novosPrecos[alvo.dataset.ficha] = lerMoeda(alvo.value);
       renderizar();
@@ -1583,6 +1751,55 @@ function atualizarFichaNaTela(ficha) {
     if (chave === 'cmvReal') elemento.textContent = formatarPercentual(r.cmvReal);
   });
 }
+
+/* ------------------------------------------------------------------
+   Dica que segue o mouse no gráfico de meses.
+   Fica aqui, e não no módulo de gráficos, porque é a única parte que
+   precisa do DOM: o módulo continua devolvendo só marcação.
+------------------------------------------------------------------ */
+function caixaDaDica() {
+  let caixa = document.getElementById('dicaGrafico');
+  if (!caixa) {
+    caixa = document.createElement('div');
+    caixa.id = 'dicaGrafico';
+    caixa.className = 'dica-grafico';
+    document.body.appendChild(caixa);
+  }
+  return caixa;
+}
+
+document.addEventListener('mousemove', (evento) => {
+  const alvo = evento.target.closest && evento.target.closest('[data-grafico="mes"]');
+  const caixa = caixaDaDica();
+  const guia = document.getElementById('guiaMes');
+
+  if (!alvo) {
+    caixa.style.opacity = 0;
+    if (guia) guia.style.opacity = 0;
+    return;
+  }
+
+  const serie = serieMensal({ vendas, custos: estado.catalogo.custos, catalogo: estado.catalogo, hoje: HOJE });
+  const m = serie[Number(alvo.dataset.indice)];
+  if (!m) return;
+
+  if (guia) {
+    const centro = Number(alvo.getAttribute('x')) + Number(alvo.getAttribute('width')) / 2;
+    guia.setAttribute('x1', centro);
+    guia.setAttribute('x2', centro);
+    guia.style.opacity = 1;
+  }
+
+  caixa.innerHTML = `<b>${esc(m.rotulo)}${m.emAndamento ? ' · em andamento' : ''}</b>
+    <div class="l"><span><i style="background:#C9C6AE"></i>Faturamento</span><span>${formatarMoeda(m.faturamento)}</span></div>
+    <div class="l"><span><i style="background:var(--terracota)"></i>Gastos</span><span>${formatarMoeda(m.gastos)}</span></div>
+    <div class="l"><span><i style="background:var(--verde)"></i>Lucro</span><span>${formatarMoeda(m.lucro)}</span></div>
+    <div class="l" style="border-top:1px solid rgba(255,255,255,.18);margin-top:7px;padding-top:6px">
+      <span>Margem</span><span>${formatarPercentual(m.margem)}</span></div>`;
+  caixa.style.opacity = 1;
+  caixa.style.left = `${Math.min(window.innerWidth - 230, evento.clientX + 16)}px`;
+  caixa.style.top = `${Math.min(window.innerHeight - 170, evento.clientY + 16)}px`;
+});
 
 window.addEventListener('hashchange', renderizar);
 renderizar();
