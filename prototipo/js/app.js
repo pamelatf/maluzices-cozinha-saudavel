@@ -530,7 +530,8 @@ function telaFicha(id) {
         <input type="number" min="1" value="${ficha.rendimento}" data-acao="rendimento" data-ficha="${ficha.id}">
       </label>
       <label class="campo">Tamanho da porção
-        <input type="text" value="${esc(ficha.tamanhoPorcao)}" disabled>
+        <input type="text" value="${esc(ficha.tamanhoPorcao)}" data-acao="tamanho-porcao" data-ficha="${ficha.id}"
+          placeholder="90g, 1 unidade, 300ml">
       </label>
       <label class="campo">Meta de CMV deste produto
         <input type="text" value="${formatarPercentual(r.metaCmv, 0)}" data-acao="meta" data-ficha="${ficha.id}">
@@ -1697,6 +1698,12 @@ document.addEventListener('change', (evento) => {
       break;
     case 'rendimento':
       acharFicha(alvo.dataset.ficha).rendimento = Number(alvo.value) || 1;
+      renderizar();
+      break;
+    case 'tamanho-porcao':
+      // texto livre: "90g", "1 unidade", "300ml". Não entra em conta nenhuma,
+      // serve para ela saber o que está vendendo por aquele preço.
+      acharFicha(alvo.dataset.ficha).tamanhoPorcao = alvo.value.trim();
       renderizar();
       break;
     case 'meta': {
