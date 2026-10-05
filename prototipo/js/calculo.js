@@ -23,6 +23,24 @@ export function fatorDeCorrecao(insumo) {
 }
 
 /**
+ * Quanto sai da receita, em quilos.
+ *
+ * Não é a soma dos ingredientes. O frango desfiado leva 2 kg de frango e
+ * 2,5 kg de água, mas a água do cozimento é descartada e o que sobra são
+ * 2 kg. Dividir o custo pela soma do que entrou faria o quilo do frango
+ * sair pela metade do preço, e todo produto que o usa ficaria barato
+ * demais.
+ *
+ * Quando a ficha informa `rendimentoKg`, é ele que vale. Sem ele, assume-se
+ * que nada se perde e a soma dos ingredientes é o que sai, que é o caso de
+ * mistura seca, por exemplo.
+ */
+export function rendimentoEmQuilos(ficha) {
+  if (ficha.rendimentoKg && ficha.rendimentoKg > 0) return ficha.rendimentoKg;
+  return pesoTotalDaReceita(ficha);
+}
+
+/**
  * Preço por quilo de um insumo. Sub-receita tem o preço calculado a partir
  * da ficha de origem; insumo comprado usa o preço informado pela usuária.
  */
@@ -40,8 +58,8 @@ export function precoPorQuilo(insumo, catalogo, profundidade = 0) {
   if (!ficha) return insumo.preco || 0;
 
   const custo = custoDaReceita(ficha, catalogo, profundidade + 1);
-  const pesoTotal = pesoTotalDaReceita(ficha);
-  return pesoTotal > 0 ? custo / pesoTotal : 0;
+  const saida = rendimentoEmQuilos(ficha);
+  return saida > 0 ? custo / saida : 0;
 }
 
 export function custoDoIngrediente(linha, catalogo, profundidade = 0) {
