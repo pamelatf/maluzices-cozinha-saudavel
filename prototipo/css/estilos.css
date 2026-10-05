@@ -234,6 +234,38 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .acao-icone:hover{background:var(--creme-col);color:var(--texto)}
 .acao-icone.perigo:hover{background:#F6EDE4;color:#9C5C42}
 
+/* ---------- compra de insumos ---------- */
+.compra-cabecalho{
+  display:grid;grid-template-columns:1fr 120px 130px 140px 34px;gap:10px;
+  margin-top:20px;padding-bottom:8px;border-bottom:1px solid var(--areia);
+  font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--texto-suave);
+}
+.compra-cabecalho .num{text-align:right}
+.linha-compra{display:grid;grid-template-columns:1fr 120px 130px 140px 34px;gap:10px;align-items:center;margin-top:10px}
+.linha-compra input{padding:9px 11px;font-size:14px}
+.linha-compra .ic-unitario{text-align:right;font-size:14px}
+.linha-compra .rm-item{
+  width:34px;height:34px;border-radius:var(--raio-s);display:grid;place-items:center;
+  font-size:18px;line-height:1;color:var(--texto-suave);border:1px solid transparent;
+}
+.linha-compra .rm-item:hover{color:var(--terracota);border-color:var(--areia)}
+
+.conf-lista{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+.conf-linha{
+  display:grid;grid-template-columns:22px 1fr auto auto;gap:12px;align-items:center;
+  padding:11px 12px;border-radius:var(--raio-s);cursor:pointer;
+}
+.conf-linha:hover{background:var(--creme-col)}
+.conf-nome{font-size:15px}
+.conf-valores{font-size:14px;white-space:nowrap}
+
+@media (max-width:760px){
+  .compra-cabecalho{display:none}
+  .linha-compra{grid-template-columns:1fr 1fr;gap:8px}
+  .linha-compra .ic-nome{grid-column:1 / -1}
+  .linha-compra .ic-unitario{text-align:left}
+}
+
 /* ---------- paginação ---------- */
 .paginacao{
   display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;

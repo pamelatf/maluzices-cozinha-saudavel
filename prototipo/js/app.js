@@ -14,6 +14,9 @@ import {
   custoPorPorcao, precoSugerido, metaDeCmv, cmvReal,
   formatarMoeda, formatarPercentual, formatarPeso, lerMoeda, rendimentoEmQuilos
 } from './calculo.js';
+import {
+  precoUnitario, totalDaCompra, avaliarCompra, aplicarCompra, descricaoDaCompra
+} from './compras.js';
 
 /* ------------------------------------------------------------------
    Estado em memória. Recarregar a página volta aos dados de exemplo.
@@ -22,6 +25,7 @@ const estado = {
   catalogo: catalogoInicial(),
   parametros: { ...parametrosIniciais },
   abaConfig: 'parametros',
+  abaCusto: 'simples',
   selecionados: {},
   novosPrecos: {},
   importacao: null,
@@ -846,6 +850,123 @@ function blocoImportacao() {
   </section>`;
 }
 
+/* ------------------------------------------------------------------
+   Lançamento de custo, em dois modos.
+
+   Simples é o gasto e nada mais: luz, aluguel, gás. Compra é a feira,
+   item a item, e é o único modo que mexe no preço dos insumos. Separar
+   os dois evita que ela precise pensar em ficha técnica para lançar a
+   conta de luz, que é o lançamento mais frequente depois da compra.
+------------------------------------------------------------------ */
+function abasDeCusto() {
+  const abas = [['simples', 'Conta ou despesa'], ['compra', 'Compra de ingredientes']];
+  return `<div class="abas" style="margin-top:16px">
+    ${abas.map(([id, rotulo]) => `
+      <button class="aba ${estado.abaCusto === id ? 'ativa' : ''}" data-acao="aba-custo" data-aba="${id}">${rotulo}</button>`).join('')}
+  </div>`;
+}
+
+function formularioDeCustoSimples() {
+  /* Ingredientes vai para o fim da lista: ela continua podendo lançar a
+     feira por aqui, mas como a compra tem aba própria, deixar Ingredientes
+     pré-selecionado faria a conta de luz virar ingrediente por descuido. */
+  const categorias = categoriasDeCustoAtivas();
+  const ordenadas = categorias.filter((c) => c.nome !== 'Ingredientes')
+    .concat(categorias.filter((c) => c.nome === 'Ingredientes'));
+  const opcoes = ordenadas.map((c) => `<option>${esc(c.nome)}</option>`).join('');
+
+  return `
+    <div class="grade grade-4" style="margin-top:16px">
+      <label class="campo">Data<input type="date" id="custo-data" value="${HOJE}"></label>
+      <label class="campo">Categoria<select id="custo-categoria">${opcoes}</select></label>
+      <label class="campo">Descrição<input type="text" id="custo-descricao" placeholder="Conta de luz"></label>
+      <label class="campo">Valor<input type="text" id="custo-valor" class="entrada-num" placeholder="R$ 0,00"></label>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;margin-top:16px">
+      <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer"><input type="checkbox" id="custo-pago"> Já está pago</label>
+      <button class="botao" data-acao="lancar-custo">Lançar custo</button>
+    </div>`;
+}
+
+function formularioDeCompra() {
+  const fornecedores = estado.catalogo.fornecedores.filter((f) => f.ativa !== false);
+  return `
+    <div class="grade grade-3" style="margin-top:16px">
+      <label class="campo">Data<input type="date" id="compra-data" value="${HOJE}"></label>
+      <label class="campo">Fornecedor
+        <input type="text" id="compra-fornecedor" list="lista-fornecedores" placeholder="Feirinha" autocomplete="off">
+        <datalist id="lista-fornecedores">${fornecedores.map((f) => `<option value="${esc(f.nome)}"></option>`).join('')}</datalist>
+      </label>
+      <label class="campo">Forma de pagamento<select id="compra-pagamento">
+        ${estado.catalogo.formasDePagamento.filter((f) => f.ativa !== false)
+          .map((f) => `<option>${esc(f.nome)}</option>`).join('')}
+      </select></label>
+    </div>
+
+    <div class="compra-cabecalho">
+      <span>Insumo</span><span>Quantidade</span><span>Valor pago</span><span class="num">Preço por unidade</span><span></span>
+    </div>
+    <div id="listaCompra"></div>
+    <datalist id="lista-insumos">
+      ${estado.catalogo.insumos.filter((i) => i.ativo !== false && !i.fichaId)
+        .map((i) => `<option value="${esc(i.nome)}"></option>`).join('')}
+    </datalist>
+
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;margin-top:14px">
+      <button class="botao botao-claro" data-acao="add-item-compra">Adicionar item</button>
+      <div style="display:flex;gap:18px;align-items:center">
+        <span class="suave" style="font-size:14px">Total da compra</span>
+        <span class="forte" id="totalDaCompra" style="font-size:19px">${formatarMoeda(0)}</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;margin-top:16px">
+      <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer"><input type="checkbox" id="compra-pago" checked> Já está paga</label>
+      <button class="botao" data-acao="lancar-compra">Lançar compra</button>
+    </div>
+    <p class="cartao-nota" style="margin-top:14px">
+      A quantidade é na unidade em que o insumo é comprado, quase sempre o quilo. O preço por unidade é o valor dividido pela quantidade, e é ele que passa a valer na ficha técnica. Quando a mudança for grande, o sistema pergunta antes de aplicar.
+    </p>`;
+}
+
+function linhaDeCompra() {
+  const lista = document.getElementById('listaCompra');
+  if (!lista) return;
+  const linha = document.createElement('div');
+  linha.className = 'linha-compra';
+  linha.innerHTML = `
+    <input class="ic-nome" list="lista-insumos" placeholder="Nome do insumo" autocomplete="off">
+    <input class="ic-qtd" type="number" min="0" step="0.001" placeholder="0,000" aria-label="Quantidade">
+    <input class="ic-valor" type="number" min="0" step="0.01" placeholder="0,00" aria-label="Valor pago">
+    <span class="ic-unitario num suave">—</span>
+    <button class="rm-item" data-acao="remover-item-compra" aria-label="Remover item">×</button>`;
+  lista.appendChild(linha);
+}
+
+/** Lê as linhas da compra direto do DOM, para digitar não redesenhar a tela. */
+function itensDaCompra() {
+  return [...document.querySelectorAll('#listaCompra .linha-compra')].map((l) => {
+    const nome = normalizar(l.querySelector('.ic-nome').value.trim());
+    const insumo = estado.catalogo.insumos.find((i) => normalizar(i.nome) === nome);
+    return {
+      insumoId: insumo ? insumo.id : '',
+      nomeDigitado: l.querySelector('.ic-nome').value.trim(),
+      quantidade: parseFloat(l.querySelector('.ic-qtd').value) || 0,
+      valor: parseFloat(l.querySelector('.ic-valor').value) || 0
+    };
+  });
+}
+
+function atualizarPreviaDaCompra() {
+  const linhas = [...document.querySelectorAll('#listaCompra .linha-compra')];
+  const itens = itensDaCompra();
+  linhas.forEach((l, i) => {
+    const unitario = precoUnitario(itens[i]);
+    l.querySelector('.ic-unitario').textContent = unitario ? formatarMoeda(unitario) : '—';
+  });
+  const alvo = document.getElementById('totalDaCompra');
+  if (alvo) alvo.textContent = formatarMoeda(totalDaCompra(itens));
+}
+
 function telaCustos() {
   const doMes = estado.catalogo.custos.filter((c) => c.data.startsWith('2026-10'));
   const total = doMes.reduce((t, c) => t + c.valor, 0);
@@ -864,8 +985,6 @@ function telaCustos() {
         <button class="acao-icone perigo" data-acao="remover-custo" data-id="${c.id}" aria-label="Remover lançamento">${icone('excluir')}</button>
       </div></td>
     </tr>`).join('');
-
-  const opcoes = categoriasDeCustoAtivas().map((c) => `<option>${esc(c.nome)}</option>`).join('');
 
   return `
     <div class="cabecalho">
@@ -890,16 +1009,10 @@ function telaCustos() {
 
     <section class="cartao">
       <h2 class="cartao-titulo">Novo custo</h2>
-      <div class="grade grade-4" style="margin-top:16px">
-        <label class="campo">Data<input type="date" id="custo-data" value="2026-10-05"></label>
-        <label class="campo">Categoria<select id="custo-categoria">${opcoes}</select></label>
-        <label class="campo">Descrição<input type="text" id="custo-descricao" placeholder="Compra na feira"></label>
-        <label class="campo">Valor<input type="text" id="custo-valor" class="entrada-num" placeholder="R$ 0,00"></label>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;margin-top:16px">
-        <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer"><input type="checkbox" id="custo-pago"> Já está pago</label>
-        <button class="botao" data-acao="lancar-custo">Lançar custo</button>
-      </div>
+      <p class="cartao-nota">Conta do mês é lançamento simples. Compra de ingrediente vale lançar item a item: aí o preço dos insumos se atualiza sozinho e o custo das fichas acompanha.</p>
+      ${abasDeCusto()}
+      <div class="aviso aviso-neutro" id="avisoDaCompra" style="display:none;margin-top:16px">${icone('info')}<div></div></div>
+      ${estado.abaCusto === 'compra' ? formularioDeCompra() : formularioDeCustoSimples()}
     </section>
 
     <section class="cartao">
@@ -919,6 +1032,7 @@ function telaCustos() {
    lançar ou editar um custo.
 ------------------------------------------------------------------ */
 let confirmacaoPendente = null;
+let confirmacaoDeCompra = null;
 let formularioAtivo = null;
 let custoEmEdicao = null;
 
@@ -938,6 +1052,7 @@ function fecharDialogo() {
   const caixa = document.getElementById('diagCaixa');
   if (caixa) caixa.innerHTML = '';
   confirmacaoPendente = null;
+  confirmacaoDeCompra = null;
   formularioAtivo = null;
   custoEmEdicao = null;
 }
@@ -1531,6 +1646,12 @@ function renderizar() {
   const render = telas[pagina] || telaInicio;
   document.getElementById('conteudo').innerHTML = render() + `
     <p class="rodape-proto">Protótipo funcional do sistema do Maluzices. Os cálculos de custo, CMV e preço sugerido são reais; os dados são de exemplo e ficam só na memória do navegador, então recarregar a página volta ao estado inicial.</p>`;
+
+  // a compra nasce com uma linha pronta: ninguém abre a tela para não lançar nada
+  if (document.getElementById('listaCompra')) {
+    linhaDeCompra();
+    atualizarPreviaDaCompra();
+  }
   window.scrollTo(0, 0);
 }
 
@@ -1752,6 +1873,7 @@ document.addEventListener('input', (evento) => {
     if (campo) { campo.focus(); campo.setSelectionRange(foco, foco); }
     return;
   }
+  if (alvo.closest && alvo.closest('#listaCompra')) atualizarPreviaDaCompra();
   if (alvo.id === 'campoTelefone') atualizarLinkZapDoModal();
   if (alvo.closest && alvo.closest('#listaItens')) {
     if (alvo.classList.contains('it-nome')) preencherPrecoDoProduto(alvo);
@@ -1785,6 +1907,11 @@ document.addEventListener('click', (evento) => {
     const acaoDiag = botaoDiag.dataset.diag;
 
     if (acaoDiag === 'cancelar') { fecharDialogo(); return; }
+
+    if (acaoDiag === 'confirmar-compra' && confirmacaoDeCompra) {
+      confirmacaoDeCompra();
+      return;
+    }
 
     if (acaoDiag === 'confirmar' && confirmacaoPendente) {
       confirmacaoPendente();
@@ -2090,7 +2217,134 @@ document.addEventListener('click', (evento) => {
     renderizar();
   }
 
+  if (acao === 'aba-custo') {
+    estado.abaCusto = alvo.dataset.aba;
+    renderizar();
+    return;
+  }
+
+  if (acao === 'add-item-compra') {
+    linhaDeCompra();
+    atualizarPreviaDaCompra();
+    const campos = document.querySelectorAll('#listaCompra .ic-nome');
+    if (campos.length) campos[campos.length - 1].focus();
+    return;
+  }
+
+  if (acao === 'remover-item-compra') {
+    const linha = alvo.closest('.linha-compra');
+    if (linha) linha.remove();
+    if (!document.querySelector('#listaCompra .linha-compra')) linhaDeCompra();
+    atualizarPreviaDaCompra();
+    return;
+  }
+
+  if (acao === 'lancar-compra') {
+    lancarCompra();
+    return;
+  }
+
 });
+
+/* ------------------------------------------------------------------
+   Gravação da compra.
+
+   O gasto entra sempre, porque o dinheiro saiu. O que pode ou não
+   acontecer é a mudança de preço do insumo: quando ela é grande, a
+   usuária decide item a item antes de aplicar.
+------------------------------------------------------------------ */
+function lancarCompra() {
+  const itens = itensDaCompra().filter((i) => i.nomeDigitado || i.quantidade || i.valor);
+
+  if (!itens.length) { alert('Adicione pelo menos um item à compra.'); return; }
+
+  const semInsumo = itens.filter((i) => !i.insumoId);
+  if (semInsumo.length) {
+    alert(`Não encontrei na lista de insumos: ${semInsumo.map((i) => i.nomeDigitado || '(sem nome)').join(', ')}.\n\nCadastre o insumo primeiro, ou corrija o nome.`);
+    return;
+  }
+  if (itens.some((i) => i.quantidade <= 0 || i.valor <= 0)) {
+    alert('Cada item precisa de quantidade e valor maiores que zero.');
+    return;
+  }
+
+  const dados = {
+    data: document.getElementById('compra-data').value || HOJE,
+    fornecedor: document.getElementById('compra-fornecedor').value.trim(),
+    pagamento: document.getElementById('compra-pagamento').value,
+    pago: document.getElementById('compra-pago').checked
+  };
+
+  const avaliacoes = avaliarCompra(itens, estado.catalogo);
+  const aConfirmar = avaliacoes.filter((a) => a.confirmar);
+
+  if (!aConfirmar.length) { gravarCompra(itens, dados, []); return; }
+  abrirConfirmacaoDeCompra(itens, dados, aConfirmar);
+}
+
+function gravarCompra(itens, dados, recusados) {
+  const aplicados = aplicarCompra(itens, estado.catalogo, dados.data, recusados);
+
+  estado.catalogo.custos.unshift({
+    id: `custo-${estado.proximoCustoId++}`,
+    data: dados.data,
+    categoria: 'Ingredientes',
+    descricao: descricaoDaCompra(itens, estado.catalogo, dados.fornecedor),
+    valor: Math.round(totalDaCompra(itens) * 100) / 100,
+    pago: dados.pago,
+    fornecedor: dados.fornecedor,
+    pagamento: dados.pagamento,
+    itens: itens.map((i) => ({ insumoId: i.insumoId, quantidade: i.quantidade, valor: i.valor }))
+  });
+  estado.catalogo.custos.sort((a, b) => (a.data < b.data ? 1 : -1));
+
+  voltarPrimeiraPagina('custos');
+  fecharDialogo();
+  renderizar();
+
+  if (aplicados.length) {
+    const alvo = document.getElementById('avisoDaCompra');
+    if (alvo) {
+      alvo.style.display = 'flex';
+      alvo.querySelector('div').textContent = aplicados.length === 1
+        ? `Compra lançada. O preço de ${aplicados[0].nome} foi atualizado.`
+        : `Compra lançada. ${aplicados.length} preços de insumo foram atualizados.`;
+    }
+  }
+}
+
+function abrirConfirmacaoDeCompra(itens, dados, aConfirmar) {
+  const linhas = aConfirmar.map((a) => {
+    const subiu = a.variacao > 0;
+    return `<label class="conf-linha">
+      <input type="checkbox" class="conf-item" value="${a.insumoId}" checked>
+      <span class="conf-nome">${esc(a.nome)}</span>
+      <span class="conf-valores">
+        ${formatarMoeda(a.precoAntigo)} <span class="suave">para</span> <span class="forte">${formatarMoeda(a.precoNovo)}</span>
+      </span>
+      <span class="selo ${subiu ? 'selo-alerta' : 'selo-ok'}">${subiu ? '+' : ''}${formatarPercentual(a.variacao, 0)}</span>
+    </label>`;
+  }).join('');
+
+  abrirDialogo(`
+    <h2 class="diag-titulo">${aConfirmar.length === 1 ? 'Um preço mudou bastante' : 'Alguns preços mudaram bastante'}</h2>
+    <p class="diag-texto">
+      ${aConfirmar.length === 1 ? 'Este item veio' : 'Estes itens vieram'} com preço bem diferente do que está cadastrado.
+      Aplicar muda o custo de toda ficha que usa ${aConfirmar.length === 1 ? 'esse insumo' : 'esses insumos'}.
+      Desmarque o que foi compra fora do normal: o gasto entra do mesmo jeito, só o preço de referência é que fica como está.
+    </p>
+    <div class="conf-lista">${linhas}</div>
+    <div class="diag-acoes">
+      <button class="botao botao-claro" data-diag="cancelar">Cancelar</button>
+      <button class="botao" data-diag="confirmar-compra">Lançar compra</button>
+    </div>`, true);
+
+  confirmacaoDeCompra = () => {
+    const marcados = new Set([...document.querySelectorAll('.conf-item:checked')].map((c) => c.value));
+    const recusados = aConfirmar.map((a) => a.insumoId).filter((id) => !marcados.has(id));
+    gravarCompra(itens, dados, recusados);
+  };
+}
 
 /**
  * Na ficha, recalcula sem redesenhar a tela inteira, para o foco
