@@ -19,11 +19,11 @@
   --texto:        #2E2A1C;
   --texto-suave:  #6B6757;
 
-  /* As duas fontes do sistema, em variável para dar para experimentar
-     duplas sem caçar nome de fonte espalhado pelo arquivo. O seletor de
-     fontes (js/fontes.js) troca estas duas e mais nada. */
-  --fonte-titulo: 'Cormorant Garamond', Georgia, serif;
-  --fonte-texto:  'Jost', system-ui, -apple-system, sans-serif;
+  /* As duas fontes do sistema, em variável para não ter nome de fonte
+     espalhado pelo arquivo. Archivo nos títulos e nos números grandes,
+     Space Grotesk no corpo e nas tabelas. */
+  --fonte-titulo: 'Archivo', system-ui, sans-serif;
+  --fonte-texto:  'Space Grotesk', system-ui, -apple-system, sans-serif;
 
   --raio:  14px;
   --raio-s: 9px;
@@ -239,39 +239,6 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .acao-icone .icone{font-size:16px}
 .acao-icone:hover{background:var(--creme-col);color:var(--texto)}
 .acao-icone.perigo:hover{background:#F6EDE4;color:#9C5C42}
-
-/* ---------- seletor de fontes (temporário, sai com a decisão) ---------- */
-.sel-fontes{position:fixed;right:20px;bottom:20px;z-index:80;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
-.sel-puxador{
-  background:var(--oliva);color:var(--creme);border-radius:999px;padding:11px 20px;
-  font-size:14px;letter-spacing:.04em;box-shadow:var(--sombra);
-}
-.sel-puxador:hover{background:#56502f}
-.sel-painel{
-  width:320px;max-height:70vh;overflow-y:auto;background:var(--branco);
-  border:1px solid var(--areia);border-radius:var(--raio);box-shadow:var(--sombra);padding:14px;
-}
-.sel-nota{font-size:12.5px;line-height:1.45;color:var(--texto-suave);margin-bottom:14px}
-.sel-grupo{
-  font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--terracota);
-  margin:16px 0 2px;padding-top:12px;border-top:1px solid var(--areia);
-}
-.sel-grupo:first-of-type{margin-top:0;padding-top:0;border-top:none}
-.sel-grupo-nota{font-size:12px;line-height:1.4;color:var(--pedra);margin-bottom:8px}
-.sel-opcao{
-  display:grid;grid-template-columns:1fr auto;gap:2px 10px;width:100%;text-align:left;
-  padding:11px 12px;border-radius:var(--raio-s);border:1px solid transparent;margin-bottom:2px;
-}
-.sel-opcao:hover{background:var(--creme-col)}
-.sel-opcao.ativa{border-color:var(--terracota);background:var(--creme)}
-.sel-amostra{font-size:19px;line-height:1.2}
-.sel-numero{font-size:17px;color:var(--texto-suave);text-align:right;line-height:1.2}
-.sel-desc{grid-column:1 / -1;font-size:12.5px;line-height:1.4;color:var(--texto-suave);margin-top:3px}
-
-@media (max-width:760px){
-  .sel-fontes{right:12px;bottom:12px}
-  .sel-painel{width:min(320px,calc(100vw - 24px))}
-}
 
 /* ---------- compra de insumos ---------- */
 .compra-cabecalho{
