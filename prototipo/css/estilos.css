@@ -251,7 +251,13 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
   width:320px;max-height:70vh;overflow-y:auto;background:var(--branco);
   border:1px solid var(--areia);border-radius:var(--raio);box-shadow:var(--sombra);padding:14px;
 }
-.sel-nota{font-size:12.5px;line-height:1.45;color:var(--texto-suave);margin-bottom:12px}
+.sel-nota{font-size:12.5px;line-height:1.45;color:var(--texto-suave);margin-bottom:14px}
+.sel-grupo{
+  font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--terracota);
+  margin:16px 0 2px;padding-top:12px;border-top:1px solid var(--areia);
+}
+.sel-grupo:first-of-type{margin-top:0;padding-top:0;border-top:none}
+.sel-grupo-nota{font-size:12px;line-height:1.4;color:var(--pedra);margin-bottom:8px}
 .sel-opcao{
   display:grid;grid-template-columns:1fr auto;gap:2px 10px;width:100%;text-align:left;
   padding:11px 12px;border-radius:var(--raio-s);border:1px solid transparent;margin-bottom:2px;
