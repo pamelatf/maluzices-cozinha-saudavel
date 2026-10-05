@@ -1,6 +1,6 @@
 import { catalogoInicial, parametrosIniciais, vendas, HOJE } from './dados.js';
 import {
-  PERIODOS, indicadoresDoPeriodo, serieMensal, gastosPorCategoria,
+  PERIODOS, intervaloDoPeriodo, indicadoresDoPeriodo, serieMensal, gastosPorCategoria,
   faturamentoPorDiaDaSemana, produtosVendidos, destaqueDoPeriodo,
   vendasDoIntervalo, custosDoIntervalo
 } from './indicadores.js';
@@ -32,6 +32,8 @@ const estado = {
   pedidos: pedidosIniciais.map((p) => ({ ...p, itens: p.itens.map((i) => ({ ...i })) })),
   // 30 dias em vez de "este mês": mês em andamento compara 5 dias com 30
   periodoPainel: '30dias',
+  // o painel manda o período dele pelo link; 'todos' é o padrão de quem entra direto
+  periodoCustos: 'todos',
   filtroFichas: 'vendidos',
   buscaInsumo: '',
   paginas: {},
@@ -234,7 +236,7 @@ function telaInicio() {
 
     <section class="grade grade-4">
       ${cartaoIndicador({ rotulo: 'Faturamento', valor: formatarMoeda(i.faturamento.valor), variacao: i.faturamento.variacao })}
-      ${cartaoIndicador({ rotulo: 'Gastos', valor: formatarMoeda(i.gastos.valor), variacao: i.gastos.variacao, bomSeSobe: false, destino: '#/custos' })}
+      ${cartaoIndicador({ rotulo: 'Gastos', valor: formatarMoeda(i.gastos.valor), variacao: i.gastos.variacao, bomSeSobe: false, destino: `#/custos/${estado.periodoPainel}` })}
       ${cartaoIndicador({ rotulo: 'Lucro', valor: formatarMoeda(i.lucro.valor), variacao: i.lucro.variacao })}
       ${cartaoIndicador({ rotulo: 'Margem', valor: formatarPercentual(i.margem.valor), diferenca: i.margem.diferenca })}
     </section>
@@ -249,7 +251,7 @@ function telaInicio() {
       <div class="cartao">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
           <h2 class="cartao-titulo">Gastos por categoria</h2>
-          <a class="atalho" href="#/custos">ver lançamentos</a>
+          <a class="atalho" href="#/custos/${estado.periodoPainel}">ver lançamentos</a>
         </div>
         <p class="cartao-nota">Para onde foi o dinheiro no período.</p>
         <div style="margin-top:16px">
@@ -968,12 +970,35 @@ function atualizarPreviaDaCompra() {
   if (alvo) alvo.textContent = formatarMoeda(totalDaCompra(itens));
 }
 
-function telaCustos() {
-  const doMes = estado.catalogo.custos.filter((c) => c.data.startsWith('2026-10'));
-  const total = doMes.reduce((t, c) => t + c.valor, 0);
-  const pago = doMes.filter((c) => c.pago).reduce((t, c) => t + c.valor, 0);
+/* Período na tela de custos.
 
-  const fp = fatiar('custos', estado.catalogo.custos);
+   O painel manda o período junto no link (#/custos/mes), para quem clica em
+   "Gastos" de setembro cair nos lançamentos de setembro e não numa lista de
+   tudo. Mas o filtro fica à vista e já selecionado: escondido, ela veria 6
+   linhas onde havia 63 e concluiria que o sistema perdeu lançamento. */
+const PERIODO_CUSTOS = [{ valor: 'todos', rotulo: 'Todo o período' }, ...PERIODOS];
+
+function custosDoPeriodo() {
+  const periodo = estado.periodoCustos;
+  if (periodo === 'todos') return estado.catalogo.custos;
+  const { inicio, fim } = intervaloDoPeriodo(periodo, HOJE);
+  return estado.catalogo.custos.filter((c) => c.data >= inicio && c.data <= fim);
+}
+
+function telaCustos(periodoDaUrl) {
+  // período que veio do painel manda, mas só uma vez: depois vale o seletor
+  if (periodoDaUrl && PERIODO_CUSTOS.some((p) => p.valor === periodoDaUrl)
+      && periodoDaUrl !== estado.periodoCustos) {
+    estado.periodoCustos = periodoDaUrl;
+    voltarPrimeiraPagina('custos');
+  }
+
+  const visiveis = custosDoPeriodo();
+  const total = visiveis.reduce((t, c) => t + c.valor, 0);
+  const pago = visiveis.filter((c) => c.pago).reduce((t, c) => t + c.valor, 0);
+  const rotuloPeriodo = (PERIODO_CUSTOS.find((p) => p.valor === estado.periodoCustos) || {}).rotulo;
+
+  const fp = fatiar('custos', visiveis);
   const linhas = fp.visiveis.map((c) => `
     <tr>
       <td class="suave">${c.data.split('-').reverse().join('/')}</td>
@@ -993,7 +1018,12 @@ function telaCustos() {
         <h1 class="titulo">Custos</h1>
         <p class="subtitulo">Uma linha por gasto. Os totais do painel saem daqui.</p>
       </div>
-      <div style="display:flex;gap:10px">
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <label class="campo" style="min-width:170px">Período
+          <select data-acao="periodo-custos">
+            ${PERIODO_CUSTOS.map((p) => `<option value="${p.valor}" ${p.valor === estado.periodoCustos ? 'selected' : ''}>${p.rotulo}</option>`).join('')}
+          </select>
+        </label>
         <button class="botao botao-claro" data-acao="abrir-importacao">Importar planilha</button>
         <a class="botao botao-claro" href="modelo-custos.csv" download style="text-decoration:none">Baixar modelo</a>
       </div>
@@ -1003,7 +1033,7 @@ function telaCustos() {
     <input type="file" id="arquivo-importacao" accept=".csv,text/csv" style="display:none">
 
     <section class="grade grade-3">
-      <div class="cartao indicador"><div class="rotulo">Total de outubro</div><div class="valor">${formatarMoeda(total)}</div></div>
+      <div class="cartao indicador"><div class="rotulo">Total, ${esc(String(rotuloPeriodo).toLowerCase())}</div><div class="valor">${formatarMoeda(total)}</div></div>
       <div class="cartao indicador"><div class="rotulo">Pago</div><div class="valor">${formatarMoeda(pago)}</div></div>
       <div class="cartao indicador"><div class="rotulo">A pagar</div><div class="valor valor-alerta">${formatarMoeda(total - pago)}</div></div>
     </section>
@@ -1641,7 +1671,7 @@ function renderizar() {
     ficha: () => telaFicha(parametro),
     ajuste: telaAjuste,
     insumos: telaInsumos,
-    custos: telaCustos,
+    custos: () => telaCustos(parametro),
     config: telaConfig
   };
   const render = telas[pagina] || telaInicio;
@@ -1729,6 +1759,13 @@ document.addEventListener('change', (evento) => {
     case 'periodo-painel':
       estado.periodoPainel = alvo.value;
       renderizar();
+      break;
+    case 'periodo-custos':
+      estado.periodoCustos = alvo.value;
+      voltarPrimeiraPagina('custos');
+      // tira o período da URL: daqui para a frente manda o que ela escolheu
+      if (location.hash.startsWith('#/custos/')) location.hash = '#/custos';
+      else renderizar();
       break;
     case 'novo-preco':
       estado.novosPrecos[alvo.dataset.ficha] = lerMoeda(alvo.value);
