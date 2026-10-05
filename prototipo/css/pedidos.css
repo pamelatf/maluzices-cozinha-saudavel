@@ -13,7 +13,7 @@
   font-size:26px;font-weight:200;letter-spacing:.20em;color:var(--creme);}
 .pedidos-escopo .marca-nome .colher-i {width:12px;height:26px;margin:0 .10em -1px .04em;
   stroke:var(--terracota-cl);fill:none;stroke-width:1.6;stroke-linecap:round;}
-.pedidos-escopo .marca-tag {font-family:'Cormorant Garamond',Georgia,serif;
+.pedidos-escopo .marca-tag {font-family:var(--fonte-titulo);
   font-size:13.5px;letter-spacing:.16em;color:#C9C6AE;
   align-self:flex-end;position:relative;top:-2px;}
 .pedidos-escopo .marca-tag::before {content:"";display:inline-block;width:44px;height:1px;background:#8E8A6C;vertical-align:middle;margin-right:9px}
@@ -81,7 +81,7 @@
 .pedidos-escopo .itens {list-style:none;display:flex;flex-direction:column;gap:4px;margin-bottom:9px}
 .pedidos-escopo .itens li {font-size:13.5px;color:var(--texto);display:flex;gap:8px;line-height:1.35}
 .pedidos-escopo .qtd {color:var(--terracota);font-weight:500;min-width:22px;font-size:13px}
-.pedidos-escopo .obs {font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14px;
+.pedidos-escopo .obs {font-family:var(--fonte-titulo);font-style:italic;font-size:14px;
   color:var(--taupe);background:var(--creme);border-radius:7px;
   padding:6px 9px;margin-bottom:10px;line-height:1.35;}
 .pedidos-escopo .cartao-base {display:flex;align-items:center;gap:8px;padding-top:9px;border-top:1px solid var(--areia)}
@@ -129,7 +129,7 @@
 .pedidos-escopo .somente-leitura input,
 .pedidos-escopo .somente-leitura textarea {background:var(--creme-col);color:var(--texto-suave)}
 .pedidos-escopo .vazio {text-align:center;padding:22px 8px;color:var(--pedra);font-size:13px;
-  font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;}
+  font-family:var(--fonte-titulo);font-style:italic;}
 .pedidos-escopo .fundo-modal {position:fixed;inset:0;background:rgba(46,42,28,.42);backdrop-filter:blur(2px);
   display:none;place-items:center;padding:20px;z-index:40;}
 .pedidos-escopo .fundo-modal.aberto {display:grid}
@@ -148,7 +148,7 @@
   background:var(--branco);border:1px solid var(--areia);border-radius:9px;padding:10px 12px;}
 .pedidos-escopo input:focus,
 .pedidos-escopo textarea:focus {outline:none;border-color:var(--taupe);box-shadow:0 0 0 3px rgba(135,112,87,.13)}
-.pedidos-escopo textarea {resize:vertical;min-height:56px;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:15px}
+.pedidos-escopo textarea {resize:vertical;min-height:56px;font-family:var(--fonte-titulo);font-style:italic;font-size:15px}
 .pedidos-escopo .linha-item {display:grid;grid-template-columns:1fr 62px 86px 30px;gap:8px;align-items:center;margin-bottom:8px}
 .pedidos-escopo .linha-item input {padding:8px 10px;font-size:13.5px}
 .pedidos-escopo .rm-item {width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--pedra);border:1px solid transparent}

@@ -19,6 +19,12 @@
   --texto:        #2E2A1C;
   --texto-suave:  #6B6757;
 
+  /* As duas fontes do sistema, em variável para dar para experimentar
+     duplas sem caçar nome de fonte espalhado pelo arquivo. O seletor de
+     fontes (js/fontes.js) troca estas duas e mais nada. */
+  --fonte-titulo: 'Cormorant Garamond', Georgia, serif;
+  --fonte-texto:  'Jost', system-ui, -apple-system, sans-serif;
+
   --raio:  14px;
   --raio-s: 9px;
   --sombra: 0 1px 2px rgba(70,64,40,.06), 0 6px 18px rgba(70,64,40,.07);
@@ -27,7 +33,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
-  font-family:'Jost',system-ui,-apple-system,sans-serif;
+  font-family:var(--fonte-texto);
   background:var(--creme-fundo);
   color:var(--texto);
   font-weight:300;
@@ -51,7 +57,7 @@ a:hover{color:var(--oliva)}
 .marca{display:flex;flex-direction:column;gap:2px;line-height:1;padding-left:6px}
 .marca-nome{display:flex;align-items:flex-end;font-size:24px;font-weight:200;letter-spacing:.2em}
 .marca-nome .colher-i{width:11px;height:24px;margin:0 .1em -1px .04em;stroke:var(--terracota-cl);fill:none;stroke-width:1.6;stroke-linecap:round}
-.marca-tag{font-family:'Cormorant Garamond',Georgia,serif;font-size:13px;letter-spacing:.16em;color:#C9C6AE}
+.marca-tag{font-family:var(--fonte-titulo);font-size:13px;letter-spacing:.16em;color:#C9C6AE}
 
 .menu{display:flex;flex-direction:column;gap:3px}
 .menu div{display:flex;flex-direction:column;gap:3px}
@@ -67,13 +73,13 @@ a:hover{color:var(--oliva)}
 .conteudo{flex:999 1 620px;min-width:0;padding:30px 34px 60px;display:flex;flex-direction:column;gap:22px}
 
 .cabecalho{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
-.titulo{font-family:'Cormorant Garamond',Georgia,serif;font-size:36px;font-weight:500;line-height:1.1}
+.titulo{font-family:var(--fonte-titulo);font-size:36px;font-weight:500;line-height:1.1}
 .subtitulo{color:var(--texto-suave);font-size:15px;margin-top:6px;max-width:720px;line-height:1.5}
 .trilha{font-size:13.5px;color:var(--texto-suave);margin-bottom:5px;letter-spacing:.04em}
 
 /* ---------- blocos ---------- */
 .cartao{background:var(--branco);border:1px solid var(--areia);border-radius:var(--raio);padding:22px;box-shadow:var(--sombra)}
-.cartao-titulo{font-family:'Cormorant Garamond',Georgia,serif;font-size:23px;font-weight:500}
+.cartao-titulo{font-family:var(--fonte-titulo);font-size:23px;font-weight:500}
 .cartao-nota{color:var(--texto-suave);font-size:14px;margin-top:3px}
 .grade{display:grid;gap:16px}
 .grade-2{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -81,7 +87,7 @@ a:hover{color:var(--oliva)}
 .grade-4{grid-template-columns:repeat(4,minmax(0,1fr))}
 
 .indicador .rotulo{font-size:13px;color:var(--texto-suave)}
-.indicador .valor{font-family:'Cormorant Garamond',Georgia,serif;font-size:31px;font-weight:500;margin-top:4px}
+.indicador .valor{font-family:var(--fonte-titulo);font-size:31px;font-weight:500;margin-top:4px}
 .indicador .apoio{font-size:13px;color:var(--texto-suave);margin-top:5px}
 
 /* ---------- tabela ---------- */
@@ -165,10 +171,10 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 /* gráficos */
 .grafico{display:block;width:100%;height:auto;margin-top:16px;overflow:visible}
 .g-grade{stroke:var(--areia);stroke-width:1}
-.g-eixo{font-size:12px;fill:var(--pedra);font-family:'Jost',sans-serif}
-.g-valor{font-size:12px;fill:var(--texto-suave);font-family:'Jost',sans-serif}
-.g-nota{font-size:11.5px;fill:var(--pedra);font-family:'Jost',sans-serif}
-.g-serie{font-size:12.5px;font-family:'Jost',sans-serif;letter-spacing:.03em}
+.g-eixo{font-size:12px;fill:var(--pedra);font-family:var(--fonte-texto)}
+.g-valor{font-size:12px;fill:var(--texto-suave);font-family:var(--fonte-texto)}
+.g-nota{font-size:11.5px;fill:var(--pedra);font-family:var(--fonte-texto)}
+.g-serie{font-size:12.5px;font-family:var(--fonte-texto);letter-spacing:.03em}
 .g-area-gastos{fill:var(--terracota);fill-opacity:.13}
 .g-area-lucro{fill:var(--verde);fill-opacity:.22}
 .g-linha-faturamento{fill:none;stroke:var(--oliva);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
@@ -198,14 +204,14 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .situacao{background:var(--creme-col);border-radius:var(--raio-s);padding:12px 10px;text-align:center;
   text-decoration:none;color:inherit;transition:background .16s}
 .situacao:hover{background:var(--areia);color:inherit}
-.situacao-num{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-size:25px;font-weight:500;line-height:1}
+.situacao-num{display:block;font-family:var(--fonte-titulo);font-size:25px;font-weight:500;line-height:1}
 .situacao-nome{display:block;font-size:12px;color:var(--texto-suave);margin-top:4px}
 
 /* destaque do período */
 .destaque{display:flex;gap:14px;align-items:flex-start;padding:18px 20px;border-radius:var(--raio);line-height:1.5}
 .destaque .icone{font-size:21px;margin-top:2px;flex:none}
 .destaque-rotulo{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--texto-suave);margin-bottom:5px}
-.destaque strong{font-family:'Cormorant Garamond',Georgia,serif;font-size:21px;font-weight:500;display:block}
+.destaque strong{font-family:var(--fonte-titulo);font-size:21px;font-weight:500;display:block}
 .destaque p{font-size:14.5px;color:var(--texto-suave);margin-top:5px;max-width:760px}
 .destaque-atencao{background:#F6EDE4;border:1px solid #E6D2C2;color:#6B4330}
 .destaque-bom{background:#E8EDDC;border:1px solid #CBD4B2;color:#3F4A24}
@@ -233,6 +239,33 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .acao-icone .icone{font-size:16px}
 .acao-icone:hover{background:var(--creme-col);color:var(--texto)}
 .acao-icone.perigo:hover{background:#F6EDE4;color:#9C5C42}
+
+/* ---------- seletor de fontes (temporário, sai com a decisão) ---------- */
+.sel-fontes{position:fixed;right:20px;bottom:20px;z-index:80;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.sel-puxador{
+  background:var(--oliva);color:var(--creme);border-radius:999px;padding:11px 20px;
+  font-size:14px;letter-spacing:.04em;box-shadow:var(--sombra);
+}
+.sel-puxador:hover{background:#56502f}
+.sel-painel{
+  width:320px;max-height:70vh;overflow-y:auto;background:var(--branco);
+  border:1px solid var(--areia);border-radius:var(--raio);box-shadow:var(--sombra);padding:14px;
+}
+.sel-nota{font-size:12.5px;line-height:1.45;color:var(--texto-suave);margin-bottom:12px}
+.sel-opcao{
+  display:grid;grid-template-columns:1fr auto;gap:2px 10px;width:100%;text-align:left;
+  padding:11px 12px;border-radius:var(--raio-s);border:1px solid transparent;margin-bottom:2px;
+}
+.sel-opcao:hover{background:var(--creme-col)}
+.sel-opcao.ativa{border-color:var(--terracota);background:var(--creme)}
+.sel-amostra{font-size:19px;line-height:1.2}
+.sel-numero{font-size:17px;color:var(--texto-suave);text-align:right;line-height:1.2}
+.sel-desc{grid-column:1 / -1;font-size:12.5px;line-height:1.4;color:var(--texto-suave);margin-top:3px}
+
+@media (max-width:760px){
+  .sel-fontes{right:12px;bottom:12px}
+  .sel-painel{width:min(320px,calc(100vw - 24px))}
+}
 
 /* ---------- compra de insumos ---------- */
 .compra-cabecalho{
@@ -281,7 +314,7 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .diag-fundo{position:fixed;inset:0;background:rgba(46,42,28,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
 .diag-fundo.aberto{display:flex}
 .diag-caixa{background:var(--branco);border-radius:var(--raio);box-shadow:var(--sombra);max-width:440px;width:100%;padding:24px;max-height:90vh;overflow:auto}
-.diag-titulo{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:500;margin-bottom:8px;text-align:left}
+.diag-titulo{font-family:var(--fonte-titulo);font-size:22px;font-weight:500;margin-bottom:8px;text-align:left}
 .diag-texto{color:var(--texto-suave);font-size:14.5px;line-height:1.5;margin-bottom:18px}
 .diag-campos{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
 .diag-caixa-larga{max-width:620px}

@@ -17,6 +17,8 @@ import {
 import {
   precoUnitario, totalDaCompra, avaliarCompra, aplicarCompra, descricaoDaCompra
 } from './compras.js';
+// temporário: sai quando a dupla de fontes for escolhida
+import { montarSeletor } from './fontes.js';
 
 /* ------------------------------------------------------------------
    Estado em memória. Recarregar a página volta aos dados de exemplo.
@@ -2423,3 +2425,4 @@ document.addEventListener('mousemove', (evento) => {
 
 window.addEventListener('hashchange', renderizar);
 renderizar();
+montarSeletor();
