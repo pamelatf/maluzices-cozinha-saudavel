@@ -71,6 +71,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .marca-tag::before{content:"";display:inline-block;width:44px;height:1px;background:#8E8A6C;vertical-align:middle;margin-right:9px}
 .topo-dir{margin-left:auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 .data-hoje{font-size:13px;letter-spacing:.10em;text-transform:uppercase;color:#C9C6AE}
+.voltar-proto{
+  font-size:14px;color:#D7D4BE;text-decoration:none;
+  padding:8px 14px;border:1px solid rgba(255,255,255,.22);border-radius:999px;
+  transition:background .18s,color .18s;
+}
+.voltar-proto:hover{background:rgba(255,255,255,.1);color:var(--creme)}
 .btn-novo{
   background:var(--terracota);color:#FFF6EE;
   padding:11px 20px;border-radius:999px;
@@ -287,6 +293,8 @@ textarea{resize:vertical;min-height:56px;font-family:'Cormorant Garamond',Georgi
     <div class="marca-tag">cozinha saudável</div>
   </div>
   <div class="topo-dir">
+    <a class="voltar-proto" href="index.html">Início</a>
+    <a class="voltar-proto" href="financeiro.html">Módulo financeiro</a>
     <span class="data-hoje" id="dataHoje"></span>
     <button class="btn-novo" id="abrirModal">
       <svg class="icone"><use href="#i-mais"/></svg> Novo pedido
