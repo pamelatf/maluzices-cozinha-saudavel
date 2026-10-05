@@ -1,5 +1,8 @@
 import { catalogoInicial, parametrosIniciais, faturamentoMensal, historicoCastanha } from './dados.js';
-import { telaPedidos, pedidosIniciais, aplicarAcaoNoPedido, validarPedido, criarPedido, totalDoPedido } from './pedidos.js';
+import {
+  telaPedidos, pedidosIniciais, aplicarAcaoNoPedido, validarPedido, criarPedido, totalDoPedido,
+  ehFinal, telefoneValido, linkWhatsapp, montarMensagem, formatarTelefone, rotuloSituacao
+} from './pedidos.js';
 import {
   resumoDaFicha, custoDoIngrediente, fatorDeCorrecao, precoPorQuilo,
   custoPorPorcao, precoSugerido, metaDeCmv, cmvReal,
@@ -18,11 +21,13 @@ const estado = {
   importacao: null,
   pedidos: pedidosIniciais.map((p) => ({ ...p, itens: p.itens.map((i) => ({ ...i })) })),
   mesPainel: '2026-10',
+  pedidoEmEdicao: null,
   filtrosCadastro: {},
   proximoCustoId: 8
 };
 
 const PAGINAS = [
+  { rota: 'inicio', titulo: 'Início', icone: 'casa' },
   { rota: 'pedidos', titulo: 'Painel de pedidos', icone: 'comanda' },
   { rota: 'painel', titulo: 'Painel financeiro', icone: 'grafico' },
   { rota: 'fichas', titulo: 'Produtos e fichas', icone: 'livro' },
@@ -33,6 +38,8 @@ const PAGINAS = [
 ];
 
 const ICONES = {
+  casa: '<path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M9.5 21v-6h5v6"/>',
+  conversa: '<path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.3 8.7 8.7 0 0 1-3.9-.9L3.5 20.5l1.6-4.9a8.1 8.1 0 0 1-1.1-4.1A8.4 8.4 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"/>',
   grafico: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   comanda: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
   livro: '<path d="M4 4h7a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H4zM20 4h-6"/><path d="M20 4v16h-6"/>',
@@ -91,6 +98,14 @@ function faturamentoDoPeriodo() {
   const porMes = { '2026-10': 3200, '2026-09': 2600, '2026-08': 5200 };
   if (estado.mesPainel === 'ano') return faturamentoMensal.reduce((t, m) => t + m.faturamento, 0);
   return porMes[estado.mesPainel] || 0;
+}
+
+/** Tela de abertura. Por enquanto só a marca, sem conteúdo. */
+function telaInicio() {
+  return `
+    <section class="inicio">
+      <img class="inicio-logo" src="img/logo-maluzices.png" alt="Maluzices, cozinha saudável" width="250" height="250">
+    </section>`;
 }
 
 function telaPainel() {
@@ -933,7 +948,37 @@ function abrirFormularioCusto(custo) {
 
 function telaConfig() {
   const p = estado.parametros;
-  const abaParametros = estado.abaConfig === 'parametros';
+  const aba = estado.abaConfig;
+
+  const exemplo = estado.pedidos.find((x) => x.status === 'PRONTO') || estado.pedidos[0];
+  const previa = exemplo ? montarMensagem(p.mensagemWhatsapp, exemplo) : '';
+  const linkPrevia = exemplo ? linkWhatsapp(exemplo.telefone, previa) : null;
+
+  const corpoAtendimento = `
+    <section class="cartao">
+      <h2 class="cartao-titulo">Mensagem do WhatsApp</h2>
+      <p class="cartao-nota">É o texto que já vem escrito quando você abre a conversa pelo ícone no pedido. Nada é enviado sozinho: o WhatsApp abre com a mensagem pronta e você decide se manda.</p>
+      <label class="campo" style="margin-top:18px">Texto da mensagem
+        <textarea data-acao="mensagem-whatsapp" rows="3"
+          style="min-height:92px;padding:12px 13px;border:1px solid var(--areia);border-radius:var(--raio-s);background:var(--branco);font-family:inherit;font-size:15px;font-weight:300;resize:vertical">${esc(p.mensagemWhatsapp)}</textarea>
+      </label>
+      <div class="aviso aviso-neutro" style="margin-top:16px">${icone('info')}<div>
+        <strong>Marcadores.</strong> O sistema troca cada um pelo dado do pedido na hora de abrir a conversa:
+        <code>{cliente}</code> pelo nome, <code>{itens}</code> pela lista do pedido,
+        <code>{total}</code> pelo valor e <code>{situacao}</code> por recebido, em preparo, pronto para retirada, entregue ou cancelado.
+      </div></div>
+    </section>
+
+    <section class="cartao">
+      <h2 class="cartao-titulo">Prévia</h2>
+      <p class="cartao-nota">${exemplo ? `Usando o pedido de ${esc(exemplo.cliente)}, que está ${esc(rotuloSituacao(exemplo.status))}.` : 'Nenhum pedido para usar de exemplo.'}</p>
+      ${exemplo ? `<p class="previa-zap">${esc(previa)}</p>` : ''}
+      ${linkPrevia
+        ? `<a class="botao botao-claro" href="${linkPrevia}" target="_blank" rel="noopener" style="margin-top:14px;text-decoration:none">${icone('conversa')} Testar no WhatsApp</a>`
+        : (exemplo ? '<p class="cartao-nota" style="margin-top:12px">Esse pedido não tem telefone válido, então o teste fica indisponível.</p>' : '')}
+    </section>`;
+
+  const abaParametros = aba === 'parametros';
 
   const corpoParametros = `
     <section class="cartao">
@@ -1009,19 +1054,20 @@ function telaConfig() {
       </div>
     </div>
     <div class="abas">
-      <button class="${abaParametros ? 'ativa' : ''}" data-acao="aba" data-aba="parametros">Parâmetros de preço</button>
-      <button class="${!abaParametros ? 'ativa' : ''}" data-acao="aba" data-aba="cadastros">Cadastros</button>
+      <button class="${aba === 'parametros' ? 'ativa' : ''}" data-acao="aba" data-aba="parametros">Parâmetros de preço</button>
+      <button class="${aba === 'cadastros' ? 'ativa' : ''}" data-acao="aba" data-aba="cadastros">Cadastros</button>
+      <button class="${aba === 'atendimento' ? 'ativa' : ''}" data-acao="aba" data-aba="atendimento">Atendimento</button>
     </div>
-    ${abaParametros ? corpoParametros : corpoCadastros}`;
+    ${aba === 'atendimento' ? corpoAtendimento : (abaParametros ? corpoParametros : corpoCadastros)}`;
 }
 
 /* ------------------------------------------------------------------
    Roteamento e eventos
 ------------------------------------------------------------------ */
 function rotaAtual() {
-  const bruto = (location.hash || '#/pedidos').replace('#/', '');
+  const bruto = (location.hash || '#/inicio').replace('#/', '');
   const [pagina, parametro] = bruto.split('/');
-  return { pagina: pagina || 'painel', parametro };
+  return { pagina: pagina || 'inicio', parametro };
 }
 
 function renderizarMenu(paginaAtiva) {
@@ -1036,7 +1082,8 @@ function renderizar() {
   const { pagina, parametro } = rotaAtual();
   renderizarMenu(pagina);
   const telas = {
-    pedidos: () => telaPedidos(estado.pedidos),
+    inicio: telaInicio,
+    pedidos: () => telaPedidos(estado.pedidos, { mensagemWhatsapp: estado.parametros.mensagemWhatsapp }),
     painel: telaPainel,
     fichas: telaFichas,
     ficha: () => telaFicha(parametro),
@@ -1045,7 +1092,7 @@ function renderizar() {
     custos: telaCustos,
     config: telaConfig
   };
-  const render = telas[pagina] || telaPedidos.bind(null, estado.pedidos);
+  const render = telas[pagina] || telaInicio;
   document.getElementById('conteudo').innerHTML = render() + `
     <p class="rodape-proto">Protótipo funcional do sistema do Maluzices. Os cálculos de custo, CMV e preço sugerido são reais; os dados são de exemplo e ficam só na memória do navegador, então recarregar a página volta ao estado inicial.</p>`;
   window.scrollTo(0, 0);
@@ -1105,6 +1152,10 @@ document.addEventListener('change', (evento) => {
       estado.filtrosCadastro[alvo.dataset.tipo] = alvo.value;
       renderizar();
       break;
+    case 'mensagem-whatsapp':
+      estado.parametros.mensagemWhatsapp = alvo.value;
+      renderizar();
+      break;
     case 'novo-preco':
       estado.novosPrecos[alvo.dataset.ficha] = lerMoeda(alvo.value);
       renderizar();
@@ -1138,33 +1189,78 @@ document.addEventListener('change', (evento) => {
 });
 
 /* ---------- painel de pedidos ---------- */
-function abrirModalPedido() {
+/**
+ * O mesmo modal cria, mostra e edita. Pedido entregue ou cancelado abre
+ * só para leitura: mexer no valor de um pedido fechado mexeria no
+ * faturamento já apurado.
+ */
+function abrirModalPedido(pedido) {
   const fundo = document.getElementById('fundoModal');
   const lista = document.getElementById('listaItens');
+  const corpo = fundo.querySelector('.modal-corpo');
+  const salvar = document.getElementById('botaoSalvarPedido');
+  const leitura = !!pedido && ehFinal(pedido.status);
+
+  estado.pedidoEmEdicao = pedido || null;
+
   lista.innerHTML = '';
-  adicionarLinhaDeItem();
-  document.getElementById('campoCliente').value = '';
-  document.getElementById('campoObs').value = '';
+  if (pedido && pedido.itens.length) pedido.itens.forEach((i) => adicionarLinhaDeItem(i));
+  else adicionarLinhaDeItem();
+
+  document.getElementById('campoCliente').value = pedido ? pedido.cliente : '';
+  document.getElementById('campoTelefone').value = pedido ? formatarTelefone(pedido.telefone) : '';
+  document.getElementById('campoObs').value = pedido ? pedido.obs || '' : '';
   document.getElementById('aviso').classList.remove('visivel');
+
+  document.getElementById('tituloModal').textContent = pedido
+    ? (leitura ? `Pedido ${rotuloSituacao(pedido.status)}` : `Editar pedido`)
+    : 'Novo pedido';
+  salvar.textContent = pedido ? 'Salvar alterações' : 'Registrar pedido';
+
+  corpo.classList.toggle('somente-leitura', leitura);
+  corpo.querySelectorAll('input, textarea').forEach((c) => { c.disabled = leitura; });
+  corpo.querySelectorAll('.add-item, .rm-item').forEach((b) => { b.style.display = leitura ? 'none' : ''; });
+  salvar.style.display = leitura ? 'none' : '';
+
+  atualizarLinkZapDoModal();
   atualizarPreviaDoPedido();
   fundo.classList.add('aberto');
-  setTimeout(() => document.getElementById('campoCliente').focus(), 40);
+  if (!leitura) setTimeout(() => document.getElementById('campoCliente').focus(), 40);
 }
 
 function fecharModalPedido() {
   const fundo = document.getElementById('fundoModal');
   if (fundo) fundo.classList.remove('aberto');
+  estado.pedidoEmEdicao = null;
 }
 
-function adicionarLinhaDeItem() {
+/** O link só acende quando o número já dá para discar. */
+function atualizarLinkZapDoModal() {
+  const alvo = document.getElementById('linhaZap');
+  if (!alvo) return;
+  const campo = document.getElementById('campoTelefone');
+  const bruto = campo ? campo.value.trim() : '';
+
+  if (!bruto) { alvo.innerHTML = ''; return; }
+  if (!telefoneValido(bruto)) {
+    alvo.innerHTML = '<span>Informe DDD e número para liberar o WhatsApp.</span>';
+    return;
+  }
+  const pedido = estado.pedidoEmEdicao || { cliente: document.getElementById('campoCliente').value.trim(), itens: itensDoFormulario(), status: 'RECEBIDO' };
+  const link = linkWhatsapp(bruto, montarMensagem(estado.parametros.mensagemWhatsapp, pedido));
+  alvo.innerHTML = `<a class="zap" href="${link}" target="_blank" rel="noopener">
+    <svg class="icone"><use href="#i-conversa"/></svg> Abrir conversa no WhatsApp</a>`;
+}
+
+function adicionarLinhaDeItem(item) {
   const lista = document.getElementById('listaItens');
   const linha = document.createElement('div');
   linha.className = 'linha-item';
   const produtos = fichasVendaveis();
   linha.innerHTML = `
-    <input class="it-nome" list="lista-produtos" placeholder="Nome do item" autocomplete="off">
-    <input class="it-qtd" type="number" min="1" step="1" value="1" aria-label="Quantidade">
-    <input class="it-preco" type="number" min="0" step="0.01" placeholder="0,00" aria-label="Preço unitário">
+    <input class="it-nome" list="lista-produtos" placeholder="Nome do item" autocomplete="off" value="${item ? esc(item.nome) : ''}">
+    <input class="it-qtd" type="number" min="1" step="1" value="${item ? item.qtd : 1}" aria-label="Quantidade">
+    <input class="it-preco" type="number" min="0" step="0.01" placeholder="0,00" aria-label="Preço unitário" value="${item ? item.preco.toFixed(2) : ''}">
     <button class="rm-item" data-pedido="remover-item" aria-label="Remover item">×</button>`;
   lista.appendChild(linha);
   if (!document.getElementById('lista-produtos')) {
@@ -1199,6 +1295,7 @@ function preencherPrecoDoProduto(campo) {
 
 document.addEventListener('input', (evento) => {
   const alvo = evento.target;
+  if (alvo.id === 'campoTelefone') atualizarLinkZapDoModal();
   if (alvo.closest && alvo.closest('#listaItens')) {
     if (alvo.classList.contains('it-nome')) preencherPrecoDoProduto(alvo);
     atualizarPreviaDoPedido();
@@ -1207,6 +1304,16 @@ document.addEventListener('input', (evento) => {
 
 document.addEventListener('keydown', (evento) => {
   if (evento.key === 'Escape') { fecharModalPedido(); fecharDialogo(); }
+
+  // o cartão é focável: Enter e espaço abrem o pedido, como o clique
+  if (evento.key === 'Enter' || evento.key === ' ') {
+    const cartao = evento.target.closest && evento.target.closest('.pedidos-escopo .cartao[data-id]');
+    if (cartao && evento.target === cartao) {
+      evento.preventDefault();
+      const pedido = estado.pedidos.find((p) => p.id === Number(cartao.dataset.id));
+      if (pedido) abrirModalPedido(pedido);
+    }
+  }
 });
 
 document.addEventListener('click', (evento) => {
@@ -1267,7 +1374,8 @@ document.addEventListener('click', (evento) => {
   const botao = evento.target.closest('[data-pedido]');
   if (botao) {
     const acao = botao.dataset.pedido;
-    if (acao === 'novo') { abrirModalPedido(); return; }
+    if (acao === 'zap') return; // é um link, deixa o navegador abrir
+    if (acao === 'novo') { abrirModalPedido(null); return; }
     if (acao === 'fechar') { fecharModalPedido(); return; }
     if (acao === 'adicionar-item') { adicionarLinhaDeItem(); atualizarPreviaDoPedido(); return; }
     if (acao === 'remover-item') {
@@ -1280,25 +1388,50 @@ document.addEventListener('click', (evento) => {
     }
     if (acao === 'salvar') {
       const cliente = document.getElementById('campoCliente').value.trim();
+      const telefone = document.getElementById('campoTelefone').value.trim();
+      const obs = document.getElementById('campoObs').value.trim();
       const itens = itensDoFormulario().filter((i) => i.nome);
-      const erros = validarPedido(cliente, itens);
+      const erros = validarPedido(cliente, itens, telefone);
       if (erros.length) {
         const aviso = document.getElementById('aviso');
         aviso.textContent = erros.join(' · ');
         aviso.classList.add('visivel');
         return;
       }
-      estado.pedidos.unshift(criarPedido(cliente, itens, document.getElementById('campoObs').value.trim()));
+      if (estado.pedidoEmEdicao) Object.assign(estado.pedidoEmEdicao, { cliente, telefone, obs, itens });
+      else estado.pedidos.unshift(criarPedido(cliente, itens, obs, telefone));
       fecharModalPedido();
       renderizar();
       return;
     }
-    const cartao = botao.closest('.cartao');
-    if (cartao) {
-      estado.pedidos = aplicarAcaoNoPedido(estado.pedidos, Number(cartao.dataset.id), acao);
+
+    const cartaoDaAcao = botao.closest('.cartao');
+    if (cartaoDaAcao) {
+      const id = Number(cartaoDaAcao.dataset.id);
+
+      if (acao === 'cancelar') {
+        const pedido = estado.pedidos.find((p) => p.id === id);
+        confirmar({
+          titulo: `Cancelar o pedido de ${pedido.cliente}?`,
+          texto: `Ele sai do fluxo e vai para a coluna Cancelado, com o valor de ${formatarMoeda(totalDoPedido(pedido))} fora do faturamento. O registro continua visível, mas o pedido não volta atrás.`,
+          textoAcao: 'Cancelar pedido',
+          aoConfirmar: () => { estado.pedidos = aplicarAcaoNoPedido(estado.pedidos, id, 'cancelar'); }
+        });
+        return;
+      }
+
+      estado.pedidos = aplicarAcaoNoPedido(estado.pedidos, id, acao);
       renderizar();
       return;
     }
+  }
+
+  // clique no corpo do cartão abre o pedido
+  const cartaoPedido = evento.target.closest('.pedidos-escopo .cartao[data-id]');
+  if (cartaoPedido) {
+    const pedido = estado.pedidos.find((p) => p.id === Number(cartaoPedido.dataset.id));
+    if (pedido) abrirModalPedido(pedido);
+    return;
   }
 
   const alvo = evento.target.closest('[data-acao]');

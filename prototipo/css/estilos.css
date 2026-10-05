@@ -151,6 +151,18 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .trilho{height:8px;background:var(--creme-col);border-radius:99px;overflow:hidden;margin-top:6px}
 .trilho div{height:100%;background:var(--verde)}
 
+/* ---------- tela de início ---------- */
+.inicio{flex:1;display:flex;align-items:center;justify-content:center;min-height:60vh}
+.inicio-logo{width:min(250px,60vw);height:auto;display:block}
+
+/* ---------- atendimento ---------- */
+.previa-zap{
+  margin-top:14px;background:var(--creme-col);border:1px solid var(--areia);
+  border-radius:var(--raio);padding:14px 16px;font-size:15px;line-height:1.5;
+  max-width:460px;
+}
+code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13px}
+
 /* ---------- ações de linha ---------- */
 .acoes-linha{display:flex;gap:4px;justify-content:flex-end}
 .acao-icone{width:32px;height:32px;border-radius:var(--raio-s);display:inline-flex;align-items:center;justify-content:center;color:var(--texto-suave)}

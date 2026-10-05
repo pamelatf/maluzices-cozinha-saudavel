@@ -11,7 +11,9 @@ export const parametrosIniciais = {
   custoEmbalagem: 0.85,
   perdaProducao: 0.03,
   arredondamento: 'inteiro', // inteiro | meio | nenhum
-  toleranciaCmv: 0.02
+  toleranciaCmv: 0.02,
+  // marcadores trocados na hora de abrir a conversa: {cliente} {itens} {total} {situacao}
+  mensagemWhatsapp: 'Oi {cliente}, aqui é do Maluzices. Seu pedido ({itens}), no valor de {total}, está {situacao}.'
 };
 
 export const categorias = [
