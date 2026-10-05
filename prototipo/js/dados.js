@@ -24,38 +24,40 @@ export const categorias = [
 ];
 
 export const categoriasDeCusto = [
-  'Ingredientes',
-  'Embalagens',
-  'Aluguel',
-  'Energia',
-  'Gás',
-  'Marketing',
-  'Transporte'
+  { id: 'ingredientes', nome: 'Ingredientes', ativa: true },
+  { id: 'embalagens', nome: 'Embalagens', ativa: true },
+  { id: 'aluguel', nome: 'Aluguel', ativa: true },
+  { id: 'energia', nome: 'Energia', ativa: true },
+  { id: 'gas', nome: 'Gás', ativa: true },
+  { id: 'marketing', nome: 'Marketing', ativa: true },
+  { id: 'transporte', nome: 'Transporte', ativa: true }
 ];
 
+// nome é a chave usada pelos insumos para referenciar o fornecedor.
 export const fornecedores = [
-  'Ares',
-  'Equilibrium',
-  'Feirinha',
-  'Mercado',
-  'Cantina da Fruta',
-  'Produção própria'
+  { id: 'ares', nome: 'Ares', telefone: '', email: '', ativa: true },
+  { id: 'equilibrium', nome: 'Equilibrium', telefone: '', email: '', ativa: true },
+  { id: 'feirinha', nome: 'Feirinha', telefone: '', email: '', ativa: true },
+  { id: 'mercado', nome: 'Mercado', telefone: '', email: '', ativa: true },
+  { id: 'cantina-da-fruta', nome: 'Cantina da Fruta', telefone: '', email: '', ativa: true },
+  { id: 'producao-propria', nome: 'Produção própria', telefone: '', email: '', ativa: true }
 ];
 
+// sigla é a chave usada pelos insumos no campo unidade.
 export const unidades = [
-  { nome: 'Quilo', conversao: 'base do cálculo' },
-  { nome: 'Grama', conversao: '1 kg = 1.000 g' },
-  { nome: 'Litro', conversao: '1 L = 1 kg' },
-  { nome: 'Mililitro', conversao: '1 kg = 1.000 ml' },
-  { nome: 'Unidade', conversao: 'peso informado por insumo' }
+  { id: 'quilo', nome: 'Quilo', sigla: 'kg', conversao: 'base do cálculo', ativa: true },
+  { id: 'grama', nome: 'Grama', sigla: 'g', conversao: '1 kg = 1.000 g', ativa: true },
+  { id: 'litro', nome: 'Litro', sigla: 'L', conversao: '1 L = 1 kg', ativa: true },
+  { id: 'mililitro', nome: 'Mililitro', sigla: 'ml', conversao: '1 kg = 1.000 ml', ativa: true },
+  { id: 'unidade', nome: 'Unidade', sigla: 'un', conversao: 'peso informado por insumo', ativa: true }
 ];
 
 export const formasDePagamento = [
-  { nome: 'Pix', taxa: 0 },
-  { nome: 'Dinheiro', taxa: 0 },
-  { nome: 'Cartão de débito', taxa: 0.019 },
-  { nome: 'Cartão de crédito', taxa: 0.035 },
-  { nome: 'Transferência', taxa: 0 }
+  { id: 'pix', nome: 'Pix', taxa: 0, ativa: true },
+  { id: 'dinheiro', nome: 'Dinheiro', taxa: 0, ativa: true },
+  { id: 'cartao-debito', nome: 'Cartão de débito', taxa: 0.019, ativa: true },
+  { id: 'cartao-credito', nome: 'Cartão de crédito', taxa: 0.035, ativa: true },
+  { id: 'transferencia', nome: 'Transferência', taxa: 0, ativa: true }
 ];
 
 // pesoBruto e pesoLiquido dão o fator de correção; preco é por quilo.
@@ -208,13 +210,13 @@ export const fichas = [
 ];
 
 export const custos = [
-  { data: '2026-10-03', categoria: 'Ingredientes', descricao: 'Feira da semana', valor: 280, pago: true },
-  { data: '2026-10-02', categoria: 'Embalagens', descricao: 'Potes de 400 ml', valor: 120, pago: true },
-  { data: '2026-10-01', categoria: 'Aluguel', descricao: 'Aluguel do espaço', valor: 300, pago: true },
-  { data: '2026-10-01', categoria: 'Energia', descricao: 'Conta de luz', valor: 50, pago: false },
-  { data: '2026-09-28', categoria: 'Ingredientes', descricao: 'Castanhas e sementes', valor: 150, pago: false },
-  { data: '2026-09-26', categoria: 'Marketing', descricao: 'Impulsionamento no Instagram', valor: 50, pago: true },
-  { data: '2026-09-20', categoria: 'Transporte', descricao: 'Entregas da semana', valor: 90, pago: false }
+  { id: 'custo-1', data: '2026-10-03', categoria: 'Ingredientes', descricao: 'Feira da semana', valor: 280, pago: true },
+  { id: 'custo-2', data: '2026-10-02', categoria: 'Embalagens', descricao: 'Potes de 400 ml', valor: 120, pago: true },
+  { id: 'custo-3', data: '2026-10-01', categoria: 'Aluguel', descricao: 'Aluguel do espaço', valor: 300, pago: true },
+  { id: 'custo-4', data: '2026-10-01', categoria: 'Energia', descricao: 'Conta de luz', valor: 50, pago: false },
+  { id: 'custo-5', data: '2026-09-28', categoria: 'Ingredientes', descricao: 'Castanhas e sementes', valor: 150, pago: false },
+  { id: 'custo-6', data: '2026-09-26', categoria: 'Marketing', descricao: 'Impulsionamento no Instagram', valor: 50, pago: true },
+  { id: 'custo-7', data: '2026-09-20', categoria: 'Transporte', descricao: 'Entregas da semana', valor: 90, pago: false }
 ];
 
 export const faturamentoMensal = [
@@ -244,8 +246,8 @@ export function catalogoInicial() {
       ingredientes: f.ingredientes.map((l) => ({ ...l }))
     })),
     custos: custos.map((c) => ({ ...c })),
-    categoriasDeCusto: [...categoriasDeCusto],
-    fornecedores: [...fornecedores],
+    categoriasDeCusto: categoriasDeCusto.map((c) => ({ ...c })),
+    fornecedores: fornecedores.map((f) => ({ ...f })),
     unidades: unidades.map((u) => ({ ...u })),
     formasDePagamento: formasDePagamento.map((f) => ({ ...f }))
   };

@@ -17,7 +17,9 @@ const estado = {
   novosPrecos: {},
   importacao: null,
   pedidos: pedidosIniciais.map((p) => ({ ...p, itens: p.itens.map((i) => ({ ...i })) })),
-  mesPainel: '2026-10'
+  mesPainel: '2026-10',
+  filtrosCadastro: {},
+  proximoCustoId: 8
 };
 
 const PAGINAS = [
@@ -39,7 +41,9 @@ const ICONES = {
   carteira: '<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/><circle cx="17" cy="14.5" r="1.2"/>',
   engrenagem: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
   alerta: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5h.01"/>',
-  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  editar: '<path d="M4 20h4L19.5 8.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4z"/><path d="M14 6l4 4"/>',
+  excluir: '<path d="M4 7h16"/><path d="M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7"/><path d="M6.4 7l.9 12.4A2.2 2.2 0 0 0 9.5 21.5h5a2.2 2.2 0 0 0 2.2-2.1L17.6 7"/><path d="M10.3 11v6.2M13.7 11v6.2"/>'
 };
 
 const icone = (nome) => `<svg class="icone" viewBox="0 0 24 24" aria-hidden="true">${ICONES[nome] || ''}</svg>`;
@@ -55,6 +59,12 @@ const nomeCategoria = (id) => {
   const c = estado.catalogo.categorias.find((x) => x.id === id);
   return c ? c.nome : 'Sem categoria';
 };
+
+/**
+ * Cadastro inativo não aparece em lista de seleção, mas continua
+ * existindo nos registros antigos que já apontam para ele.
+ */
+const categoriasDeCustoAtivas = () => estado.catalogo.categoriasDeCusto.filter((c) => c.ativa !== false);
 
 function fichasComDiferenca() {
   return fichasVendaveis()
@@ -594,16 +604,20 @@ function telaCustos() {
   const total = doMes.reduce((t, c) => t + c.valor, 0);
   const pago = doMes.filter((c) => c.pago).reduce((t, c) => t + c.valor, 0);
 
-  const linhas = estado.catalogo.custos.map((c, indice) => `
+  const linhas = estado.catalogo.custos.map((c) => `
     <tr>
       <td class="suave">${c.data.split('-').reverse().join('/')}</td>
       <td>${esc(c.categoria)}</td>
       <td class="suave">${esc(c.descricao)}</td>
       <td class="num forte">${formatarMoeda(c.valor)}</td>
-      <td><button class="selo ${c.pago ? 'selo-ok' : 'selo-alerta'}" data-acao="alternar-pago" data-indice="${indice}">${c.pago ? 'Pago' : 'A pagar'}</button></td>
+      <td><button class="selo ${c.pago ? 'selo-ok' : 'selo-alerta'}" data-acao="alternar-pago" data-id="${c.id}">${c.pago ? 'Pago' : 'A pagar'}</button></td>
+      <td><div class="acoes-linha">
+        <button class="acao-icone" data-acao="editar-custo" data-id="${c.id}" aria-label="Editar lançamento">${icone('editar')}</button>
+        <button class="acao-icone perigo" data-acao="remover-custo" data-id="${c.id}" aria-label="Remover lançamento">${icone('excluir')}</button>
+      </div></td>
     </tr>`).join('');
 
-  const opcoes = estado.catalogo.categoriasDeCusto.map((c) => `<option>${esc(c)}</option>`).join('');
+  const opcoes = categoriasDeCustoAtivas().map((c) => `<option>${esc(c.nome)}</option>`).join('');
 
   return `
     <div class="cabecalho">
@@ -643,11 +657,278 @@ function telaCustos() {
     <section class="cartao">
       <div class="rolagem">
         <table>
-          <thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th class="num">Valor</th><th>Situação</th></tr></thead>
+          <thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th class="num">Valor</th><th>Situação</th><th></th></tr></thead>
           <tbody>${linhas}</tbody>
         </table>
       </div>
     </section>`;
+}
+
+/* ------------------------------------------------------------------
+   Diálogos. Um só contêiner na casca da página, preenchido na hora.
+   São três usos: confirmar uma remoção, preencher um cadastro e
+   lançar ou editar um custo.
+------------------------------------------------------------------ */
+let confirmacaoPendente = null;
+let formularioAtivo = null;
+let custoEmEdicao = null;
+
+function abrirDialogo(html) {
+  document.getElementById('diagCaixa').innerHTML = html;
+  document.getElementById('diagFundo').classList.add('aberto');
+  const primeiro = document.querySelector('#diagCaixa input, #diagCaixa select');
+  if (primeiro) setTimeout(() => primeiro.focus(), 40);
+}
+
+function fecharDialogo() {
+  const fundo = document.getElementById('diagFundo');
+  if (fundo) fundo.classList.remove('aberto');
+  // o conteúdo sai do DOM junto: senão sobram campos com id repetido
+  const caixa = document.getElementById('diagCaixa');
+  if (caixa) caixa.innerHTML = '';
+  confirmacaoPendente = null;
+  formularioAtivo = null;
+  custoEmEdicao = null;
+}
+
+function confirmar({ titulo, texto, textoAcao = 'Remover', aoConfirmar }) {
+  abrirDialogo(`
+    <h2 class="diag-titulo">${esc(titulo)}</h2>
+    <p class="diag-texto">${esc(texto)}</p>
+    <div class="diag-acoes">
+      <button class="botao botao-claro" data-diag="cancelar">Cancelar</button>
+      <button class="botao botao-perigo" data-diag="confirmar">${esc(textoAcao)}</button>
+    </div>`);
+  confirmacaoPendente = aoConfirmar;
+}
+
+function abrirFormulario({ titulo, campos, aoSalvar, textoSalvar = 'Salvar' }) {
+  const corpo = campos.map((c) => (c.tipo === 'checkbox'
+    ? `<label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer">
+         <input type="checkbox" id="campo-${c.id}" ${c.valor ? 'checked' : ''}> ${esc(c.rotulo)}
+       </label>`
+    : `<label class="campo">${esc(c.rotulo)}
+         <input type="${c.tipo || 'text'}" id="campo-${c.id}" value="${esc(c.valor || '')}" placeholder="${esc(c.placeholder || '')}">
+       </label>`)).join('');
+
+  abrirDialogo(`
+    <h2 class="diag-titulo">${esc(titulo)}</h2>
+    <div class="diag-campos">${corpo}</div>
+    <div class="diag-acoes">
+      <button class="botao botao-claro" data-diag="cancelar">Cancelar</button>
+      <button class="botao" data-diag="salvar">${esc(textoSalvar)}</button>
+    </div>`);
+  formularioAtivo = { campos, aoSalvar };
+}
+
+function lerFormularioAtivo() {
+  const valores = {};
+  formularioAtivo.campos.forEach((c) => {
+    const campo = document.getElementById(`campo-${c.id}`);
+    valores[c.id] = c.tipo === 'checkbox' ? campo.checked : campo.value.trim();
+  });
+  return valores;
+}
+
+/* ------------------------------------------------------------------
+   Cadastros com vínculo futuro (categorias, fornecedores, unidades,
+   formas de pagamento): edição e remoção em diálogo, com inativação
+   no lugar da remoção quando o cadastro já está em uso.
+------------------------------------------------------------------ */
+function slugify(nome, listaExistente) {
+  const base = String(nome).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'item';
+  let slug = base;
+  let n = 2;
+  while (listaExistente.some((i) => i.id === slug)) { slug = `${base}-${n}`; n += 1; }
+  return slug;
+}
+
+function camposComAtivo(base, item) {
+  return item ? [...base, { id: 'ativa', rotulo: 'Cadastro ativo', tipo: 'checkbox', valor: item.ativa !== false }] : base;
+}
+
+const CADASTROS = {
+  categoria: {
+    lista: () => estado.catalogo.categorias,
+    usoQtd: (item) => estado.catalogo.fichas.filter((f) => f.categoriaId === item.id).length,
+    campos: (item) => camposComAtivo([
+      { id: 'nome', rotulo: 'Nome', valor: item ? item.nome : '' },
+      { id: 'metaCmv', rotulo: 'Meta de CMV', valor: formatarPercentual(item ? item.metaCmv : estado.parametros.metaCmvPadrao, 0) }
+    ], item),
+    criar: (v) => ({ id: slugify(v.nome, estado.catalogo.categorias), nome: v.nome, metaCmv: lerMoeda(v.metaCmv) / 100 || estado.parametros.metaCmvPadrao, ativa: true }),
+    atualizar: (item, v) => { item.nome = v.nome; item.metaCmv = (lerMoeda(v.metaCmv) / 100) || item.metaCmv; item.ativa = v.ativa; },
+    excluir: (item) => { estado.catalogo.categorias = estado.catalogo.categorias.filter((c) => c !== item); }
+  },
+  categoriaCusto: {
+    lista: () => estado.catalogo.categoriasDeCusto,
+    usoQtd: (item) => estado.catalogo.custos.filter((c) => c.categoria === item.nome).length,
+    campos: (item) => camposComAtivo([{ id: 'nome', rotulo: 'Nome', valor: item ? item.nome : '' }], item),
+    criar: (v) => ({ id: slugify(v.nome, estado.catalogo.categoriasDeCusto), nome: v.nome, ativa: true }),
+    atualizar: (item, v) => {
+      estado.catalogo.custos.filter((c) => c.categoria === item.nome).forEach((c) => { c.categoria = v.nome; });
+      item.nome = v.nome; item.ativa = v.ativa;
+    },
+    excluir: (item) => { estado.catalogo.categoriasDeCusto = estado.catalogo.categoriasDeCusto.filter((c) => c !== item); }
+  },
+  fornecedor: {
+    lista: () => estado.catalogo.fornecedores,
+    usoQtd: (item) => estado.catalogo.insumos.filter((i) => i.fornecedor === item.nome).length,
+    campos: (item) => camposComAtivo([
+      { id: 'nome', rotulo: 'Nome', valor: item ? item.nome : '' },
+      { id: 'telefone', rotulo: 'Telefone', valor: item ? item.telefone : '' },
+      { id: 'email', rotulo: 'E-mail', tipo: 'email', valor: item ? item.email : '' }
+    ], item),
+    criar: (v) => ({ id: slugify(v.nome, estado.catalogo.fornecedores), nome: v.nome, telefone: v.telefone, email: v.email, ativa: true }),
+    atualizar: (item, v) => {
+      estado.catalogo.insumos.filter((i) => i.fornecedor === item.nome).forEach((i) => { i.fornecedor = v.nome; });
+      item.nome = v.nome; item.telefone = v.telefone; item.email = v.email; item.ativa = v.ativa;
+    },
+    excluir: (item) => { estado.catalogo.fornecedores = estado.catalogo.fornecedores.filter((f) => f !== item); }
+  },
+  unidade: {
+    lista: () => estado.catalogo.unidades,
+    usoQtd: (item) => estado.catalogo.insumos.filter((i) => i.unidade === item.sigla).length,
+    campos: (item) => camposComAtivo([
+      { id: 'nome', rotulo: 'Nome', valor: item ? item.nome : '' },
+      { id: 'sigla', rotulo: 'Sigla', valor: item ? item.sigla : '', placeholder: 'kg, g, L, un' },
+      { id: 'conversao', rotulo: 'Equivalência em quilo', valor: item ? item.conversao : '', placeholder: '1 dúzia = 0,72 kg' }
+    ], item),
+    criar: (v) => ({
+      id: slugify(v.nome, estado.catalogo.unidades),
+      nome: v.nome,
+      sigla: v.sigla || v.nome.slice(0, 3).toLowerCase(),
+      conversao: v.conversao || 'conversão a definir',
+      ativa: true
+    }),
+    atualizar: (item, v) => {
+      const sigla = v.sigla || item.sigla;
+      estado.catalogo.insumos.filter((i) => i.unidade === item.sigla).forEach((i) => { i.unidade = sigla; });
+      item.nome = v.nome; item.sigla = sigla; item.conversao = v.conversao || item.conversao; item.ativa = v.ativa;
+    },
+    excluir: (item) => { estado.catalogo.unidades = estado.catalogo.unidades.filter((u) => u !== item); }
+  },
+  formaPagamento: {
+    lista: () => estado.catalogo.formasDePagamento,
+    usoQtd: () => 0,
+    campos: (item) => camposComAtivo([
+      { id: 'nome', rotulo: 'Nome', valor: item ? item.nome : '' },
+      { id: 'taxa', rotulo: 'Taxa', valor: formatarPercentual(item ? item.taxa : 0, 1) }
+    ], item),
+    criar: (v) => ({ id: slugify(v.nome, estado.catalogo.formasDePagamento), nome: v.nome, taxa: lerMoeda(v.taxa) / 100 || 0, ativa: true }),
+    atualizar: (item, v) => { item.nome = v.nome; item.taxa = lerMoeda(v.taxa) / 100 || 0; item.ativa = v.ativa; },
+    excluir: (item) => { estado.catalogo.formasDePagamento = estado.catalogo.formasDePagamento.filter((f) => f !== item); }
+  }
+};
+
+const TITULOS_NOVO_CADASTRO = {
+  categoria: 'Nova categoria de produto',
+  categoriaCusto: 'Nova categoria de custo',
+  fornecedor: 'Novo fornecedor',
+  unidade: 'Nova unidade de medida',
+  formaPagamento: 'Nova forma de pagamento'
+};
+
+function filtroCadastro(tipo) {
+  return estado.filtrosCadastro[tipo] || 'ativos';
+}
+
+function aplicarFiltroCadastro(tipo, itens) {
+  const f = filtroCadastro(tipo);
+  if (f === 'todos') return itens;
+  return itens.filter((i) => (f === 'ativos' ? i.ativa !== false : i.ativa === false));
+}
+
+function controleFiltroCadastro(tipo) {
+  const atual = filtroCadastro(tipo);
+  const opcoes = [['ativos', 'Ativos'], ['inativos', 'Inativos'], ['todos', 'Todos']];
+  return `<label class="campo" style="min-width:140px">Mostrar
+    <select data-acao="filtro-cadastro" data-tipo="${tipo}">
+      ${opcoes.map(([v, l]) => `<option value="${v}" ${v === atual ? 'selected' : ''}>${l}</option>`).join('')}
+    </select>
+  </label>`;
+}
+
+function celulaAcoesCadastro(tipo, id) {
+  return `<div class="acoes-linha">
+    <button class="acao-icone" data-acao="editar-cadastro" data-tipo="${tipo}" data-id="${id}" aria-label="Editar">${icone('editar')}</button>
+    <button class="acao-icone perigo" data-acao="remover-cadastro" data-tipo="${tipo}" data-id="${id}" aria-label="Remover">${icone('excluir')}</button>
+  </div>`;
+}
+
+function celulaSituacaoCadastro(ativa) {
+  return `<span class="selo ${ativa !== false ? 'selo-ok' : 'selo-neutro'}">${ativa !== false ? 'Ativa' : 'Inativa'}</span>`;
+}
+
+function tabelaCadastro(tipo, titulo, nota, colunasExtra, celulaExtra, textoNovo) {
+  const todos = CADASTROS[tipo].lista();
+  const visiveis = aplicarFiltroCadastro(tipo, todos);
+  return `
+    <div class="cartao">
+      <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:flex-end">
+        <div>
+          <h2 class="cartao-titulo">${titulo}</h2>
+          <p class="cartao-nota">${nota}</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          ${controleFiltroCadastro(tipo)}
+          <button class="botao botao-claro" data-acao="novo-cadastro" data-tipo="${tipo}">${textoNovo}</button>
+        </div>
+      </div>
+      <div class="rolagem" style="margin-top:14px">
+        <table>
+          <thead><tr><th>Nome</th>${colunasExtra.map((c) => `<th class="${c.classe || ''}">${c.rotulo}</th>`).join('')}<th>Situação</th><th></th></tr></thead>
+          <tbody>
+            ${visiveis.length ? visiveis.map((item) => `<tr>
+              <td>${esc(item.nome)}</td>
+              ${celulaExtra(item)}
+              <td>${celulaSituacaoCadastro(item.ativa)}</td>
+              <td>${celulaAcoesCadastro(tipo, item.id)}</td>
+            </tr>`).join('') : `<tr><td colspan="${2 + colunasExtra.length}" class="suave">Nenhum cadastro para este filtro.</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function abrirFormularioCadastro(tipo, item) {
+  const def = CADASTROS[tipo];
+  abrirFormulario({
+    titulo: item ? `Editar: ${item.nome}` : TITULOS_NOVO_CADASTRO[tipo],
+    campos: def.campos(item),
+    textoSalvar: item ? 'Salvar' : 'Adicionar',
+    aoSalvar: (valores) => {
+      if (!valores.nome) return;
+      if (item) def.atualizar(item, valores);
+      else def.lista().push(def.criar(valores));
+    }
+  });
+}
+
+/** Lançamento de custo: o mesmo diálogo serve para criar e para editar. */
+function abrirFormularioCusto(custo) {
+  const opcoes = categoriasDeCustoAtivas()
+    .concat(custo && !categoriasDeCustoAtivas().some((c) => c.nome === custo.categoria)
+      ? [{ nome: custo.categoria }] : [])
+    .map((c) => `<option ${custo && custo.categoria === c.nome ? 'selected' : ''}>${esc(c.nome)}</option>`).join('');
+
+  abrirDialogo(`
+    <h2 class="diag-titulo">${custo ? 'Editar lançamento' : 'Novo lançamento'}</h2>
+    <div class="diag-campos">
+      <label class="campo">Data<input type="date" id="campo-custo-data" value="${custo ? custo.data : '2026-10-05'}"></label>
+      <label class="campo">Categoria<select id="campo-custo-categoria">${opcoes}</select></label>
+      <label class="campo">Descrição<input type="text" id="campo-custo-descricao" value="${esc(custo ? custo.descricao : '')}" placeholder="Compra na feira"></label>
+      <label class="campo">Valor<input type="text" class="entrada-num" id="campo-custo-valor" value="${custo ? formatarMoeda(custo.valor) : ''}" placeholder="R$ 0,00"></label>
+      <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer">
+        <input type="checkbox" id="campo-custo-pago" ${custo && custo.pago ? 'checked' : ''}> Já está pago
+      </label>
+      <div class="aviso aviso-atencao" id="diag-aviso" style="display:none"></div>
+    </div>
+    <div class="diag-acoes">
+      <button class="botao botao-claro" data-diag="cancelar">Cancelar</button>
+      <button class="botao" data-diag="salvar-custo">${custo ? 'Salvar' : 'Lançar custo'}</button>
+    </div>`);
+  custoEmEdicao = custo || null;
 }
 
 function telaConfig() {
@@ -675,62 +956,50 @@ function telaConfig() {
       </div>
     </section>`;
 
-  const listaSimples = (titulo, nota, itens, acao, textoBotao) => `
-    <div class="cartao">
-      <h2 class="cartao-titulo">${titulo}</h2>
-      <p class="cartao-nota">${nota}</p>
-      <div style="margin-top:14px">
-        ${itens.map((i) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid #EDEDE0;font-size:14.5px"><span>${esc(i.nome)}</span><span class="suave" style="font-size:13px">${esc(i.apoio)}</span></div>`).join('')}
-      </div>
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <input type="text" placeholder="${textoBotao}" data-campo-novo="${acao}">
-        <button class="botao" data-acao="${acao}">Adicionar</button>
-      </div>
-    </div>`;
-
   const corpoCadastros = `
-    <section class="cartao">
-      <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:baseline">
-        <div>
-          <h2 class="cartao-titulo">Categorias de produto</h2>
-          <p class="cartao-nota">Cada categoria tem a sua meta de CMV. Um produto pode ter meta própria na ficha.</p>
-        </div>
-      </div>
-      <div class="rolagem" style="margin-top:14px">
-        <table>
-          <thead><tr><th>Categoria</th><th class="num">Meta de CMV</th><th class="num">Produtos</th><th>Situação</th></tr></thead>
-          <tbody>
-            ${estado.catalogo.categorias.map((c) => `<tr>
-              <td>${esc(c.nome)}</td>
-              <td class="num"><input type="text" class="entrada-num" value="${formatarPercentual(c.metaCmv, 0)}" data-acao="meta-categoria" data-categoria="${c.id}" style="max-width:100px"></td>
-              <td class="num suave">${estado.catalogo.fichas.filter((f) => f.categoriaId === c.id).length}</td>
-              <td><span class="selo ${c.ativa ? 'selo-ok' : 'selo-neutro'}">${c.ativa ? 'Ativa' : 'Inativa'}</span></td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <input type="text" placeholder="Nome da categoria" data-campo-novo="nova-categoria">
-        <button class="botao" data-acao="nova-categoria">Adicionar</button>
-      </div>
-    </section>
+    ${tabelaCadastro('categoria',
+      'Categorias de produto',
+      'Cada categoria tem a sua meta de CMV, usada quando o produto não tem meta própria na ficha.',
+      [{ rotulo: 'Meta de CMV', classe: 'num' }, { rotulo: 'Produtos', classe: 'num' }],
+      (c) => `<td class="num">${formatarPercentual(c.metaCmv, 0)}</td>
+              <td class="num suave">${CADASTROS.categoria.usoQtd(c)}</td>`,
+      'Nova categoria')}
 
     <section class="grade grade-2">
-      ${listaSimples('Categorias de custo', 'Aparecem na hora de lançar um gasto.',
-        estado.catalogo.categoriasDeCusto.map((c) => ({ nome: c, apoio: `${estado.catalogo.custos.filter((x) => x.categoria === c).length} lançamentos` })),
-        'nova-categoria-custo', 'Nome da categoria')}
-      ${listaSimples('Fornecedores', 'Usados no cadastro de insumo e na cotação.',
-        estado.catalogo.fornecedores.map((f) => ({ nome: f, apoio: `${estado.catalogo.insumos.filter((i) => i.fornecedor === f).length} insumos` })),
-        'novo-fornecedor', 'Nome do fornecedor')}
-      ${listaSimples('Unidades de medida', 'Cada unidade tem a conversão para quilo, que é a base do custo.',
-        estado.catalogo.unidades.map((u) => ({ nome: u.nome, apoio: u.conversao })),
-        'nova-unidade', 'Unidade')}
-      ${listaSimples('Formas de pagamento', 'Aparecem no pedido. A taxa entra no cálculo da margem.',
-        estado.catalogo.formasDePagamento.map((f) => ({ nome: f.nome, apoio: f.taxa ? `taxa de ${formatarPercentual(f.taxa)}` : 'sem taxa' })),
-        'nova-forma-pagamento', 'Forma de pagamento')}
+      ${tabelaCadastro('categoriaCusto',
+        'Categorias de custo',
+        'São as opções da lista Categoria na hora de lançar um gasto na tela de Custos.',
+        [{ rotulo: 'Lançamentos', classe: 'num' }],
+        (c) => `<td class="num suave">${CADASTROS.categoriaCusto.usoQtd(c)}</td>`,
+        'Nova categoria')}
+
+      ${tabelaCadastro('fornecedor',
+        'Fornecedores',
+        'De quem você compra. Cada insumo aponta para um fornecedor, e o contato fica aqui para a hora de pedir cotação.',
+        [{ rotulo: 'Telefone' }, { rotulo: 'E-mail' }, { rotulo: 'Insumos', classe: 'num' }],
+        (f) => `<td class="suave">${esc(f.telefone || '—')}</td>
+                <td class="suave">${esc(f.email || '—')}</td>
+                <td class="num suave">${CADASTROS.fornecedor.usoQtd(f)}</td>`,
+        'Novo fornecedor')}
+
+      ${tabelaCadastro('unidade',
+        'Unidades de medida',
+        'Como cada insumo é comprado. O cálculo de custo trabalha sempre em quilo, então cada unidade precisa dizer quanto vale em quilo.',
+        [{ rotulo: 'Sigla' }, { rotulo: 'Equivalência em quilo' }, { rotulo: 'Insumos', classe: 'num' }],
+        (u) => `<td class="suave">${esc(u.sigla)}</td>
+                <td class="suave">${esc(u.conversao)}</td>
+                <td class="num suave">${CADASTROS.unidade.usoQtd(u)}</td>`,
+        'Nova unidade')}
+
+      ${tabelaCadastro('formaPagamento',
+        'Formas de pagamento',
+        'Aparecem no pedido. A taxa da maquininha entra no cálculo da margem.',
+        [{ rotulo: 'Taxa', classe: 'num' }],
+        (f) => `<td class="num suave">${f.taxa ? formatarPercentual(f.taxa) : 'sem taxa'}</td>`,
+        'Nova forma')}
     </section>
 
-    <div class="aviso aviso-neutro">${icone('info')}<div><strong>Sobre apagar.</strong> Uma categoria, fornecedor ou unidade que já está em uso não seria apagada, e sim marcada como inativa, para não quebrar os registros antigos.</div></div>`;
+    <div class="aviso aviso-neutro">${icone('info')}<div><strong>Sobre remover.</strong> Um cadastro que já está em uso não é apagado: ele fica inativo, sai das listas de seleção e os registros antigos continuam intactos. Um cadastro sem nenhum vínculo é removido de verdade, com confirmação antes.</div></div>`;
 
   return `
     <div class="cabecalho">
@@ -802,7 +1071,7 @@ document.addEventListener('change', (evento) => {
     if (!arquivo) return;
     const leitor = new FileReader();
     leitor.onload = () => {
-      const analise = analisarCsvDeCustos(String(leitor.result), estado.catalogo.categoriasDeCusto);
+      const analise = analisarCsvDeCustos(String(leitor.result), categoriasDeCustoAtivas().map((c) => c.nome));
       estado.importacao = { ...analise, arquivo: arquivo.name };
       renderizar();
     };
@@ -832,12 +1101,10 @@ document.addEventListener('change', (evento) => {
       renderizar();
       break;
     }
-    case 'meta-categoria': {
-      const categoria = estado.catalogo.categorias.find((c) => c.id === alvo.dataset.categoria);
-      categoria.metaCmv = lerMoeda(alvo.value) / 100;
+    case 'filtro-cadastro':
+      estado.filtrosCadastro[alvo.dataset.tipo] = alvo.value;
       renderizar();
       break;
-    }
     case 'novo-preco':
       estado.novosPrecos[alvo.dataset.ficha] = lerMoeda(alvo.value);
       renderizar();
@@ -939,12 +1206,63 @@ document.addEventListener('input', (evento) => {
 });
 
 document.addEventListener('keydown', (evento) => {
-  if (evento.key === 'Escape') fecharModalPedido();
+  if (evento.key === 'Escape') { fecharModalPedido(); fecharDialogo(); }
 });
 
 document.addEventListener('click', (evento) => {
   const fundo = document.getElementById('fundoModal');
   if (fundo && evento.target === fundo) fecharModalPedido();
+
+  const diagFundo = document.getElementById('diagFundo');
+  if (diagFundo && evento.target === diagFundo) { fecharDialogo(); return; }
+
+  const botaoDiag = evento.target.closest('[data-diag]');
+  if (botaoDiag) {
+    const acaoDiag = botaoDiag.dataset.diag;
+
+    if (acaoDiag === 'cancelar') { fecharDialogo(); return; }
+
+    if (acaoDiag === 'confirmar' && confirmacaoPendente) {
+      confirmacaoPendente();
+      fecharDialogo();
+      renderizar();
+      return;
+    }
+
+    if (acaoDiag === 'salvar' && formularioAtivo) {
+      const valores = lerFormularioAtivo();
+      const salvar = formularioAtivo.aoSalvar;
+      fecharDialogo();
+      salvar(valores);
+      renderizar();
+      return;
+    }
+
+    if (acaoDiag === 'salvar-custo') {
+      const valor = lerMoeda(document.getElementById('campo-custo-valor').value);
+      const descricao = document.getElementById('campo-custo-descricao').value.trim();
+      const aviso = document.getElementById('diag-aviso');
+      if (!valor || !descricao) {
+        aviso.textContent = 'Informe a descrição e o valor do custo.';
+        aviso.style.display = 'block';
+        return;
+      }
+      const dados = {
+        data: document.getElementById('campo-custo-data').value || '2026-10-05',
+        categoria: document.getElementById('campo-custo-categoria').value,
+        descricao,
+        valor,
+        pago: document.getElementById('campo-custo-pago').checked
+      };
+      if (custoEmEdicao) Object.assign(custoEmEdicao, dados);
+      else estado.catalogo.custos.unshift({ id: `custo-${estado.proximoCustoId++}`, ...dados });
+      estado.catalogo.custos.sort((a, b) => (a.data < b.data ? 1 : -1));
+      fecharDialogo();
+      renderizar();
+      return;
+    }
+    return;
+  }
 
   const botao = evento.target.closest('[data-pedido]');
   if (botao) {
@@ -1004,9 +1322,59 @@ document.addEventListener('click', (evento) => {
   }
 
   if (acao === 'alternar-pago') {
-    const custo = estado.catalogo.custos[Number(alvo.dataset.indice)];
+    const custo = estado.catalogo.custos.find((c) => c.id === alvo.dataset.id);
     custo.pago = !custo.pago;
     renderizar();
+  }
+
+  if (acao === 'editar-custo') {
+    abrirFormularioCusto(estado.catalogo.custos.find((c) => c.id === alvo.dataset.id));
+  }
+
+  if (acao === 'remover-custo') {
+    const custo = estado.catalogo.custos.find((c) => c.id === alvo.dataset.id);
+    confirmar({
+      titulo: 'Remover lançamento',
+      texto: `Quer remover "${custo.descricao}", de ${formatarMoeda(custo.valor)}? O total do painel muda junto e não dá para desfazer.`,
+      aoConfirmar: () => { estado.catalogo.custos = estado.catalogo.custos.filter((c) => c !== custo); }
+    });
+  }
+
+  if (acao === 'novo-cadastro') {
+    abrirFormularioCadastro(alvo.dataset.tipo, null);
+  }
+
+  if (acao === 'editar-cadastro') {
+    const tipo = alvo.dataset.tipo;
+    abrirFormularioCadastro(tipo, CADASTROS[tipo].lista().find((i) => i.id === alvo.dataset.id));
+  }
+
+  if (acao === 'remover-cadastro') {
+    const tipo = alvo.dataset.tipo;
+    const def = CADASTROS[tipo];
+    const item = def.lista().find((i) => i.id === alvo.dataset.id);
+    const usos = def.usoQtd(item);
+
+    if (usos > 0) {
+      confirmar({
+        titulo: `Inativar ${item.nome}?`,
+        texto: `Este cadastro está em uso em ${usos} ${usos === 1 ? 'registro' : 'registros'}, então não pode ser apagado. Ele pode ficar inativo: sai das listas de seleção e os registros antigos continuam como estão.`,
+        textoAcao: 'Inativar',
+        aoConfirmar: () => { item.ativa = false; }
+      });
+    } else if (item.ativa === false) {
+      confirmar({
+        titulo: `Remover ${item.nome}?`,
+        texto: 'Este cadastro está inativo e não tem nenhum vínculo. Pode ser apagado de vez, e isso não dá para desfazer.',
+        aoConfirmar: () => def.excluir(item)
+      });
+    } else {
+      confirmar({
+        titulo: `Remover ${item.nome}?`,
+        texto: 'Nenhum registro usa este cadastro, então ele pode ser apagado de vez. Isso não dá para desfazer.',
+        aoConfirmar: () => def.excluir(item)
+      });
+    }
   }
 
   if (acao === 'abrir-importacao') {
@@ -1022,6 +1390,7 @@ document.addEventListener('click', (evento) => {
     const validas = estado.importacao.linhas.filter((l) => !l.problemas.length);
     validas.forEach((l) => {
       estado.catalogo.custos.unshift({
+        id: `custo-${estado.proximoCustoId++}`,
         data: l.data, categoria: l.categoria, descricao: l.descricao, valor: l.valor, pago: l.pago
       });
     });
@@ -1038,6 +1407,7 @@ document.addEventListener('click', (evento) => {
       return;
     }
     estado.catalogo.custos.unshift({
+      id: `custo-${estado.proximoCustoId++}`,
       data: document.getElementById('custo-data').value || '2026-10-05',
       categoria: document.getElementById('custo-categoria').value,
       descricao,
@@ -1047,20 +1417,6 @@ document.addEventListener('click', (evento) => {
     renderizar();
   }
 
-  const cadastros = {
-    'nova-categoria': (nome) => estado.catalogo.categorias.push({ id: nome.toLowerCase().replace(/\s+/g, '-'), nome, metaCmv: estado.parametros.metaCmvPadrao, ativa: true }),
-    'nova-categoria-custo': (nome) => estado.catalogo.categoriasDeCusto.push(nome),
-    'novo-fornecedor': (nome) => estado.catalogo.fornecedores.push(nome),
-    'nova-unidade': (nome) => estado.catalogo.unidades.push({ nome, conversao: 'conversão a definir' }),
-    'nova-forma-pagamento': (nome) => estado.catalogo.formasDePagamento.push({ nome, taxa: 0 })
-  };
-  if (cadastros[acao]) {
-    const campo = document.querySelector(`[data-campo-novo="${acao}"]`);
-    const nome = campo.value.trim();
-    if (!nome) return;
-    cadastros[acao](nome);
-    renderizar();
-  }
 });
 
 /**
