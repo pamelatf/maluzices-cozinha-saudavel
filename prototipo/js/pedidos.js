@@ -186,7 +186,7 @@ function cartao(p, mensagemModelo) {
       ${zap
         ? `<a class="zap" href="${zap}" target="_blank" rel="noopener" data-pedido="zap"
               aria-label="Falar com ${esc(p.cliente)} no WhatsApp"
-              title="Abrir conversa com ${esc(formatarTelefone(p.telefone))}">${svg('i-conversa')}</a>`
+              title="Abrir conversa com ${esc(formatarTelefone(p.telefone))}"><img src="img/whatsapp.png" alt=""></a>`
         : ''}
       ${final ? selo : ''}
     </div>
@@ -250,7 +250,6 @@ export function telaPedidos(pedidos, opcoes = {}) {
                   <input id="campoTelefone" maxlength="20" placeholder="(46) 99999-0000" autocomplete="off" inputmode="tel">
                   <span class="zap-botao" id="zapBotao"></span>
                 </div>
-                <div class="zap-dica" id="zapDica"></div>
               </div>
             </div>
             <div>

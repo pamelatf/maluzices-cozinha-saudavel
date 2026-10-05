@@ -1234,22 +1234,19 @@ function fecharModalPedido() {
   estado.pedidoEmEdicao = null;
 }
 
-/** O ícone dentro do campo só acende quando o número já dá para discar. */
+/**
+ * O ícone dentro do campo fica apagado enquanto o número não serve e
+ * acende quando passa a valer. O próprio ícone é o aviso: se não acendeu,
+ * o número ainda não está completo.
+ */
 function atualizarLinkZapDoModal() {
   const botao = document.getElementById('zapBotao');
-  const dica = document.getElementById('zapDica');
   if (!botao) return;
   const campo = document.getElementById('campoTelefone');
   const bruto = campo ? campo.value.trim() : '';
-  const apagado = '<span class="zap-icone inativo" aria-hidden="true"><svg class="icone"><use href="#i-conversa"/></svg></span>';
+  const apagado = '<span class="zap-icone inativo" aria-hidden="true"><img src="img/whatsapp.png" alt=""></span>';
 
-  if (!bruto) { botao.innerHTML = apagado; dica.textContent = ''; return; }
-
-  if (!telefoneValido(bruto)) {
-    botao.innerHTML = apagado;
-    dica.textContent = 'Falta DDD ou dígito para liberar o WhatsApp.';
-    return;
-  }
+  if (!telefoneValido(bruto)) { botao.innerHTML = apagado; return; }
 
   const pedido = estado.pedidoEmEdicao || {
     cliente: document.getElementById('campoCliente').value.trim(),
@@ -1258,8 +1255,7 @@ function atualizarLinkZapDoModal() {
   };
   const link = linkWhatsapp(bruto, montarMensagem(estado.parametros.mensagemWhatsapp, pedido));
   botao.innerHTML = `<a class="zap-icone" href="${link}" target="_blank" rel="noopener"
-    title="Abrir conversa no WhatsApp" aria-label="Abrir conversa no WhatsApp"><svg class="icone"><use href="#i-conversa"/></svg></a>`;
-  dica.textContent = '';
+    title="Abrir conversa no WhatsApp" aria-label="Abrir conversa no WhatsApp"><img src="img/whatsapp.png" alt=""></a>`;
 }
 
 function adicionarLinhaDeItem(item) {
