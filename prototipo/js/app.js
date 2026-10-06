@@ -181,7 +181,8 @@ function dadosDaVisaoGeral() {
   };
 }
 
-function cartaoIndicador({ rotulo, valor, variacao, diferenca, bomSeSobe = true, destino }) {
+function cartaoIndicador({ rotulo, valor, variacao, diferenca, bomSeSobe = true, destino,
+                          simbolo, tom = 'tom-neutro', tendencia }) {
   let marca = '<span class="sem-base">sem base de comparação</span>';
   if (variacao !== null && variacao !== undefined) {
     const sobe = variacao >= 0;
@@ -195,13 +196,32 @@ function cartaoIndicador({ rotulo, valor, variacao, diferenca, bomSeSobe = true,
   }
 
   const corpo = `
-    <div class="rotulo">${rotulo}</div>
+    <div class="ind-topo">
+      ${simbolo ? `<span class="ind-icone ${tom}">${icone(simbolo)}</span>` : ''}
+      <span class="rotulo">${rotulo}</span>
+      ${tendencia && tendencia.length > 1 ? miniTendencia(tendencia, tom) : ''}
+    </div>
     <div class="valor">${valor}</div>
     <div class="indicador-variacao">${marca}</div>`;
 
   return destino
-    ? `<a class="cartao indicador indicador-link" href="${destino}">${corpo}</a>`
-    : `<div class="cartao indicador">${corpo}</div>`;
+    ? `<a class="cartao indicador indicador-link ${tom}" href="${destino}">${corpo}</a>`
+    : `<div class="cartao indicador ${tom}">${corpo}</div>`;
+}
+
+/**
+ * Risco de tendência no canto do cartão. Não tem eixo nem número de
+ * propósito: serve só para dizer se a coisa vinha subindo ou descendo, e o
+ * número exato já está no meio do cartão, em corpo 31.
+ */
+function miniTendencia(valores, tom) {
+  const W = 62, H = 22, P = 2;
+  const max = Math.max(...valores), min = Math.min(...valores);
+  const faixa = max - min || 1;
+  const x = (i) => P + (i * (W - P * 2)) / (valores.length - 1);
+  const y = (v) => H - P - ((v - min) / faixa) * (H - P * 2);
+  const d = valores.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('');
+  return `<svg class="ind-tendencia ${tom}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}"/></svg>`;
 }
 
 function telaInicio() {
@@ -210,12 +230,14 @@ function telaInicio() {
 
   const porSituacao = {};
   estado.pedidos.forEach((p) => { porSituacao[p.status] = (porSituacao[p.status] || 0) + 1; });
+  // a cor é a mesma do quadro de pedidos, para a bolinha aqui e o cartão lá
+  // falarem a mesma língua
   const SITUACOES = [
-    { chave: 'RECEBIDO', nome: 'Recebidos' },
-    { chave: 'EM_PREPARO', nome: 'Em preparo' },
-    { chave: 'PRONTO', nome: 'Prontos' },
-    { chave: 'ENTREGUE', nome: 'Entregues' },
-    { chave: 'CANCELADO', nome: 'Cancelados' }
+    { chave: 'RECEBIDO', nome: 'Recebidos', cor: 'var(--taupe)' },
+    { chave: 'EM_PREPARO', nome: 'Em preparo', cor: 'var(--terracota)' },
+    { chave: 'PRONTO', nome: 'Prontos', cor: 'var(--verde)' },
+    { chave: 'ENTREGUE', nome: 'Entregues', cor: 'var(--oliva)' },
+    { chave: 'CANCELADO', nome: 'Cancelados', cor: 'var(--pedra)' }
   ];
 
   const topQuantidade = produtos.porQuantidade[0];
@@ -235,22 +257,26 @@ function telaInicio() {
     </div>
 
     <section class="grade grade-4">
-      ${cartaoIndicador({ rotulo: 'Faturamento', valor: formatarMoeda(i.faturamento.valor), variacao: i.faturamento.variacao })}
-      ${cartaoIndicador({ rotulo: 'Gastos', valor: formatarMoeda(i.gastos.valor), variacao: i.gastos.variacao, bomSeSobe: false, destino: `#/custos/${estado.periodoPainel}` })}
-      ${cartaoIndicador({ rotulo: 'Lucro', valor: formatarMoeda(i.lucro.valor), variacao: i.lucro.variacao })}
-      ${cartaoIndicador({ rotulo: 'Margem', valor: formatarPercentual(i.margem.valor), diferenca: i.margem.diferenca })}
+      ${cartaoIndicador({ rotulo: 'Faturamento', valor: formatarMoeda(i.faturamento.valor), variacao: i.faturamento.variacao,
+        simbolo: 'carteira', tom: 'tom-verde', tendencia: serie.map((m) => m.faturamento) })}
+      ${cartaoIndicador({ rotulo: 'Gastos', valor: formatarMoeda(i.gastos.valor), variacao: i.gastos.variacao, bomSeSobe: false,
+        destino: `#/custos/${estado.periodoPainel}`, simbolo: 'cesta', tom: 'tom-terra', tendencia: serie.map((m) => m.gastos) })}
+      ${cartaoIndicador({ rotulo: 'Lucro', valor: formatarMoeda(i.lucro.valor), variacao: i.lucro.variacao,
+        simbolo: 'grafico', tom: 'tom-verde', tendencia: serie.map((m) => m.faturamento - m.gastos) })}
+      ${cartaoIndicador({ rotulo: 'Margem', valor: formatarPercentual(i.margem.valor), diferenca: i.margem.diferenca,
+        simbolo: 'etiqueta', tom: 'tom-verde', tendencia: serie.map((m) => (m.faturamento ? (m.faturamento - m.gastos) / m.faturamento : 0)) })}
     </section>
 
     <section class="grade grade-painel">
       <div class="cartao">
-        <h2 class="cartao-titulo">Faturamento x Lucro</h2>
-        <p class="cartao-nota">A faixa de baixo é o gasto e a de cima é o lucro. Quando a faixa verde afina, a margem apertou, mesmo com o faturamento subindo.</p>
+        <h2 class="cartao-titulo tit-icone">${icone('grafico')}Faturamento x Lucro</h2>
+        <p class="cartao-nota">O valor de cada mês está escrito no gráfico. Quando a linha do lucro se aproxima da de gastos, a margem apertou, mesmo com o faturamento subindo.</p>
         ${graficoFaturamentoLucro(serie)}
       </div>
 
       <div class="cartao">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
-          <h2 class="cartao-titulo">Gastos por categoria</h2>
+          <h2 class="cartao-titulo tit-icone">${icone('carteira')}Gastos por categoria</h2>
           <a class="atalho" href="#/custos/${estado.periodoPainel}">ver lançamentos</a>
         </div>
         <p class="cartao-nota">Para onde foi o dinheiro no período.</p>
@@ -261,7 +287,7 @@ function telaInicio() {
     </section>
 
     <section class="cartao">
-      <h2 class="cartao-titulo">Faturamento por dia da semana</h2>
+      <h2 class="cartao-titulo tit-icone">${icone('comanda')}Faturamento por dia da semana</h2>
       <p class="cartao-nota">Média por dia no período, para o dia que apareceu mais vezes não levar vantagem.</p>
       ${graficoDiaDaSemana(dias)}
     </section>
@@ -269,7 +295,7 @@ function telaInicio() {
     <section class="grade grade-painel">
       <div class="cartao">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
-          <h2 class="cartao-titulo">Produtos mais vendidos</h2>
+          <h2 class="cartao-titulo tit-icone">${icone('livro')}Produtos mais vendidos</h2>
           <a class="atalho" href="#/fichas">ver fichas</a>
         </div>
         <p class="cartao-nota">Quantidade vendida, com a margem de contribuição de cada um ao lado. Produto que vende muito com margem baixa aparece marcado.</p>
@@ -291,7 +317,7 @@ function telaInicio() {
 
       <div class="cartao">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
-          <h2 class="cartao-titulo">Pedidos de hoje</h2>
+          <h2 class="cartao-titulo tit-icone">${icone('comanda')}Pedidos de hoje</h2>
           <a class="atalho" href="#/pedidos">abrir o quadro</a>
         </div>
         <p class="cartao-nota">Situação do que está no quadro agora.</p>
@@ -299,7 +325,7 @@ function telaInicio() {
           ${SITUACOES.map((s) => `
             <a class="situacao" href="#/pedidos">
               <span class="situacao-num">${porSituacao[s.chave] || 0}</span>
-              <span class="situacao-nome">${s.nome}</span>
+              <span class="situacao-nome"><i class="g-ponto-cor" style="background:${s.cor}"></i>${s.nome}</span>
             </a>`).join('')}
         </div>
       </div>
