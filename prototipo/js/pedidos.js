@@ -14,6 +14,8 @@
  * POST /pedidos/:id/cancelar.
  */
 
+import { marca } from './marca.js?v=3dbbb419';
+
 const ORDEM = ['RECEBIDO', 'EM_PREPARO', 'PRONTO', 'ENTREGUE'];
 const FINAIS = ['ENTREGUE', 'CANCELADO'];
 
@@ -93,6 +95,7 @@ export function formatarTelefone(texto) {
 /** Troca os marcadores do modelo pelos dados do pedido. */
 export function montarMensagem(modelo, pedido) {
   const trocas = {
+    '{marca}': marca.nome,
     '{cliente}': pedido.cliente || '',
     '{total}': brl(totalDoPedido(pedido)),
     '{situacao}': rotuloSituacao(pedido.status),

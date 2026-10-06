@@ -1,4 +1,4 @@
-import { catalogoInicial, parametrosIniciais, vendas, HOJE } from './dados.js?v=9e4d4bf9';
+import { catalogoInicial, parametrosIniciais, vendas, HOJE } from './dados.js?v=5b32b114';
 import {
   PERIODOS, intervaloDoPeriodo, indicadoresDoPeriodo, serieMensal, gastosPorCategoria,
   faturamentoPorDiaDaSemana, produtosVendidos, destaqueDoPeriodo,
@@ -8,12 +8,13 @@ import { graficoFaturamentoLucro, graficoDiaDaSemana, barrasHorizontais, legenda
 import {
   telaPedidos, pedidosIniciais, aplicarAcaoNoPedido, validarPedido, criarPedido, totalDoPedido,
   ehFinal, telefoneValido, linkWhatsapp, montarMensagem, formatarTelefone, rotuloSituacao
-} from './pedidos.js?v=8efe0227';
+} from './pedidos.js?v=4b59ab57';
 import {
   resumoDaFicha, custoDoIngrediente, fatorDeCorrecao, precoPorQuilo,
   custoPorPorcao, precoSugerido, metaDeCmv, cmvReal,
   formatarMoeda, formatarPercentual, formatarPeso, lerMoeda, rendimentoEmQuilos
 } from './calculo.js?v=9da65f59';
+import { marca, nomeDaMarcaEmHtml, comNomeDaMarca } from './marca.js?v=3dbbb419';
 import {
   precoUnitario, totalDaCompra, avaliarCompra, aplicarCompra, descricaoDaCompra
 } from './compras.js?v=970983c1';
@@ -1629,7 +1630,8 @@ function telaConfig() {
       <div class="aviso aviso-neutro" style="margin-top:16px">${icone('info')}<div>
         <strong>Marcadores.</strong> O sistema troca cada um pelo dado do pedido na hora de abrir a conversa:
         <code>{cliente}</code> pelo nome, <code>{itens}</code> pela lista do pedido,
-        <code>{total}</code> pelo valor e <code>{situacao}</code> por recebido, em preparo, pronto para retirada, entregue ou cancelado.
+        <code>{total}</code> pelo valor, <code>{situacao}</code> por recebido, em preparo, pronto para retirada, entregue ou cancelado,
+        e <code>{marca}</code> pelo nome do negócio.
       </div></div>
     </section>
 
@@ -1758,7 +1760,7 @@ function renderizar() {
   };
   const render = telas[pagina] || telaInicio;
   document.getElementById('conteudo').innerHTML = render() + `
-    <p class="rodape-proto">Protótipo funcional do sistema do Maluzices. Os cálculos de custo, CMV e preço sugerido são reais; os dados são de exemplo e ficam só na memória do navegador, então recarregar a página volta ao estado inicial.</p>`;
+    <p class="rodape-proto">${esc(marca.rodape)}</p>`;
 
   // a compra nasce com uma linha pronta: ninguém abre a tela para não lançar nada
   if (document.getElementById('listaCompra')) {
@@ -2547,5 +2549,16 @@ document.addEventListener('mousemove', (evento) => {
   caixa.style.top = `${Math.min(window.innerHeight - 170, evento.clientY + 16)}px`;
 });
 
+/* A marca entra na casca da página uma vez, e não a cada renderização:
+   ela não muda enquanto o sistema está aberto. */
+function aplicarMarca() {
+  document.title = `${marca.nome} | Sistema`;
+  const nome = document.getElementById('marcaNome');
+  const slogan = document.getElementById('marcaSlogan');
+  if (nome) nome.innerHTML = nomeDaMarcaEmHtml();
+  if (slogan) slogan.textContent = marca.slogan.toUpperCase();
+}
+
+aplicarMarca();
 window.addEventListener('hashchange', renderizar);
 renderizar();
