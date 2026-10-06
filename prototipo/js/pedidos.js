@@ -14,7 +14,7 @@
  * POST /pedidos/:id/cancelar.
  */
 
-import { marca } from './marca.js?v=3dbbb419';
+import { marca } from './marca.js?v=6ab59098';
 
 const ORDEM = ['RECEBIDO', 'EM_PREPARO', 'PRONTO', 'ENTREGUE'];
 const FINAIS = ['ENTREGUE', 'CANCELADO'];

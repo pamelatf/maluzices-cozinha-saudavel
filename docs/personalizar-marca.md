@@ -16,9 +16,11 @@ Arquivo: `prototipo/js/marca.js`
 | Campo | O que é | Exemplo |
 | --- | --- | --- |
 | `nome` | Nome que aparece na barra lateral e no título da aba | `Maluzices` |
-| `destaque` | Letra do nome que vira desenho. Vazio para não trocar nenhuma | `i` |
-| `slogan` | Linha abaixo do nome, na barra lateral | `cozinha saudável` |
-| `simbolo` | O desenho que substitui a letra, em SVG | a colher |
+| `logo` | Caminho da imagem da logo. Quando preenchido, substitui o nome e o slogan em texto | `img/logo-oliva.png` |
+| `logoLargura` | Largura da logo na barra lateral, em pixels | `186` |
+| `destaque` | Só sem logo: letra do nome que vira desenho | `i` |
+| `slogan` | Linha abaixo do nome, quando não há logo | `cozinha saudável` |
+| `simbolo` | Só sem logo: o desenho que substitui a letra, em SVG | a colher |
 | `simboloViewBox` | A área do desenho | `0 0 12 26` |
 | `mensagemWhatsapp` | Texto que já vem escrito ao abrir a conversa | usa `{marca}` |
 | `rodape` | Linha do rodapé das telas | |
@@ -26,10 +28,17 @@ Arquivo: `prototipo/js/marca.js`
 **Cliente sem símbolo no logotipo:** deixe `destaque` e `simbolo` vazios. O
 nome aparece inteiro, em texto, e nada quebra.
 
-**Sobre o símbolo:** ele ocupa o lugar de uma letra, não de um ícone. Um
-desenho largo demais desalinha o nome. Se o cliente tiver uma logo completa em
-imagem, é melhor não usar esse campo e trocar o bloco `.marca` por um `<img>`
-em `index.html`.
+**Cliente com logo pronta:** ponha o arquivo em `prototipo/img/` e aponte
+`logo` para ele. A logo substitui o nome e o slogan: repetir o nome em texto
+embaixo de uma logo que já traz o nome é mostrar a mesma informação duas
+vezes, em dois desenhos diferentes.
+
+**Formato da logo:** peça o **SVG** à designer do cliente. Ele fica perfeito
+em qualquer tela e em qualquer tamanho. PNG serve, mas exporte com pelo menos
+três vezes a largura de exibição, senão borra em tela de alta densidade.
+
+**Cor da logo:** escolha a versão que contrasta com o fundo da barra lateral.
+Barra clara pede a versão escura da logo; barra escura pede a versão clara.
 
 ---
 
@@ -77,8 +86,10 @@ bloco. Trocar exige também trocar o endereço do Google Fonts em
 
 ## 3. Conferir antes de entregar
 
-- Abra todas as telas do menu. O nome do cliente aparece na barra lateral e
-  no título da aba.
+- Abra todas as telas do menu. A logo do cliente aparece na barra lateral e
+  o nome no título da aba.
+- Veja a barra lateral no celular: ela vira uma faixa no topo, e uma logo
+  larga demais empurra o menu para baixo.
 - Abra um pedido e clique no ícone do WhatsApp. A mensagem tem que citar o
   nome do cliente.
 - Olhe a tela inicial em tela larga e no celular.

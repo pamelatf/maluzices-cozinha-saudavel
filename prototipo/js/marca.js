@@ -18,9 +18,18 @@ export const marca = {
 
   slogan: 'cozinha saudável',
 
-  /* Desenho que substitui a letra em destaque. Vazio = sem substituição, e
-     o nome aparece inteiro, em texto. O viewBox é estreito de propósito:
-     o desenho ocupa o lugar de uma letra, não de um ícone. */
+  /* Logo em imagem. Quando preenchida, ela substitui o nome e o slogan em
+     texto: é a logo oficial do cliente, e não uma imitação feita em CSS.
+     `largura` é em pixels, na barra lateral.
+
+     O ideal é um SVG, que fica perfeito em qualquer tela. Este PNG saiu do
+     PDF do manual e está em 560px de largura, três vezes o tamanho de
+     exibição, para não borrar em tela de alta densidade. */
+  logo: 'img/logo-oliva.png',
+  logoLargura: 186,
+
+  /* Usados só quando não há logo em imagem: o nome vira texto e esta letra
+     vira o desenho abaixo. */
   simboloViewBox: '0 0 12 26',
   simbolo: '<ellipse cx="6" cy="5" rx="4" ry="4.5"></ellipse><path d="M6 10v15"></path>',
 
@@ -33,19 +42,31 @@ export const marca = {
         + 'volta ao estado inicial.'
 };
 
-/** O nome com a letra de destaque virando desenho, para a barra lateral. */
-export function nomeDaMarcaEmHtml() {
-  const { nome, destaque, simbolo, simboloViewBox } = marca;
-  if (!destaque || !simbolo) return nome;
+/**
+ * O bloco da marca na barra lateral.
+ *
+ * Com `logo` preenchida, é a imagem e nada mais: pôr o nome em texto embaixo
+ * de uma logo que já traz o nome é repetir a mesma informação duas vezes, em
+ * dois desenhos diferentes.
+ *
+ * Sem ela, o nome vira texto e a letra de destaque vira o desenho.
+ */
+export function marcaEmHtml() {
+  const { nome, slogan, logo, logoLargura, destaque, simbolo, simboloViewBox } = marca;
 
-  const corte = nome.indexOf(destaque);
-  if (corte < 0) return nome;
+  if (logo) {
+    return `<img src="${logo}" alt="${nome}${slogan ? ', ' + slogan : ''}" `
+         + `style="width:${logoLargura}px" class="marca-logo">`;
+  }
 
-  const desenho = `<svg class="colher-i" viewBox="${simboloViewBox}" aria-hidden="true">${simbolo}</svg>`;
-  return nome.slice(0, corte) + desenho + nome.slice(corte + destaque.length);
-}
+  const corte = destaque ? nome.indexOf(destaque) : -1;
+  const desenho = simbolo
+    ? `<svg class="colher-i" viewBox="${simboloViewBox}" aria-hidden="true">${simbolo}</svg>`
+    : '';
+  const escrito = corte >= 0 && desenho
+    ? nome.slice(0, corte) + desenho + nome.slice(corte + destaque.length)
+    : nome;
 
-/** Texto com {marca} resolvido, para não repetir o nome por aí. */
-export function comNomeDaMarca(texto) {
-  return String(texto).replace(/\{marca\}/g, marca.nome);
+  return `<div class="marca-nome">${escrito}</div>`
+       + (slogan ? `<div class="marca-tag">${slogan.toUpperCase()}</div>` : '');
 }

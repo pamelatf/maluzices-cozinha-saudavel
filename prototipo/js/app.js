@@ -1,4 +1,4 @@
-import { catalogoInicial, parametrosIniciais, vendas, HOJE } from './dados.js?v=5b32b114';
+import { catalogoInicial, parametrosIniciais, vendas, HOJE } from './dados.js?v=9f6d5dc1';
 import {
   PERIODOS, intervaloDoPeriodo, indicadoresDoPeriodo, serieMensal, gastosPorCategoria,
   faturamentoPorDiaDaSemana, produtosVendidos, destaqueDoPeriodo,
@@ -8,13 +8,13 @@ import { graficoFaturamentoLucro, graficoDiaDaSemana, barrasHorizontais, legenda
 import {
   telaPedidos, pedidosIniciais, aplicarAcaoNoPedido, validarPedido, criarPedido, totalDoPedido,
   ehFinal, telefoneValido, linkWhatsapp, montarMensagem, formatarTelefone, rotuloSituacao
-} from './pedidos.js?v=4b59ab57';
+} from './pedidos.js?v=805f8ace';
 import {
   resumoDaFicha, custoDoIngrediente, fatorDeCorrecao, precoPorQuilo,
   custoPorPorcao, precoSugerido, metaDeCmv, cmvReal,
   formatarMoeda, formatarPercentual, formatarPeso, lerMoeda, rendimentoEmQuilos
 } from './calculo.js?v=9da65f59';
-import { marca, nomeDaMarcaEmHtml, comNomeDaMarca } from './marca.js?v=3dbbb419';
+import { marca, marcaEmHtml } from './marca.js?v=6ab59098';
 import {
   precoUnitario, totalDaCompra, avaliarCompra, aplicarCompra, descricaoDaCompra
 } from './compras.js?v=970983c1';
@@ -2553,10 +2553,8 @@ document.addEventListener('mousemove', (evento) => {
    ela não muda enquanto o sistema está aberto. */
 function aplicarMarca() {
   document.title = `${marca.nome} | Sistema`;
-  const nome = document.getElementById('marcaNome');
-  const slogan = document.getElementById('marcaSlogan');
-  if (nome) nome.innerHTML = nomeDaMarcaEmHtml();
-  if (slogan) slogan.textContent = marca.slogan.toUpperCase();
+  const alvo = document.getElementById('marca');
+  if (alvo) alvo.innerHTML = marcaEmHtml();
 }
 
 aplicarMarca();
