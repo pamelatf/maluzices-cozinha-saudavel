@@ -9,7 +9,7 @@
  * As cores saem das variáveis da folha de estilo, para o gráfico seguir a
  * identidade sem repetir código hexadecimal por aqui.
  */
-import { formatarMoeda, formatarPercentual } from './calculo.js';
+import { formatarMoeda, formatarPercentual } from './calculo.js?v=9da65f59';
 
 const esc = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 

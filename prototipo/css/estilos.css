@@ -7,52 +7,58 @@
    porque foi escrito para embalagem e fachada, não para tela.
    ============================================================ */
 :root{
-  /* --- as quatro cores do manual --- */
-  --oliva:        #454027;  /* oliva escuro */
-  --verde:        #786847;  /* oliva médio */
-  --areia:        #D7BA98;  /* areia */
-  --terracota:    #AB5F44;  /* terracota */
+  /* --- a paleta, uma fonte de verdade para o protótipo inteiro --- */
+  --verde:         #4F8A5B;  /* ações, navegação ativa, positivo */
+  --verde-escuro:  #285C46;  /* títulos de destaque e identidade */
+  --verde-suave:   #DCEBDD;  /* bordas, trilhos, superfícies de apoio */
+  --verde-fundo:   #F2F7F1;  /* áreas secundárias */
+  --creme:         #F7F4EC;  /* áreas secundárias quentes */
+  --fundo:         #FCFBF8;  /* fundo geral da aplicação */
+  --branco:        #FFFFFF;  /* cartões e áreas de conteúdo */
 
-  /* --- tons de apoio, derivados --- */
-  --creme:        #F4F6EA;
-  --creme-fundo:  #EFF1E3;
-  --creme-col:    #E9EBD9;
-  --branco:       #FBFCF5;
-  --oliva-claro:  #5E5738;
-  --taupe:        #877057;
-  --taupe-claro:  #A08B72;
-  --terracota-cl: #C2795E;
-  --areia-fria:   #DCD9C6;  /* o cinza-areia das bordas e trilhos */
-  --pedra:        #8E8D7D;
-  --texto:        #2E2A1C;
-  --texto-suave:  #6B6757;
+  --texto:         #182B38;
+  --texto-suave:   #607080;
 
-  /* Fontes do manual: Quicksand nos títulos. O corpo também vai nela,
-     para o sistema ter uma voz só. A serifada do manual é a Minion Pro,
-     que é da Adobe e não roda na web sem licença; no lugar dela entra a
-     Source Serif 4, do mesmo desenhista e da mesma fundição, usada só
-     onde o manual usa serifada: assinatura e slogan. */
+  --laranja:       #E89A45;  /* atenção, gastos, destaque financeiro */
+  --laranja-suave: #FFF1DE;
+
+  /* estados */
+  --sucesso:    #4F8A5B;
+  --informacao: #4D7891;
+  --atencao:    #E89A45;
+  --erro:       #C95C5C;
+  --neutro:     #607080;
+
+  /* Apelidos antigos, mantidos para o CSS não virar um campo minado de
+     renomeação. Cada um aponta para a cor da paleta que faz o papel dele. */
+  --oliva:        var(--verde-escuro);
+  --oliva-claro:  var(--verde);
+  --creme-fundo:  var(--fundo);
+  --creme-col:    var(--verde-fundo);
+  --areia:        var(--verde-suave);
+  --areia-fria:   var(--verde-suave);
+  --terracota:    var(--laranja);
+  --terracota-cl: var(--laranja);
+  --taupe:        var(--neutro);
+  --taupe-claro:  var(--verde-suave);
+  --pedra:        var(--texto-suave);
+
+  /* Gráficos: só a marca e suas variações, como manda a regra. Verde
+     escuro no que entra, laranja no que sai, verde principal no que sobra. */
+  --g-faturamento: var(--verde-escuro);
+  --g-gastos:      var(--laranja);
+  --g-lucro:       var(--verde);
+  --g-barra:       var(--verde);
+  --g-barra-forte: var(--verde-escuro);
+  --g-trilho:      var(--verde-suave);
+
+  /* Fontes do manual: Quicksand nos títulos e no corpo. A serifada do
+     manual é Minion Pro, que é da Adobe e não roda na web sem licença; no
+     lugar entra Source Serif 4, do mesmo desenhista e da mesma fundição,
+     usada só onde o manual usa serifada, que é o slogan. */
   --fonte-titulo: 'Quicksand', system-ui, sans-serif;
   --fonte-texto:  'Quicksand', system-ui, -apple-system, sans-serif;
   --fonte-slogan: 'Source Serif 4', Georgia, serif;
-
-  /* Gráficos: cores da referência, e só os gráficos. O resto do sistema
-     segue o manual de marca.
-
-     O motivo é prático. As quatro cores do manual são todas terrosas e de
-     claridade parecida, o que é ótimo em embalagem e ruim em gráfico de três
-     séries: as linhas encostam umas nas outras e deixam de ser legíveis.
-     O verde e o laranja daqui se separam de longe.
-
-     A referência só tem duas séries, então o terceiro tom é escolha nossa:
-     faturamento e lucro ficam no mesmo verde, em claridades bem diferentes,
-     porque na referência verde é o que entra e laranja é o que sai. */
-  --g-faturamento: #2C6B4E;  /* verde escuro */
-  --g-gastos:      #E08A3C;  /* laranja */
-  --g-lucro:       #5FAE84;  /* verde claro */
-  --g-barra:       #4A8A68;  /* barras e listas */
-  --g-barra-forte: #2C6B4E;  /* o item em destaque */
-  --g-trilho:      #EAEAE6;  /* o fundo da barra */
 
   /* A altura mínima do cabeçalho mantém os gráficos de uma linha começando
      na mesma altura. A altura do gráfico em si não é travada: ela sai da
@@ -62,7 +68,7 @@
 
   --raio:  14px;
   --raio-s: 9px;
-  --sombra: 0 1px 2px rgba(70,64,40,.06), 0 6px 18px rgba(70,64,40,.07);
+  --sombra: 0 1px 2px rgba(24,43,56,.05), 0 6px 18px rgba(24,43,56,.06);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -76,9 +82,9 @@ body{
 }
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 input,select{font-family:inherit;color:inherit}
-a{color:var(--terracota)}
+a{color:var(--verde)}
 a:hover{color:var(--oliva)}
-:focus-visible{outline:2px solid var(--terracota);outline-offset:2px;border-radius:4px}
+:focus-visible{outline:2px solid var(--verde);outline-offset:2px;border-radius:4px}
 .icone{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .icone-cheio{fill:currentColor;stroke:none}
 
@@ -93,14 +99,14 @@ a:hover{color:var(--oliva)}
 .marca{display:flex;flex-direction:column;gap:2px;line-height:1;padding-left:6px}
 .marca-nome{display:flex;align-items:flex-end;font-size:24px;font-weight:300;letter-spacing:.2em}
 .marca-nome .colher-i{width:11px;height:24px;margin:0 .1em -1px .04em;stroke:var(--terracota-cl);fill:none;stroke-width:1.6;stroke-linecap:round}
-.marca-tag{font-family:var(--fonte-slogan);font-size:13px;letter-spacing:.14em;color:#C9C6AE}
+.marca-tag{font-family:var(--fonte-slogan);font-size:13px;letter-spacing:.14em;color:var(--verde-suave)}
 
 .menu{display:flex;flex-direction:column;gap:3px}
 .menu div{display:flex;flex-direction:column;gap:3px}
 .menu a{
   display:flex;align-items:center;gap:11px;
   padding:11px 14px;border-radius:var(--raio-s);
-  color:#D7D4BE;text-decoration:none;font-size:15px;
+  color:var(--verde-suave);text-decoration:none;font-size:15px;
 }
 .menu a:hover{background:rgba(255,255,255,.07);color:var(--creme)}
 .menu a.ativo{background:var(--oliva-claro);color:var(--creme);font-weight:400}
@@ -133,14 +139,14 @@ th{
   text-align:left;font-weight:400;font-size:13px;color:var(--texto-suave);
   padding:10px 10px 10px 0;border-bottom:1px solid var(--areia-fria);letter-spacing:.03em;
 }
-td{padding:12px 10px 12px 0;border-bottom:1px solid #EDEDE0;vertical-align:middle}
+td{padding:12px 10px 12px 0;border-bottom:1px solid var(--verde-suave);vertical-align:middle}
 tr:last-child td{border-bottom:none}
 .num{text-align:right}
-.calculada{background:#F2F3E6}
-th.calculada{background:#EAEBDB}
+.calculada{background:var(--verde-fundo)}
+th.calculada{background:var(--verde-suave)}
 .forte{font-weight:500}
 .suave{color:var(--texto-suave)}
-.linha-marcada{background:#F3F5E8}
+.linha-marcada{background:var(--verde-fundo)}
 
 /* ---------- formulário ---------- */
 .campo{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--texto-suave)}
@@ -167,16 +173,16 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 /* ---------- avisos e selos ---------- */
 .aviso{display:flex;gap:12px;align-items:flex-start;padding:16px 18px;border-radius:var(--raio);font-size:15px;line-height:1.5}
 .aviso .icone{font-size:20px;margin-top:1px}
-.aviso-atencao{background:#F6EDE4;border:1px solid #E6D2C2;color:#6B4330}
+.aviso-atencao{background:var(--laranja-suave);border:1px solid var(--laranja);color:var(--texto)}
 .aviso-neutro{background:var(--creme-col);border:1px solid var(--areia-fria);color:var(--texto)}
 
 .selo{display:inline-block;font-size:12.5px;padding:3px 10px;border-radius:99px;white-space:nowrap}
-.selo-ok{background:#E4E9D6;color:#47502D}
-.selo-alerta{background:#F2E2D6;color:#7A4729}
+.selo-ok{background:var(--verde-suave);color:var(--verde-escuro)}
+.selo-alerta{background:var(--laranja-suave);color:var(--texto)}
 .selo-neutro{background:var(--creme-col);color:var(--texto-suave)}
 
 .valor-ok{color:var(--verde);font-weight:400}
-.valor-alerta{color:var(--terracota);font-weight:400}
+.valor-alerta{color:var(--atencao);font-weight:400}
 
 /* ---------- gráficos simples ---------- */
 .barras{display:flex;align-items:flex-end;gap:10px;height:190px;margin-top:20px}
@@ -216,7 +222,7 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .cartao-corpo{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:14px}
 .indicador-variacao{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;font-size:13px;margin-top:8px}
 .variacao-boa{color:var(--verde);font-weight:400}
-.variacao-ruim{color:var(--terracota);font-weight:400}
+.variacao-ruim{color:var(--erro);font-weight:400}
 .sem-base{color:var(--pedra);font-size:12.5px}
 .indicador-link{display:block;text-decoration:none;color:inherit;transition:border-color .16s,transform .16s}
 .indicador-link:hover{border-color:var(--taupe-claro);transform:translateY(-1px);color:inherit}
@@ -236,9 +242,9 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .ind-tendencia{width:62px;height:22px;flex:none;opacity:.75}
 .ind-tendencia path{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-.tom-verde .ind-icone{background:#E4F0E8;color:var(--g-faturamento)}
+.tom-verde .ind-icone{background:var(--verde-suave);color:var(--g-faturamento)}
 .tom-verde .ind-tendencia path{stroke:var(--g-lucro)}
-.tom-terra .ind-icone{background:#FBEEDF;color:#B8671F}
+.tom-terra .ind-icone{background:var(--laranja-suave);color:var(--laranja)}
 .tom-terra .ind-tendencia path{stroke:var(--g-gastos)}
 .tom-neutro .ind-icone{background:var(--creme-col);color:var(--texto-suave)}
 .tom-neutro .ind-tendencia path{stroke:var(--pedra)}
@@ -299,15 +305,15 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .destaque-rotulo{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--texto-suave);margin-bottom:5px}
 .destaque strong{font-family:var(--fonte-titulo);font-size:21px;font-weight:500;display:block}
 .destaque p{font-size:14.5px;color:var(--texto-suave);margin-top:5px;max-width:760px}
-.destaque-atencao{background:#F6EDE4;border:1px solid var(--areia);color:#6B4330}
-.destaque-bom{background:#E8EDDC;border:1px solid #C8C9AE;color:var(--oliva)}
+.destaque-atencao{background:var(--laranja-suave);border:1px solid var(--areia);color:var(--texto)}
+.destaque-bom{background:var(--verde-fundo);border:1px solid var(--verde-suave);color:var(--oliva)}
 .destaque-neutro{background:var(--creme-col);border:1px solid var(--areia-fria)}
 
 /* dica dos gráficos */
 .dica-grafico{position:fixed;pointer-events:none;opacity:0;transition:opacity .12s;z-index:70;
   background:var(--oliva);color:var(--creme);border-radius:var(--raio-s);padding:11px 13px;
   font-size:13px;line-height:1.5;box-shadow:0 8px 24px rgba(70,64,40,.22);min-width:200px}
-.dica-grafico b{font-weight:400;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:#C9C6AE}
+.dica-grafico b{font-weight:400;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--verde-suave)}
 .dica-grafico .l{display:flex;justify-content:space-between;gap:18px;margin-top:5px}
 .dica-grafico i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:7px}
 
@@ -324,7 +330,7 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .acao-icone{width:32px;height:32px;border-radius:var(--raio-s);display:inline-flex;align-items:center;justify-content:center;color:var(--texto-suave)}
 .acao-icone .icone{font-size:16px}
 .acao-icone:hover{background:var(--creme-col);color:var(--texto)}
-.acao-icone.perigo:hover{background:#F6EDE4;color:#9C5C42}
+.acao-icone.perigo:hover{background:var(--laranja-suave);color:var(--erro)}
 
 /* ---------- cartão de pedidos ----------
    Mesmo recorte da referência: o total de um lado, as situações do outro,
@@ -401,8 +407,8 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .diag-campos-duplos .campo-inteiro{grid-column:1/-1}
 @media (max-width:620px){.diag-campos-duplos{grid-template-columns:1fr}}
 .diag-acoes{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
-.diag-acoes .botao-perigo{background:var(--terracota);color:var(--creme)}
-.diag-acoes .botao-perigo:hover{background:var(--terracota-cl)}
+.diag-acoes .botao-perigo{background:var(--erro);color:var(--branco)}
+.diag-acoes .botao-perigo:hover{background:#B54F4F}
 
 /* ---------- abas ---------- */
 .abas{display:flex;gap:4px;border-bottom:1px solid var(--areia-fria)}

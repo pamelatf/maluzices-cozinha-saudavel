@@ -2,7 +2,7 @@
    com os do modulo financeiro, que reusa nomes como .cartao e .aviso.
    Vieram do antigo web/painel-maluzices.html sem alteracao visual. */
 
-.pedidos-escopo :focus-visible {outline:2px solid var(--terracota);outline-offset:2px;border-radius:4px}
+.pedidos-escopo :focus-visible {outline:2px solid var(--verde);outline-offset:2px;border-radius:4px}
 .pedidos-escopo .icone {width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .pedidos-escopo .topo {background:var(--oliva);
   color:var(--creme);
@@ -14,16 +14,16 @@
 .pedidos-escopo .marca-nome .colher-i {width:12px;height:26px;margin:0 .10em -1px .04em;
   stroke:var(--terracota-cl);fill:none;stroke-width:1.6;stroke-linecap:round;}
 .pedidos-escopo .marca-tag {font-family:var(--fonte-titulo);
-  font-size:13.5px;letter-spacing:.16em;color:#C9C6AE;
+  font-size:13.5px;letter-spacing:.16em;color:var(--verde-suave);
   align-self:flex-end;position:relative;top:-2px;}
-.pedidos-escopo .marca-tag::before {content:"";display:inline-block;width:44px;height:1px;background:#8E8A6C;vertical-align:middle;margin-right:9px}
+.pedidos-escopo .marca-tag::before {content:"";display:inline-block;width:44px;height:1px;background:var(--verde-suave);vertical-align:middle;margin-right:9px}
 .pedidos-escopo .topo-dir {margin-left:auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.pedidos-escopo .data-hoje {font-size:13px;letter-spacing:.10em;text-transform:uppercase;color:#C9C6AE}
-.pedidos-escopo .voltar-proto {font-size:14px;color:#D7D4BE;text-decoration:none;
+.pedidos-escopo .data-hoje {font-size:13px;letter-spacing:.10em;text-transform:uppercase;color:var(--verde-suave)}
+.pedidos-escopo .voltar-proto {font-size:14px;color:var(--verde-suave);text-decoration:none;
   padding:8px 14px;border:1px solid rgba(255,255,255,.22);border-radius:999px;
   transition:background .18s,color .18s;}
 .pedidos-escopo .voltar-proto:hover {background:rgba(255,255,255,.1);color:var(--creme)}
-.pedidos-escopo .btn-novo {background:var(--terracota);color:#FFF6EE;
+.pedidos-escopo .btn-novo {background:var(--verde);color:var(--branco);
   padding:11px 20px;border-radius:999px;
   font-size:14px;font-weight:400;letter-spacing:.06em;
   display:flex;align-items:center;gap:9px;
@@ -47,34 +47,34 @@
 .pedidos-escopo .col-topo .icone {width:17px;height:17px}
 .pedidos-escopo .col-nome {font-size:13px;letter-spacing:.13em;text-transform:uppercase;font-weight:400}
 .pedidos-escopo .col-cont {margin-left:auto;min-width:24px;height:22px;padding:0 8px;border-radius:999px;
-  display:grid;place-items:center;font-size:12.5px;font-weight:400;color:#FBFCF5;}
-.pedidos-escopo .coluna[data-status="RECEBIDO"]   .col-topo {color:var(--taupe)}
-.pedidos-escopo .coluna[data-status="RECEBIDO"]   .col-cont {background:var(--taupe)}
-.pedidos-escopo .coluna[data-status="EM_PREPARO"] .col-topo {color:var(--terracota)}
-.pedidos-escopo .coluna[data-status="EM_PREPARO"] .col-cont {background:var(--terracota)}
-.pedidos-escopo .coluna[data-status="PRONTO"]     .col-topo {color:var(--verde)}
-.pedidos-escopo .coluna[data-status="PRONTO"]     .col-cont {background:var(--verde)}
-.pedidos-escopo .coluna[data-status="ENTREGUE"]   .col-topo {color:var(--oliva)}
-.pedidos-escopo .coluna[data-status="ENTREGUE"]   .col-cont {background:var(--oliva)}
-.pedidos-escopo .coluna[data-status="CANCELADO"]  .col-topo {color:var(--pedra)}
-.pedidos-escopo .coluna[data-status="CANCELADO"]  .col-cont {background:var(--pedra)}
-.pedidos-escopo .coluna[data-status="CANCELADO"]  {background:#E7E7DC}
+  display:grid;place-items:center;font-size:12.5px;font-weight:400;color:var(--branco);}
+.pedidos-escopo .coluna[data-status="RECEBIDO"]   .col-topo {color:var(--neutro)}
+.pedidos-escopo .coluna[data-status="RECEBIDO"]   .col-cont {background:var(--neutro)}
+.pedidos-escopo .coluna[data-status="EM_PREPARO"] .col-topo {color:var(--informacao)}
+.pedidos-escopo .coluna[data-status="EM_PREPARO"] .col-cont {background:var(--informacao)}
+.pedidos-escopo .coluna[data-status="PRONTO"]     .col-topo {color:var(--atencao)}
+.pedidos-escopo .coluna[data-status="PRONTO"]     .col-cont {background:var(--atencao)}
+.pedidos-escopo .coluna[data-status="ENTREGUE"]   .col-topo {color:var(--sucesso)}
+.pedidos-escopo .coluna[data-status="ENTREGUE"]   .col-cont {background:var(--sucesso)}
+.pedidos-escopo .coluna[data-status="CANCELADO"]  .col-topo {color:var(--erro)}
+.pedidos-escopo .coluna[data-status="CANCELADO"]  .col-cont {background:var(--erro)}
+.pedidos-escopo .coluna[data-status="CANCELADO"]  {background:var(--verde-fundo)}
 .pedidos-escopo .lista {display:flex;flex-direction:column;gap:11px;min-height:40px}
 .pedidos-escopo .cartao {background:var(--branco);border:1px solid var(--areia-fria);border-radius:var(--raio-s);
   padding:13px 14px 11px;box-shadow:var(--sombra);
   border-left:3px solid var(--areia-fria);
   animation:entra .26s ease both;}
 
-@keyframes entra{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}.pedidos-escopo .coluna[data-status="RECEBIDO"]   .cartao {border-left-color:var(--taupe)}
-.pedidos-escopo .coluna[data-status="EM_PREPARO"] .cartao {border-left-color:var(--terracota)}
-.pedidos-escopo .coluna[data-status="PRONTO"]     .cartao {border-left-color:var(--verde)}
-.pedidos-escopo .coluna[data-status="ENTREGUE"]   .cartao {border-left-color:var(--oliva);opacity:.82}
-.pedidos-escopo .coluna[data-status="CANCELADO"]  .cartao {border-left-color:var(--pedra);opacity:.7}
+@keyframes entra{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}.pedidos-escopo .coluna[data-status="RECEBIDO"]   .cartao {border-left-color:var(--neutro)}
+.pedidos-escopo .coluna[data-status="EM_PREPARO"] .cartao {border-left-color:var(--informacao)}
+.pedidos-escopo .coluna[data-status="PRONTO"]     .cartao {border-left-color:var(--atencao)}
+.pedidos-escopo .coluna[data-status="ENTREGUE"]   .cartao {border-left-color:var(--sucesso);opacity:.82}
+.pedidos-escopo .coluna[data-status="CANCELADO"]  .cartao {border-left-color:var(--erro);opacity:.7}
 .pedidos-escopo .coluna[data-status="CANCELADO"]  .cartao .itens,
-.pedidos-escopo .coluna[data-status="CANCELADO"]  .cartao .total {text-decoration:line-through;text-decoration-color:var(--pedra)}
+.pedidos-escopo .coluna[data-status="CANCELADO"]  .cartao .total {text-decoration:line-through;text-decoration-color:var(--erro)}
 .pedidos-escopo .cartao {cursor:pointer;transition:border-color .16s, box-shadow .16s, transform .16s}
 .pedidos-escopo .cartao:hover {border-color:var(--taupe-claro);transform:translateY(-1px)}
-.pedidos-escopo .cartao:focus-visible {outline:2px solid var(--terracota);outline-offset:2px}
+.pedidos-escopo .cartao:focus-visible {outline:2px solid var(--verde);outline-offset:2px}
 .pedidos-escopo .cartao-topo {display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
 .pedidos-escopo .cliente {font-size:15.5px;font-weight:400;color:var(--oliva);letter-spacing:.01em}
 .pedidos-escopo .hora {margin-left:auto;font-size:11.5px;color:var(--pedra);white-space:nowrap}
@@ -98,9 +98,9 @@
 .pedidos-escopo .acao .icone {width:13px;height:13px}
 .pedidos-escopo .acao:hover {background:var(--creme-col);color:var(--oliva)}
 .pedidos-escopo .acao.principal {background:var(--oliva);border-color:var(--oliva);color:var(--creme)}
-.pedidos-escopo .acao.principal:hover {background:var(--oliva-claro);color:#FFF}
+.pedidos-escopo .acao.principal:hover {background:var(--oliva-claro);color:var(--branco)}
 .pedidos-escopo .acao.destrutiva {color:var(--terracota);border-color:transparent;background:transparent}
-.pedidos-escopo .acao.destrutiva:hover {background:#F5E6E0;border-color:var(--terracota);color:var(--terracota)}
+.pedidos-escopo .acao.destrutiva:hover {background:var(--laranja-suave);border-color:var(--terracota);color:var(--terracota)}
 .pedidos-escopo .acao:disabled {opacity:.35;cursor:not-allowed}
 .pedidos-escopo .concluido {margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--verde);letter-spacing:.04em}
 .pedidos-escopo .cancelado {margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--pedra);letter-spacing:.04em}
@@ -115,13 +115,13 @@
 .pedidos-escopo .zap-icone {width:32px;height:32px;border-radius:8px;display:grid;place-items:center;
   text-decoration:none;transition:.16s}
 .pedidos-escopo .zap-icone img {width:21px;height:21px;display:block}
-.pedidos-escopo a.zap-icone:hover {background:#E6F4E4}
+.pedidos-escopo a.zap-icone:hover {background:var(--verde-suave)}
 .pedidos-escopo .zap-icone.inativo {cursor:not-allowed}
 .pedidos-escopo .zap-icone.inativo img {filter:grayscale(1);opacity:.3}
 
 .pedidos-escopo .zap {display:inline-grid;place-items:center;width:28px;height:28px;
   text-decoration:none;border-radius:8px;transition:.16s}
-.pedidos-escopo .zap:hover {background:#E6F4E4}
+.pedidos-escopo .zap:hover {background:var(--verde-suave)}
 .pedidos-escopo .zap img {width:19px;height:19px;display:block}
 .pedidos-escopo .cartao-base .zap {margin-left:auto}
 .pedidos-escopo .dupla {display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -139,7 +139,7 @@
 @keyframes sobe{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}.pedidos-escopo .modal-topo {background:var(--oliva);color:var(--creme);padding:16px 22px;display:flex;align-items:center;gap:11px}
 .pedidos-escopo .modal-topo h2 {font-size:16px;font-weight:300;letter-spacing:.11em;text-transform:uppercase}
 .pedidos-escopo .modal-topo .icone {width:18px;height:18px;color:var(--terracota-cl)}
-.pedidos-escopo .fechar {margin-left:auto;color:#C9C6AE}
+.pedidos-escopo .fechar {margin-left:auto;color:var(--verde-suave)}
 .pedidos-escopo .fechar .icone {width:17px;height:17px}
 .pedidos-escopo .modal-corpo {padding:20px 22px 8px;display:flex;flex-direction:column;gap:14px}
 .pedidos-escopo label {display:block;font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--texto-suave);margin-bottom:6px}
@@ -159,7 +159,7 @@
 .pedidos-escopo .add-item .icone {width:13px;height:13px;stroke-width:1.8}
 .pedidos-escopo .cabec-itens {display:grid;grid-template-columns:1fr 62px 86px 30px;gap:8px;margin-bottom:5px}
 .pedidos-escopo .cabec-itens span {font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;color:var(--pedra)}
-.pedidos-escopo .aviso {font-size:12.5px;color:var(--terracota);background:#F7EBE4;border-radius:8px;
+.pedidos-escopo .aviso {font-size:12.5px;color:var(--terracota);background:var(--laranja-suave);border-radius:8px;
   padding:8px 11px;display:none;}
 .pedidos-escopo .aviso.visivel {display:block}
 .pedidos-escopo .modal-base {padding:14px 22px 20px;display:flex;align-items:center;gap:10px;
@@ -168,7 +168,7 @@
 .pedidos-escopo .total-previa span {font-size:11.5px;letter-spacing:.10em;text-transform:uppercase;color:var(--texto-suave);margin-right:7px}
 .pedidos-escopo .btn-secundario {margin-left:auto;padding:10px 16px;border-radius:999px;font-size:13.5px;color:var(--texto-suave)}
 .pedidos-escopo .btn-secundario:hover {color:var(--oliva)}
-.pedidos-escopo .btn-primario {background:var(--terracota);color:#FFF6EE;padding:10px 22px;border-radius:999px;
+.pedidos-escopo .btn-primario {background:var(--verde);color:var(--branco);padding:10px 22px;border-radius:999px;
   font-size:13.5px;letter-spacing:.05em;transition:background .18s;}
 .pedidos-escopo .btn-primario:hover {background:var(--terracota-cl)}
 .pedidos-escopo .rodape {text-align:center;padding:0 20px 30px;font-size:12px;color:var(--pedra);

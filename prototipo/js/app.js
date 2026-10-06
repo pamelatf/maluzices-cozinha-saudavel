@@ -1,22 +1,22 @@
-import { catalogoInicial, parametrosIniciais, vendas, HOJE } from './dados.js';
+import { catalogoInicial, parametrosIniciais, vendas, HOJE } from './dados.js?v=9e4d4bf9';
 import {
   PERIODOS, intervaloDoPeriodo, indicadoresDoPeriodo, serieMensal, gastosPorCategoria,
   faturamentoPorDiaDaSemana, produtosVendidos, destaqueDoPeriodo,
   vendasDoIntervalo, custosDoIntervalo
-} from './indicadores.js';
-import { graficoFaturamentoLucro, graficoDiaDaSemana, barrasHorizontais, legenda } from './graficos.js';
+} from './indicadores.js?v=dc209be6';
+import { graficoFaturamentoLucro, graficoDiaDaSemana, barrasHorizontais, legenda } from './graficos.js?v=dcd0d4a1';
 import {
   telaPedidos, pedidosIniciais, aplicarAcaoNoPedido, validarPedido, criarPedido, totalDoPedido,
   ehFinal, telefoneValido, linkWhatsapp, montarMensagem, formatarTelefone, rotuloSituacao
-} from './pedidos.js';
+} from './pedidos.js?v=8efe0227';
 import {
   resumoDaFicha, custoDoIngrediente, fatorDeCorrecao, precoPorQuilo,
   custoPorPorcao, precoSugerido, metaDeCmv, cmvReal,
   formatarMoeda, formatarPercentual, formatarPeso, lerMoeda, rendimentoEmQuilos
-} from './calculo.js';
+} from './calculo.js?v=9da65f59';
 import {
   precoUnitario, totalDaCompra, avaliarCompra, aplicarCompra, descricaoDaCompra
-} from './compras.js';
+} from './compras.js?v=970983c1';
 
 /* ------------------------------------------------------------------
    Estado em memória. Recarregar a página volta aos dados de exemplo.
@@ -258,11 +258,11 @@ function telaInicio() {
   // espaço pequeno, e os tons terrosos do quadro ficam parecidos demais nesse
   // tamanho.
   const SITUACOES = [
-    { chave: 'RECEBIDO', nome: 'Recebidos', cor: '#A3A39A' },
-    { chave: 'EM_PREPARO', nome: 'Em preparo', cor: '#3B6FD4' },
-    { chave: 'PRONTO', nome: 'Prontos', cor: '#E08A3C' },
-    { chave: 'ENTREGUE', nome: 'Entregues', cor: '#2C6B4E' },
-    { chave: 'CANCELADO', nome: 'Cancelados', cor: '#D14F4F' }
+    { chave: 'RECEBIDO', nome: 'Recebidos', cor: 'var(--neutro)' },
+    { chave: 'EM_PREPARO', nome: 'Em preparo', cor: 'var(--informacao)' },
+    { chave: 'PRONTO', nome: 'Prontos', cor: 'var(--atencao)' },
+    { chave: 'ENTREGUE', nome: 'Entregues', cor: 'var(--sucesso)' },
+    { chave: 'CANCELADO', nome: 'Cancelados', cor: 'var(--erro)' }
   ];
 
   const topQuantidade = produtos.porQuantidade[0];
@@ -351,7 +351,7 @@ function telaInicio() {
           )}
         </div>
         ${topQuantidade && topLucro && topQuantidade.fichaId !== topLucro.fichaId
-          ? `<p class="cartao-nota" style="margin-top:14px;padding-top:12px;border-top:1px solid #EDEDE0">
+          ? `<p class="cartao-nota" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--verde-suave)">
                Quem mais gerou lucro no período foi <strong>${esc(topLucro.nome)}</strong>, com ${formatarMoeda(topLucro.lucro)}, e não o mais vendido.
              </p>`
           : ''}
@@ -583,10 +583,10 @@ function telaFicha(id) {
     : `<div class="cartao" style="background:var(--oliva);color:var(--creme);border-color:var(--oliva)">
          <h2 class="cartao-titulo" style="color:var(--creme)">Preço</h2>
          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.15)">
-           <span style="color:#C9C6AE">Preço sugerido</span>
+           <span style="color:var(--texto-suave)">Preço sugerido</span>
            <span data-vivo="precoSugerido" style="font-family:'Cormorant Garamond',serif;font-size:28px">${formatarMoeda(r.precoSugerido)}</span>
          </div>
-         <label class="campo" style="color:#C9C6AE;margin-top:16px">
+         <label class="campo" style="color:var(--texto-suave);margin-top:16px">
            Preço praticado
            <input type="text" value="${formatarMoeda(ficha.precoPraticado)}" data-acao="preco-praticado" data-ficha="${ficha.id}" style="background:rgba(0,0,0,.18);border-color:rgba(255,255,255,.2);color:var(--creme);font-size:21px;min-height:48px">
          </label>
@@ -646,10 +646,10 @@ function telaFicha(id) {
       <div class="cartao">
         <h2 class="cartao-titulo">Custo</h2>
         <div style="margin-top:12px">
-          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EDEDE0"><span class="suave">Custo da receita inteira</span><span data-vivo="custoReceita">${formatarMoeda(r.custoReceita)}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EDEDE0"><span class="suave">Peso total</span><span data-vivo="pesoTotal">${formatarPeso(r.pesoTotal)}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EDEDE0"><span class="suave">Perda de produção</span><span>${formatarPercentual(estado.parametros.perdaProducao, 0)}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #EDEDE0"><span class="suave">Embalagem por porção</span><span>${formatarMoeda(estado.parametros.custoEmbalagem)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--verde-suave)"><span class="suave">Custo da receita inteira</span><span data-vivo="custoReceita">${formatarMoeda(r.custoReceita)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--verde-suave)"><span class="suave">Peso total</span><span data-vivo="pesoTotal">${formatarPeso(r.pesoTotal)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--verde-suave)"><span class="suave">Perda de produção</span><span>${formatarPercentual(estado.parametros.perdaProducao, 0)}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--verde-suave)"><span class="suave">Embalagem por porção</span><span>${formatarMoeda(estado.parametros.custoEmbalagem)}</span></div>
           <div style="display:flex;justify-content:space-between;padding:14px 0 0;font-size:17px"><strong>Custo por porção</strong><strong data-vivo="custoPorcao">${formatarMoeda(r.custoPorcao)}</strong></div>
         </div>
       </div>
@@ -2537,7 +2537,7 @@ document.addEventListener('mousemove', (evento) => {
   }
 
   caixa.innerHTML = `<b>${esc(m.rotulo)}${m.emAndamento ? ' · em andamento' : ''}</b>
-    <div class="l"><span><i style="background:#C9C6AE"></i>Faturamento</span><span>${formatarMoeda(m.faturamento)}</span></div>
+    <div class="l"><span><i style="background:var(--g-faturamento)"></i>Faturamento</span><span>${formatarMoeda(m.faturamento)}</span></div>
     <div class="l"><span><i style="background:var(--terracota)"></i>Gastos</span><span>${formatarMoeda(m.gastos)}</span></div>
     <div class="l"><span><i style="background:var(--verde)"></i>Lucro</span><span>${formatarMoeda(m.lucro)}</span></div>
     <div class="l" style="border-top:1px solid rgba(255,255,255,.18);margin-top:7px;padding-top:6px">

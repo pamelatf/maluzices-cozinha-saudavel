@@ -10,7 +10,7 @@
  * Ao integrar com a API: trocar `vendas` e `custos` por GET /relatorios,
  * mantendo o formato de saída de cada função.
  */
-import { resumoDaFicha } from './calculo.js';
+import { resumoDaFicha } from './calculo.js?v=9da65f59';
 
 export const PERIODOS = [
   { valor: 'hoje', rotulo: 'Hoje', dias: 1 },

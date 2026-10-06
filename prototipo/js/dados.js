@@ -10,7 +10,7 @@
  * lançados, gerados aqui para o painel ter o que mostrar enquanto não
  * existe operação de verdade.
  */
-import { categorias, fornecedores, unidades, insumos, fichas } from './base.js';
+import { categorias, fornecedores, unidades, insumos, fichas } from './base.js?v=8f5a2005';
 
 export { categorias, fornecedores, unidades, insumos, fichas };
 
