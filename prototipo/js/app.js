@@ -1744,8 +1744,141 @@ function renderizarMenu(paginaAtiva) {
   document.getElementById('menu').innerHTML = itens;
 }
 
+/* ------------------------------------------------------------------
+   Autenticação
+   Telas fora da casca principal (sem sidebar). O layout da aplicação
+   fica oculto e uma tela full-screen é exibida no lugar.
+------------------------------------------------------------------ */
+function telaLogin() {
+  return `
+    <div class="auth-fundo">
+      <div class="auth-cartao">
+        <div class="auth-marca">
+          <span class="marca-nome">
+            MALU<svg class="colher-i" viewBox="0 0 11 24" aria-hidden="true">
+              <path d="M5.5 2 C3 2 1.5 4 1.5 7 C1.5 10 3.5 12 5.5 12 C7.5 12 9.5 10 9.5 7 C9.5 4 8 2 5.5 2Z M5.5 12 L5.5 22" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>ICES
+          </span>
+          <span class="marca-tag">cozinha saudável</span>
+        </div>
+
+        <h1 class="auth-titulo">Entrar na conta</h1>
+        <p class="auth-subtitulo">Acesse o painel de gestão do seu negócio.</p>
+
+        <form class="auth-form" data-acao="form-login" novalidate>
+          <label class="campo">
+            E-mail
+            <input type="email" id="login-email" placeholder="seuemail@exemplo.com" autocomplete="username" required>
+          </label>
+          <label class="campo" style="margin-top:14px">
+            Senha
+            <div class="campo-senha">
+              <input type="password" id="login-senha" placeholder="Sua senha" autocomplete="current-password" required>
+              <button type="button" class="btn-ver-senha" data-acao="alternar-senha" aria-label="Mostrar senha">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </label>
+
+          <div class="auth-opcoes">
+            <label class="auth-lembrar">
+              <input type="checkbox" id="login-lembrar"> Lembrar de mim
+            </label>
+            <a href="#/recuperar-senha" class="auth-link">Esqueci minha senha</a>
+          </div>
+
+          <button type="submit" class="botao auth-botao-entrar">Entrar</button>
+        </form>
+
+        <p class="auth-rodape">${esc(marca.rodape)}</p>
+      </div>
+      <div class="auth-lado">
+        <div class="auth-lado-conteudo">
+          <h2>Gestão simples para uma cozinha saudável</h2>
+          <p>Fichas técnicas, custos e pedidos num só lugar.</p>
+          <ul class="auth-recursos">
+            <li>Custo por porção calculado automaticamente</li>
+            <li>Painel de pedidos em tempo real</li>
+            <li>Controle de insumos e precificação</li>
+            <li>Visão financeira completa do negócio</li>
+          </ul>
+        </div>
+      </div>
+    </div>`;
+}
+
+function telaRecuperarSenha() {
+  return `
+    <div class="auth-fundo">
+      <div class="auth-cartao">
+        <div class="auth-marca">
+          <span class="marca-nome">
+            MALU<svg class="colher-i" viewBox="0 0 11 24" aria-hidden="true">
+              <path d="M5.5 2 C3 2 1.5 4 1.5 7 C1.5 10 3.5 12 5.5 12 C7.5 12 9.5 10 9.5 7 C9.5 4 8 2 5.5 2Z M5.5 12 L5.5 22" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>ICES
+          </span>
+          <span class="marca-tag">cozinha saudável</span>
+        </div>
+
+        <h1 class="auth-titulo">Recuperar senha</h1>
+        <p class="auth-subtitulo">Informe o seu e-mail e enviaremos as instruções para redefinir a senha.</p>
+
+        <form class="auth-form" data-acao="form-recuperar" novalidate>
+          <label class="campo">
+            E-mail
+            <input type="email" id="recuperar-email" placeholder="seuemail@exemplo.com" autocomplete="email" required>
+          </label>
+
+          <button type="submit" class="botao auth-botao-entrar" style="margin-top:24px">Enviar instruções</button>
+        </form>
+
+        <div class="auth-voltar">
+          <a href="#/login" class="auth-link">← Voltar para o login</a>
+        </div>
+
+        <p class="auth-rodape">${esc(marca.rodape)}</p>
+      </div>
+      <div class="auth-lado">
+        <div class="auth-lado-conteudo">
+          <h2>Gestão simples para uma cozinha saudável</h2>
+          <p>Fichas técnicas, custos e pedidos num só lugar.</p>
+          <ul class="auth-recursos">
+            <li>Custo por porção calculado automaticamente</li>
+            <li>Painel de pedidos em tempo real</li>
+            <li>Controle de insumos e precificação</li>
+            <li>Visão financeira completa do negócio</li>
+          </ul>
+        </div>
+      </div>
+    </div>`;
+}
+
+const ROTAS_SEM_SIDEBAR = ['login', 'recuperar-senha'];
+
 function renderizar() {
   const { pagina, parametro } = rotaAtual();
+  const ehAutenticacao = ROTAS_SEM_SIDEBAR.includes(pagina);
+
+  // Alterna entre layout com sidebar e layout full-screen de autenticação
+  const appEl = document.querySelector('.app');
+  if (appEl) appEl.style.display = ehAutenticacao ? 'none' : '';
+
+  let authEl = document.getElementById('auth-container');
+  if (ehAutenticacao) {
+    if (!authEl) {
+      authEl = document.createElement('div');
+      authEl.id = 'auth-container';
+      document.body.insertBefore(authEl, document.querySelector('.diag-fundo'));
+    }
+    const telaAuth = pagina === 'login' ? telaLogin : telaRecuperarSenha;
+    authEl.innerHTML = telaAuth();
+    window.scrollTo(0, 0);
+    return;
+  }
+
+  // Remove container de auth quando volta para telas normais
+  if (authEl) authEl.innerHTML = '';
+
   renderizarMenu(pagina);
   const telas = {
     inicio: telaInicio,
@@ -2023,7 +2156,58 @@ document.addEventListener('keydown', (evento) => {
   }
 });
 
+document.addEventListener('submit', (evento) => {
+  const acao = evento.target.dataset.acao;
+  if (acao === 'form-login') {
+    evento.preventDefault();
+    // Protótipo: qualquer credencial leva ao sistema
+    location.hash = '#/inicio';
+    return;
+  }
+  if (acao === 'form-recuperar') {
+    evento.preventDefault();
+    const email = document.getElementById('recuperar-email');
+    if (email && email.value) {
+      const authEl = document.getElementById('auth-container');
+      if (authEl) {
+        authEl.innerHTML = `
+          <div class="auth-fundo">
+            <div class="auth-cartao">
+              <div class="auth-marca">
+                <span class="marca-nome">MALUZICES</span>
+                <span class="marca-tag">cozinha saudável</span>
+              </div>
+              <div class="aviso aviso-neutro" style="margin-top:24px">
+                <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+                <div>
+                  <strong>Instruções enviadas</strong>
+                  <p style="margin-top:6px">Se o e-mail <strong>${esc(email.value)}</strong> estiver cadastrado, você receberá as instruções em breve.</p>
+                </div>
+              </div>
+              <div class="auth-voltar" style="margin-top:24px">
+                <a href="#/login" class="auth-link">← Voltar para o login</a>
+              </div>
+              <p class="auth-rodape">${esc(marca.rodape)}</p>
+            </div>
+          </div>`;
+      }
+    }
+    return;
+  }
+});
+
 document.addEventListener('click', (evento) => {
+  // Toggle de visibilidade da senha no login
+  const btnSenha = evento.target.closest('[data-acao="alternar-senha"]');
+  if (btnSenha) {
+    const input = document.getElementById('login-senha');
+    if (input) {
+      input.type = input.type === 'password' ? 'text' : 'password';
+      btnSenha.setAttribute('aria-label', input.type === 'password' ? 'Mostrar senha' : 'Ocultar senha');
+    }
+    return;
+  }
+
   const fundo = document.getElementById('fundoModal');
   if (fundo && evento.target === fundo) fecharModalPedido();
 
