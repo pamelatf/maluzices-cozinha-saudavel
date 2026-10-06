@@ -459,9 +459,24 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
    Layout full-screen, fora da casca com sidebar.
    ============================================================ */
 #auth-container{
+  /* Cores do manual de marca, só para estas telas: oliva, areia e terracota. */
+  --auth-oliva-escuro:#454027;
+  --auth-oliva:#786847;
+  --auth-oliva-hover:#5E5738;
+  --auth-areia:#E8DFD0;
+  --auth-terracota:#AB5F44;
+  --auth-terracota-hover:#8A4A33;
+
   position:fixed;inset:0;z-index:1000;overflow-y:auto;
   background:var(--fundo) url('../img/fundo-auth.png') center/cover no-repeat;
 }
+#auth-container input{border-color:var(--auth-areia)}
+#auth-container input:focus{border-color:var(--auth-oliva)}
+#auth-container :focus-visible{outline-color:var(--auth-oliva)}
+#auth-container input[type=checkbox]{accent-color:var(--auth-oliva)}
+#auth-container .botao{background:var(--auth-oliva-escuro);color:#FFFFFF}
+#auth-container .botao:hover{background:var(--auth-oliva-hover)}
+#auth-container .aviso-neutro{background:#F6F1E7;border-color:var(--auth-areia)}
 
 .auth-fundo{
   display:flex;align-items:center;justify-content:center;
@@ -474,7 +489,7 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
   display:flex;flex-direction:column;
   background:rgba(255,255,255,.88);
   backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
-  border:1px solid var(--verde-suave);
+  border:1px solid var(--auth-areia);
   border-radius:var(--raio);
   box-shadow:var(--sombra);
 }
@@ -487,7 +502,7 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .auth-titulo{
   font-family:var(--fonte-titulo);
   font-size:26px;font-weight:600;
-  color:var(--verde-escuro);
+  color:var(--auth-oliva-escuro);
   margin:0 0 8px;
 }
 
@@ -507,7 +522,7 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
   display:flex;align-items:center;
 }
 .btn-ver-senha svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.btn-ver-senha:hover{color:var(--verde)}
+.btn-ver-senha:hover{color:var(--auth-oliva)}
 
 .auth-opcoes{
   display:flex;justify-content:space-between;align-items:center;
@@ -519,8 +534,8 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
   color:var(--texto-suave);
 }
 
-.auth-link{color:var(--verde);text-decoration:none;font-size:14px}
-.auth-link:hover{color:var(--verde-escuro);text-decoration:underline}
+.auth-link{color:var(--auth-terracota);text-decoration:none;font-size:14px}
+.auth-link:hover{color:var(--auth-terracota-hover);text-decoration:underline}
 
 .auth-botao-entrar{
   width:100%;min-height:46px;font-size:16px;font-weight:500;
@@ -531,7 +546,7 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .auth-rodape{
   margin-top:auto;padding-top:32px;
   font-size:12px;color:var(--texto-suave);line-height:1.6;
-  border-top:1px solid var(--verde-suave);
+  border-top:1px solid var(--auth-areia);
 }
 
 @media (max-width:560px){
