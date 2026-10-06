@@ -362,8 +362,8 @@ function telaInicio() {
       <div class="cartao">
         <div class="cartao-cabecalho">
           <div>
-            <h2 class="cartao-titulo tit-icone">${icone('prancheta')}Pedidos de hoje</h2>
-            <p class="cartao-nota">Situação do que está no quadro agora.</p>
+            <h2 class="cartao-titulo tit-icone">${icone('prancheta')}Pedidos</h2>
+            <p class="cartao-nota">Como está o quadro de pedidos.</p>
           </div>
           <a class="atalho" href="#/pedidos">abrir o quadro</a>
         </div>
@@ -371,7 +371,6 @@ function telaInicio() {
           <div class="pr-total">
             <div class="pr-rotulo">Total de pedidos</div>
             <div class="pr-numero">${totalDePedidos}</div>
-            <div class="pr-apoio">no quadro agora</div>
           </div>
           <div class="pr-situacoes">
             ${SITUACOES.map((s) => {
