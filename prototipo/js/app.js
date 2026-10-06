@@ -1900,7 +1900,7 @@ function renderizar() {
   }
 
   // Remove container de auth quando volta para telas normais
-  if (authEl) authEl.innerHTML = '';
+  if (authEl) authEl.remove();
 
   renderizarMenu(pagina);
   const telas = {
