@@ -1,0 +1,192 @@
+/* Estilos do painel de pedidos, escopados em .pedidos-escopo para conviver
+   com os do modulo financeiro, que reusa nomes como .cartao e .aviso.
+   Vieram do antigo web/painel-maluzices.html sem alteracao visual. */
+
+.pedidos-escopo :focus-visible {outline:2px solid var(--verde);outline-offset:2px;border-radius:4px}
+.pedidos-escopo .icone {width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.pedidos-escopo .topo {background:var(--oliva);
+  color:var(--creme);
+  padding:18px 28px;
+  display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.pedidos-escopo .marca {display:flex;flex-direction:column;gap:1px;line-height:1}
+.pedidos-escopo .marca-nome {display:flex;align-items:flex-end;
+  font-size:26px;font-weight:200;letter-spacing:.20em;color:var(--creme);}
+.pedidos-escopo .marca-nome .colher-i {width:12px;height:26px;margin:0 .10em -1px .04em;
+  stroke:var(--terracota-cl);fill:none;stroke-width:1.6;stroke-linecap:round;}
+.pedidos-escopo .marca-tag {font-family:var(--fonte-titulo);
+  font-size:13.5px;letter-spacing:.16em;color:var(--verde-suave);
+  align-self:flex-end;position:relative;top:-2px;}
+.pedidos-escopo .marca-tag::before {content:"";display:inline-block;width:44px;height:1px;background:var(--verde-suave);vertical-align:middle;margin-right:9px}
+.pedidos-escopo .topo-dir {margin-left:auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.pedidos-escopo .data-hoje {font-size:13px;letter-spacing:.10em;text-transform:uppercase;color:var(--verde-suave)}
+.pedidos-escopo .voltar-proto {font-size:14px;color:var(--verde-suave);text-decoration:none;
+  padding:8px 14px;border:1px solid rgba(255,255,255,.22);border-radius:999px;
+  transition:background .18s,color .18s;}
+.pedidos-escopo .voltar-proto:hover {background:rgba(255,255,255,.1);color:var(--creme)}
+.pedidos-escopo .btn-novo {background:var(--verde);color:var(--branco);
+  padding:11px 20px;border-radius:999px;
+  font-size:14px;font-weight:400;letter-spacing:.06em;
+  display:flex;align-items:center;gap:9px;
+  transition:background .18s, transform .18s;}
+.pedidos-escopo .btn-novo:hover {background:var(--terracota-cl);transform:translateY(-1px)}
+.pedidos-escopo .btn-novo .icone {width:15px;height:15px;stroke-width:1.8}
+.pedidos-escopo .indicadores {display:grid;grid-template-columns:repeat(5,1fr);gap:14px;
+  padding:20px 28px 4px;max-width:1560px;margin:0 auto;width:100%;}
+.pedidos-escopo .ind {background:var(--branco);border:1px solid var(--areia-fria);border-radius:var(--raio);
+  padding:14px 16px;display:flex;align-items:center;gap:13px;}
+.pedidos-escopo .ind-icone {width:36px;height:36px;border-radius:10px;flex:none;
+  display:grid;place-items:center;background:var(--creme-col);color:var(--taupe);}
+.pedidos-escopo .ind-icone .icone {width:18px;height:18px}
+.pedidos-escopo .ind-num {font-size:22px;font-weight:400;line-height:1.1;color:var(--oliva)}
+.pedidos-escopo .ind-rot {font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--texto-suave)}
+.pedidos-escopo .quadro {display:grid;grid-template-columns:repeat(5,1fr);gap:14px;
+  padding:18px 28px 40px;max-width:1560px;margin:0 auto;width:100%;
+  align-items:start;}
+.pedidos-escopo .coluna {background:var(--creme-col);border-radius:var(--raio);padding:14px 12px 16px;min-height:260px}
+.pedidos-escopo .col-topo {display:flex;align-items:center;gap:9px;padding:2px 6px 13px}
+.pedidos-escopo .col-topo .icone {width:17px;height:17px}
+.pedidos-escopo .col-nome {font-size:13px;letter-spacing:.13em;text-transform:uppercase;font-weight:400}
+.pedidos-escopo .col-cont {margin-left:auto;min-width:24px;height:22px;padding:0 8px;border-radius:999px;
+  display:grid;place-items:center;font-size:12.5px;font-weight:400;color:var(--branco);}
+.pedidos-escopo .coluna[data-status="RECEBIDO"]   .col-topo {color:var(--neutro)}
+.pedidos-escopo .coluna[data-status="RECEBIDO"]   .col-cont {background:var(--neutro)}
+.pedidos-escopo .coluna[data-status="EM_PREPARO"] .col-topo {color:var(--informacao)}
+.pedidos-escopo .coluna[data-status="EM_PREPARO"] .col-cont {background:var(--informacao)}
+.pedidos-escopo .coluna[data-status="PRONTO"]     .col-topo {color:var(--atencao)}
+.pedidos-escopo .coluna[data-status="PRONTO"]     .col-cont {background:var(--atencao)}
+.pedidos-escopo .coluna[data-status="ENTREGUE"]   .col-topo {color:var(--sucesso)}
+.pedidos-escopo .coluna[data-status="ENTREGUE"]   .col-cont {background:var(--sucesso)}
+.pedidos-escopo .coluna[data-status="CANCELADO"]  .col-topo {color:var(--erro)}
+.pedidos-escopo .coluna[data-status="CANCELADO"]  .col-cont {background:var(--erro)}
+.pedidos-escopo .coluna[data-status="CANCELADO"]  {background:var(--verde-fundo)}
+.pedidos-escopo .lista {display:flex;flex-direction:column;gap:11px;min-height:40px}
+.pedidos-escopo .cartao {background:var(--branco);border:1px solid var(--areia-fria);border-radius:var(--raio-s);
+  padding:13px 14px 11px;box-shadow:var(--sombra);
+  border-left:3px solid var(--areia-fria);
+  animation:entra .26s ease both;}
+
+@keyframes entra{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}.pedidos-escopo .coluna[data-status="RECEBIDO"]   .cartao {border-left-color:var(--neutro)}
+.pedidos-escopo .coluna[data-status="EM_PREPARO"] .cartao {border-left-color:var(--informacao)}
+.pedidos-escopo .coluna[data-status="PRONTO"]     .cartao {border-left-color:var(--atencao)}
+.pedidos-escopo .coluna[data-status="ENTREGUE"]   .cartao {border-left-color:var(--sucesso);opacity:.82}
+.pedidos-escopo .coluna[data-status="CANCELADO"]  .cartao {border-left-color:var(--erro);opacity:.7}
+.pedidos-escopo .coluna[data-status="CANCELADO"]  .cartao .itens,
+.pedidos-escopo .coluna[data-status="CANCELADO"]  .cartao .total {text-decoration:line-through;text-decoration-color:var(--erro)}
+.pedidos-escopo .cartao {cursor:pointer;transition:border-color .16s, box-shadow .16s, transform .16s}
+.pedidos-escopo .cartao:hover {border-color:var(--taupe-claro);transform:translateY(-1px)}
+.pedidos-escopo .cartao:focus-visible {outline:2px solid var(--verde);outline-offset:2px}
+.pedidos-escopo .cartao-topo {display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
+.pedidos-escopo .cliente {font-size:15.5px;font-weight:400;color:var(--oliva);letter-spacing:.01em}
+.pedidos-escopo .hora {margin-left:auto;font-size:11.5px;color:var(--pedra);white-space:nowrap}
+.pedidos-escopo .itens {list-style:none;display:flex;flex-direction:column;gap:4px;margin-bottom:9px}
+.pedidos-escopo .itens li {font-size:13.5px;color:var(--texto);display:flex;gap:8px;line-height:1.35}
+.pedidos-escopo .qtd {color:var(--terracota);font-weight:500;min-width:22px;font-size:13px}
+.pedidos-escopo .obs {font-family:var(--fonte-titulo);font-style:italic;font-size:14px;
+  color:var(--taupe);background:var(--creme);border-radius:7px;
+  padding:6px 9px;margin-bottom:10px;line-height:1.35;}
+.pedidos-escopo .cartao-base {display:flex;align-items:center;gap:8px;padding-top:9px;border-top:1px solid var(--areia-fria)}
+.pedidos-escopo .total {font-size:14.5px;font-weight:500;color:var(--oliva)}
+/* Cancelar fica separado do par Retroceder/Avançar de propósito:
+   ação destrutiva encostada na principal é convite para clique errado. */
+.pedidos-escopo .cartao-acoes {display:flex;align-items:center;justify-content:space-between;
+  gap:6px;flex-wrap:wrap;margin-top:9px}
+.pedidos-escopo .acoes-andar {display:flex;align-items:center;gap:6px;margin-left:auto}
+.pedidos-escopo .acao {height:29px;padding:0 10px;border-radius:8px;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:1px solid var(--areia-fria);color:var(--taupe);background:var(--branco);
+  font-size:12px;letter-spacing:.04em;white-space:nowrap;transition:.16s;}
+.pedidos-escopo .acao .icone {width:13px;height:13px}
+.pedidos-escopo .acao:hover {background:var(--creme-col);color:var(--oliva)}
+.pedidos-escopo .acao.principal {background:var(--oliva);border-color:var(--oliva);color:var(--creme)}
+.pedidos-escopo .acao.principal:hover {background:var(--oliva-claro);color:var(--branco)}
+.pedidos-escopo .acao.destrutiva {color:var(--terracota);border-color:transparent;background:transparent}
+.pedidos-escopo .acao.destrutiva:hover {background:var(--laranja-suave);border-color:var(--terracota);color:var(--terracota)}
+.pedidos-escopo .acao:disabled {opacity:.35;cursor:not-allowed}
+.pedidos-escopo .concluido {margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--verde);letter-spacing:.04em}
+.pedidos-escopo .cancelado {margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--pedra);letter-spacing:.04em}
+.pedidos-escopo .concluido .icone,
+.pedidos-escopo .cancelado .icone {width:14px;height:14px;stroke-width:1.8}
+
+/* WhatsApp: ícone oficial, à direita do campo de telefone e no cartão.
+   Apagado enquanto o número não serve, aceso quando passa a valer. */
+.pedidos-escopo .campo-zap {position:relative}
+.pedidos-escopo .campo-zap input {padding-right:46px}
+.pedidos-escopo .zap-botao {position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex}
+.pedidos-escopo .zap-icone {width:32px;height:32px;border-radius:8px;display:grid;place-items:center;
+  text-decoration:none;transition:.16s}
+.pedidos-escopo .zap-icone img {width:21px;height:21px;display:block}
+.pedidos-escopo a.zap-icone:hover {background:var(--verde-suave)}
+.pedidos-escopo .zap-icone.inativo {cursor:not-allowed}
+.pedidos-escopo .zap-icone.inativo img {filter:grayscale(1);opacity:.3}
+
+.pedidos-escopo .zap {display:inline-grid;place-items:center;width:28px;height:28px;
+  text-decoration:none;border-radius:8px;transition:.16s}
+.pedidos-escopo .zap:hover {background:var(--verde-suave)}
+.pedidos-escopo .zap img {width:19px;height:19px;display:block}
+.pedidos-escopo .cartao-base .zap {margin-left:auto}
+.pedidos-escopo .dupla {display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pedidos-escopo .opcional {text-transform:none;letter-spacing:0;color:var(--pedra);font-size:11px}
+.pedidos-escopo .somente-leitura input,
+.pedidos-escopo .somente-leitura textarea {background:var(--creme-col);color:var(--texto-suave)}
+.pedidos-escopo .vazio {text-align:center;padding:22px 8px;color:var(--pedra);font-size:13px;
+  font-family:var(--fonte-titulo);font-style:italic;}
+.pedidos-escopo .fundo-modal {position:fixed;inset:0;background:rgba(46,42,28,.42);backdrop-filter:blur(2px);
+  display:none;place-items:center;padding:20px;z-index:40;}
+.pedidos-escopo .fundo-modal.aberto {display:grid}
+.pedidos-escopo .modal {background:var(--creme);border-radius:18px;width:min(470px,100%);
+  box-shadow:var(--sombra-alta);overflow:hidden;animation:sobe .22s ease both;}
+
+@keyframes sobe{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}.pedidos-escopo .modal-topo {background:var(--oliva);color:var(--creme);padding:16px 22px;display:flex;align-items:center;gap:11px}
+.pedidos-escopo .modal-topo h2 {font-size:16px;font-weight:300;letter-spacing:.11em;text-transform:uppercase}
+.pedidos-escopo .modal-topo .icone {width:18px;height:18px;color:var(--terracota-cl)}
+.pedidos-escopo .fechar {margin-left:auto;color:var(--verde-suave)}
+.pedidos-escopo .fechar .icone {width:17px;height:17px}
+.pedidos-escopo .modal-corpo {padding:20px 22px 8px;display:flex;flex-direction:column;gap:14px}
+.pedidos-escopo label {display:block;font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--texto-suave);margin-bottom:6px}
+.pedidos-escopo input,
+.pedidos-escopo textarea {width:100%;font-family:inherit;font-size:14.5px;font-weight:300;color:var(--texto);
+  background:var(--branco);border:1px solid var(--areia-fria);border-radius:9px;padding:10px 12px;}
+.pedidos-escopo input:focus,
+.pedidos-escopo textarea:focus {outline:none;border-color:var(--taupe);box-shadow:0 0 0 3px rgba(135,112,87,.13)}
+.pedidos-escopo textarea {resize:vertical;min-height:56px;font-family:var(--fonte-titulo);font-style:italic;font-size:15px}
+.pedidos-escopo .linha-item {display:grid;grid-template-columns:1fr 62px 86px 30px;gap:8px;align-items:center;margin-bottom:8px}
+.pedidos-escopo .linha-item input {padding:8px 10px;font-size:13.5px}
+.pedidos-escopo .rm-item {width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--pedra);border:1px solid transparent}
+.pedidos-escopo .rm-item:hover {color:var(--terracota);border-color:var(--areia-fria)}
+.pedidos-escopo .rm-item .icone {width:13px;height:13px}
+.pedidos-escopo .add-item {font-size:13px;color:var(--terracota);display:flex;align-items:center;gap:7px;
+  padding:6px 0;letter-spacing:.03em;}
+.pedidos-escopo .add-item .icone {width:13px;height:13px;stroke-width:1.8}
+.pedidos-escopo .cabec-itens {display:grid;grid-template-columns:1fr 62px 86px 30px;gap:8px;margin-bottom:5px}
+.pedidos-escopo .cabec-itens span {font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;color:var(--pedra)}
+.pedidos-escopo .aviso {font-size:12.5px;color:var(--terracota);background:var(--laranja-suave);border-radius:8px;
+  padding:8px 11px;display:none;}
+.pedidos-escopo .aviso.visivel {display:block}
+.pedidos-escopo .modal-base {padding:14px 22px 20px;display:flex;align-items:center;gap:10px;
+  border-top:1px solid var(--areia-fria);margin-top:8px;}
+.pedidos-escopo .total-previa {font-size:15px;color:var(--oliva)}
+.pedidos-escopo .total-previa span {font-size:11.5px;letter-spacing:.10em;text-transform:uppercase;color:var(--texto-suave);margin-right:7px}
+.pedidos-escopo .btn-secundario {margin-left:auto;padding:10px 16px;border-radius:999px;font-size:13.5px;color:var(--texto-suave)}
+.pedidos-escopo .btn-secundario:hover {color:var(--oliva)}
+.pedidos-escopo .btn-primario {background:var(--verde);color:var(--branco);padding:10px 22px;border-radius:999px;
+  font-size:13.5px;letter-spacing:.05em;transition:background .18s;}
+.pedidos-escopo .btn-primario:hover {background:var(--terracota-cl)}
+.pedidos-escopo .rodape {text-align:center;padding:0 20px 30px;font-size:12px;color:var(--pedra);
+  letter-spacing:.05em;}
+
+
+@media(max-width:1400px){.pedidos-escopo .quadro,
+.pedidos-escopo .indicadores {grid-template-columns:repeat(3,1fr)}
+
+}
+@media(max-width:1120px){.pedidos-escopo .quadro,
+.pedidos-escopo .indicadores {grid-template-columns:repeat(2,1fr)}
+.pedidos-escopo .dupla {grid-template-columns:1fr}
+
+}
+@media(max-width:620px){.pedidos-escopo .quadro,
+.pedidos-escopo .indicadores {grid-template-columns:1fr;padding-left:16px;padding-right:16px}
+.pedidos-escopo .topo {padding:16px}
+.pedidos-escopo .topo-dir {width:100%;margin-left:0}
+
+}

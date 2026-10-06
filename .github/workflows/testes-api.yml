@@ -8,10 +8,22 @@
 
 name: testes de API
 
+# A suíte sobe banco, compila a API e leva alguns minutos. Mudança que não
+# encosta na API não muda o resultado dela, então não vale a fila: o
+# protótipo, o front em web/ e a documentação ficam de fora do gatilho.
+# Na dúvida ela roda, que é o lado seguro para errar. O workflow_dispatch
+# continua ali para disparar na mão quando quiser.
 on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [master]
+    paths-ignore:
+      - 'prototipo/**'
+      - 'web/**'
+      - 'docs/**'
+      - '**/*.md'
+      - 'LICENSE'
+      - '.github/workflows/prototipo-pages.yml'
   workflow_dispatch:
 
 concurrency:

@@ -1,0 +1,40 @@
+name: Publicar protótipo no GitHub Pages
+
+on:
+  push:
+    branches: [master, prototipo-financeiro]
+    paths:
+      - 'prototipo/**'
+      - '.github/workflows/prototipo-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# false, e não true, porque quem publica de fato é a etapa interna do
+# GitHub, que entra no mesmo grupo. Com cancel-in-progress ligado, um push
+# novo mata a publicação que ainda estava em andamento e o site pode ficar
+# na versão anterior sem ninguém perceber.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: prototipo
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
