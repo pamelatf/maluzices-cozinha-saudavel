@@ -10,7 +10,7 @@
  * lançados, gerados aqui para o painel ter o que mostrar enquanto não
  * existe operação de verdade.
  */
-import { marca } from './marca.js?v=6ab59098';
+import { marca } from './marca.js?v=a243afd4';
 import { categorias, fornecedores, unidades, insumos, fichas } from './base.js?v=8f5a2005';
 
 export { categorias, fornecedores, unidades, insumos, fichas };
