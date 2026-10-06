@@ -1754,12 +1754,7 @@ function telaLogin() {
     <div class="auth-fundo">
       <div class="auth-cartao">
         <div class="auth-marca">
-          <span class="marca-nome">
-            MALU<svg class="colher-i" viewBox="0 0 11 24" aria-hidden="true">
-              <path d="M5.5 2 C3 2 1.5 4 1.5 7 C1.5 10 3.5 12 5.5 12 C7.5 12 9.5 10 9.5 7 C9.5 4 8 2 5.5 2Z M5.5 12 L5.5 22" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>ICES
-          </span>
-          <span class="marca-tag">cozinha saudável</span>
+          <img class="auth-logo" src="img/logo-maluzices-horizontal.png" alt="Maluzices, cozinha saudável">
         </div>
 
         <h1 class="auth-titulo">Entrar na conta</h1>
@@ -1805,12 +1800,7 @@ function telaRecuperarSenha() {
     <div class="auth-fundo">
       <div class="auth-cartao">
         <div class="auth-marca">
-          <span class="marca-nome">
-            MALU<svg class="colher-i" viewBox="0 0 11 24" aria-hidden="true">
-              <path d="M5.5 2 C3 2 1.5 4 1.5 7 C1.5 10 3.5 12 5.5 12 C7.5 12 9.5 10 9.5 7 C9.5 4 8 2 5.5 2Z M5.5 12 L5.5 22" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>ICES
-          </span>
-          <span class="marca-tag">cozinha saudável</span>
+          <img class="auth-logo" src="img/logo-maluzices-horizontal.png" alt="Maluzices, cozinha saudável">
         </div>
 
         <h1 class="auth-titulo">Recuperar senha</h1>
@@ -1839,12 +1829,7 @@ function telaCadastro() {
     <div class="auth-fundo">
       <div class="auth-cartao">
         <div class="auth-marca">
-          <span class="marca-nome">
-            MALU<svg class="colher-i" viewBox="0 0 11 24" aria-hidden="true">
-              <path d="M5.5 2 C3 2 1.5 4 1.5 7 C1.5 10 3.5 12 5.5 12 C7.5 12 9.5 10 9.5 7 C9.5 4 8 2 5.5 2Z M5.5 12 L5.5 22" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>ICES
-          </span>
-          <span class="marca-tag">cozinha saudável</span>
+          <img class="auth-logo" src="img/logo-maluzices-horizontal.png" alt="Maluzices, cozinha saudável">
         </div>
 
         <h1 class="auth-titulo">Criar conta</h1>
@@ -2212,8 +2197,7 @@ document.addEventListener('submit', (evento) => {
           <div class="auth-fundo">
             <div class="auth-cartao">
               <div class="auth-marca">
-                <span class="marca-nome">MALUZICES</span>
-                <span class="marca-tag">cozinha saudável</span>
+                <img class="auth-logo" src="img/logo-maluzices-horizontal.png" alt="Maluzices, cozinha saudável">
               </div>
               <div class="aviso aviso-neutro" style="margin-top:24px">
                 <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>

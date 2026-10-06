@@ -150,7 +150,7 @@ th.calculada{background:var(--verde-suave)}
 
 /* ---------- formulário ---------- */
 .campo{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--texto-suave)}
-input[type=text],input[type=number],input[type=search],input[type=date],select{
+input[type=text],input[type=email],input[type=password],input[type=number],input[type=search],input[type=date],select{
   min-height:44px;padding:0 13px;border:1px solid var(--areia-fria);border-radius:var(--raio-s);
   background:var(--branco);font-size:15px;font-weight:300;width:100%;
 }
@@ -444,7 +444,10 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
    Telas de autenticação (login e recuperação de senha)
    Layout full-screen, fora da casca com sidebar.
    ============================================================ */
-#auth-container{position:fixed;inset:0;z-index:1000;background:var(--fundo)}
+#auth-container{
+  position:fixed;inset:0;z-index:1000;overflow-y:auto;
+  background:var(--fundo) url('../img/fundo-auth.png') center/cover no-repeat;
+}
 
 .auth-fundo{
   display:flex;align-items:center;justify-content:center;
@@ -455,16 +458,17 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .auth-cartao{
   width:100%;max-width:480px;padding:48px 52px;
   display:flex;flex-direction:column;
-  background:var(--branco);
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
   border:1px solid var(--verde-suave);
   border-radius:var(--raio);
   box-shadow:var(--sombra);
-  overflow-y:auto;
 }
 
 .auth-marca{
-  display:flex;flex-direction:column;gap:2px;margin-bottom:40px;
+  display:flex;justify-content:center;margin-bottom:32px;
 }
+.auth-logo{display:block;width:250px;max-width:85%;height:auto}
 
 .auth-titulo{
   font-family:var(--fonte-titulo);
@@ -508,7 +512,7 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
   width:100%;min-height:46px;font-size:16px;font-weight:500;
 }
 
-.auth-voltar{margin-top:24px}
+.auth-voltar{margin-top:24px;margin-bottom:8px}
 
 .auth-rodape{
   margin-top:auto;padding-top:32px;
