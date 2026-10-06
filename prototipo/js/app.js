@@ -286,13 +286,13 @@ function telaInicio() {
       </div>
     </section>
 
-    <section class="cartao">
-      <h2 class="cartao-titulo tit-icone">${icone('comanda')}Faturamento por dia da semana</h2>
-      <p class="cartao-nota">Média por dia no período, para o dia que apareceu mais vezes não levar vantagem.</p>
-      ${graficoDiaDaSemana(dias)}
-    </section>
+    <section class="grade grade-2 painel-linha">
+      <div class="cartao">
+        <h2 class="cartao-titulo tit-icone">${icone('comanda')}Faturamento por dia da semana</h2>
+        <p class="cartao-nota">Média por dia no período, para o dia que apareceu mais vezes não levar vantagem.</p>
+        ${graficoDiaDaSemana(dias)}
+      </div>
 
-    <section class="grade grade-painel">
       <div class="cartao">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
           <h2 class="cartao-titulo tit-icone">${icone('livro')}Produtos mais vendidos</h2>
@@ -314,7 +314,9 @@ function telaInicio() {
              </p>`
           : ''}
       </div>
+    </section>
 
+    <section class="grade grade-2 painel-linha">
       <div class="cartao">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
           <h2 class="cartao-titulo tit-icone">${icone('comanda')}Pedidos de hoje</h2>
@@ -329,14 +331,14 @@ function telaInicio() {
             </a>`).join('')}
         </div>
       </div>
-    </section>
 
-    <section class="destaque destaque-${destaque.tom}">
-      ${icone(destaque.tom === 'atencao' ? 'alerta' : 'info')}
-      <div>
-        <div class="destaque-rotulo">Destaque do período</div>
-        <strong>${esc(destaque.titulo)}</strong>
-        <p>${esc(destaque.texto)}</p>
+      <div class="destaque destaque-${destaque.tom}">
+        ${icone(destaque.tom === 'atencao' ? 'alerta' : 'info')}
+        <div>
+          <div class="destaque-rotulo">Destaque do período</div>
+          <strong>${esc(destaque.titulo)}</strong>
+          <p>${esc(destaque.texto)}</p>
+        </div>
       </div>
     </section>`;
 }

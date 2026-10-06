@@ -1,37 +1,48 @@
 /* ============================================================
    Protótipo do módulo financeiro do Maluzices.
-   A paleta e as fontes seguem a identidade já usada em web/.
+
+   Cores e fontes vêm do Manual de Marca Maluzices 2026. As quatro
+   cores da paleta oficial estão marcadas abaixo; as demais são tons
+   derivadas delas para a interface, que o manual não precisa cobrir
+   porque foi escrito para embalagem e fachada, não para tela.
    ============================================================ */
 :root{
+  /* --- as quatro cores do manual --- */
+  --oliva:        #454027;  /* oliva escuro */
+  --verde:        #786847;  /* oliva médio */
+  --areia:        #D7BA98;  /* areia */
+  --terracota:    #AB5F44;  /* terracota */
+
+  /* --- tons de apoio, derivados --- */
   --creme:        #F4F6EA;
   --creme-fundo:  #EFF1E3;
   --creme-col:    #E9EBD9;
   --branco:       #FBFCF5;
-  --oliva:        #464028;
   --oliva-claro:  #5E5738;
-  --verde:        #66713F;
   --taupe:        #877057;
   --taupe-claro:  #A08B72;
-  --terracota:    #9C5C42;
-  --terracota-cl: #B87355;
-  --areia:        #DCD9C6;
+  --terracota-cl: #C2795E;
+  --areia-fria:   #DCD9C6;  /* o cinza-areia das bordas e trilhos */
   --pedra:        #8E8D7D;
   --texto:        #2E2A1C;
   --texto-suave:  #6B6757;
 
-  /* As duas fontes do sistema, em variável para não ter nome de fonte
-     espalhado pelo arquivo. Archivo nos títulos e nos números grandes,
-     Space Grotesk no corpo e nas tabelas. */
-  --fonte-titulo: 'Archivo', system-ui, sans-serif;
-  --fonte-texto:  'Space Grotesk', system-ui, -apple-system, sans-serif;
+  /* Fontes do manual: Quicksand nos títulos. O corpo também vai nela,
+     para o sistema ter uma voz só. A serifada do manual é a Minion Pro,
+     que é da Adobe e não roda na web sem licença; no lugar dela entra a
+     Source Serif 4, do mesmo desenhista e da mesma fundição, usada só
+     onde o manual usa serifada: assinatura e slogan. */
+  --fonte-titulo: 'Quicksand', system-ui, sans-serif;
+  --fonte-texto:  'Quicksand', system-ui, -apple-system, sans-serif;
+  --fonte-slogan: 'Source Serif 4', Georgia, serif;
 
-  /* Cores só dos gráficos. São o oliva e o terracota da marca com mais
-     saturação: em traço de 2px sobre fundo creme, a cor da identidade fica
-     lavada e as três séries encostam umas nas outras. Aqui elas precisam se
-     separar à primeira vista. */
-  --g-faturamento: #3F4A24;
-  --g-gastos:      #B2603C;
-  --g-lucro:       #7E9440;
+  /* Gráficos: três das quatro cores do manual, sem inventar nada. Elas se
+     separam mais por claridade do que por matiz, e é por isso que cada ponto
+     carrega o valor escrito e existe legenda: ninguém precisa distinguir as
+     linhas pela cor para ler o gráfico. */
+  --g-faturamento: var(--oliva);      /* #454027 */
+  --g-gastos:      var(--terracota);  /* #AB5F44 */
+  --g-lucro:       var(--verde);      /* #786847 */
 
   --raio:  14px;
   --raio-s: 9px;
@@ -63,9 +74,9 @@ a:hover{color:var(--oliva)}
   padding:26px 18px;display:flex;flex-direction:column;gap:26px;
 }
 .marca{display:flex;flex-direction:column;gap:2px;line-height:1;padding-left:6px}
-.marca-nome{display:flex;align-items:flex-end;font-size:24px;font-weight:200;letter-spacing:.2em}
+.marca-nome{display:flex;align-items:flex-end;font-size:24px;font-weight:300;letter-spacing:.2em}
 .marca-nome .colher-i{width:11px;height:24px;margin:0 .1em -1px .04em;stroke:var(--terracota-cl);fill:none;stroke-width:1.6;stroke-linecap:round}
-.marca-tag{font-family:var(--fonte-titulo);font-size:13px;letter-spacing:.16em;color:#C9C6AE}
+.marca-tag{font-family:var(--fonte-slogan);font-size:13px;letter-spacing:.14em;color:#C9C6AE}
 
 .menu{display:flex;flex-direction:column;gap:3px}
 .menu div{display:flex;flex-direction:column;gap:3px}
@@ -86,7 +97,7 @@ a:hover{color:var(--oliva)}
 .trilha{font-size:13.5px;color:var(--texto-suave);margin-bottom:5px;letter-spacing:.04em}
 
 /* ---------- blocos ---------- */
-.cartao{background:var(--branco);border:1px solid var(--areia);border-radius:var(--raio);padding:22px;box-shadow:var(--sombra)}
+.cartao{background:var(--branco);border:1px solid var(--areia-fria);border-radius:var(--raio);padding:22px;box-shadow:var(--sombra)}
 .cartao-titulo{font-family:var(--fonte-titulo);font-size:23px;font-weight:500}
 .cartao-nota{color:var(--texto-suave);font-size:14px;margin-top:3px}
 .grade{display:grid;gap:16px}
@@ -103,7 +114,7 @@ a:hover{color:var(--oliva)}
 table{width:100%;border-collapse:collapse;font-size:14.5px}
 th{
   text-align:left;font-weight:400;font-size:13px;color:var(--texto-suave);
-  padding:10px 10px 10px 0;border-bottom:1px solid var(--areia);letter-spacing:.03em;
+  padding:10px 10px 10px 0;border-bottom:1px solid var(--areia-fria);letter-spacing:.03em;
 }
 td{padding:12px 10px 12px 0;border-bottom:1px solid #EDEDE0;vertical-align:middle}
 tr:last-child td{border-bottom:none}
@@ -117,7 +128,7 @@ th.calculada{background:#EAEBDB}
 /* ---------- formulário ---------- */
 .campo{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--texto-suave)}
 input[type=text],input[type=number],input[type=search],input[type=date],select{
-  min-height:44px;padding:0 13px;border:1px solid var(--areia);border-radius:var(--raio-s);
+  min-height:44px;padding:0 13px;border:1px solid var(--areia-fria);border-radius:var(--raio-s);
   background:var(--branco);font-size:15px;font-weight:300;width:100%;
 }
 input:focus,select:focus{border-color:var(--taupe-claro)}
@@ -131,7 +142,7 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 }
 .botao:hover{background:var(--oliva-claro)}
 .botao[disabled]{background:var(--pedra);cursor:not-allowed}
-.botao-claro{background:var(--branco);color:var(--texto);border:1px solid var(--areia)}
+.botao-claro{background:var(--branco);color:var(--texto);border:1px solid var(--areia-fria)}
 .botao-claro:hover{background:var(--creme-col)}
 .botao-contorno{background:transparent;color:var(--terracota);border:1px dashed var(--taupe-claro)}
 .botao-contorno:hover{background:var(--creme-col)}
@@ -140,7 +151,7 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .aviso{display:flex;gap:12px;align-items:flex-start;padding:16px 18px;border-radius:var(--raio);font-size:15px;line-height:1.5}
 .aviso .icone{font-size:20px;margin-top:1px}
 .aviso-atencao{background:#F6EDE4;border:1px solid #E6D2C2;color:#6B4330}
-.aviso-neutro{background:var(--creme-col);border:1px solid var(--areia);color:var(--texto)}
+.aviso-neutro{background:var(--creme-col);border:1px solid var(--areia-fria);color:var(--texto)}
 
 .selo{display:inline-block;font-size:12.5px;padding:3px 10px;border-radius:99px;white-space:nowrap}
 .selo-ok{background:#E4E9D6;color:#47502D}
@@ -156,7 +167,7 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .barras .par{width:100%;height:160px;display:flex;align-items:flex-end;justify-content:center;gap:4px}
 .barras .barra{width:42%;border-radius:4px 4px 0 0}
 .barras .barra-a{background:var(--oliva)}
-.barras .barra-b{background:var(--areia)}
+.barras .barra-b{background:var(--areia-fria)}
 .barras .rotulo{font-size:12px;color:var(--texto-suave)}
 .legenda{display:flex;gap:18px;font-size:13px;color:var(--texto-suave)}
 .legenda span{display:flex;align-items:center;gap:7px}
@@ -167,6 +178,10 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 
 /* ---------- visão geral ---------- */
 .grade-painel{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}
+/* Cada cartão do painel tem a altura do próprio conteúdo. Esticados para a
+   altura do vizinho, os que têm menos conteúdo ficam com um vão branco
+   embaixo do gráfico, que é o que mais denuncia layout montado na pressa. */
+.grade-painel,.painel-linha{align-items:start}
 .indicador-variacao{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;font-size:13px;margin-top:8px}
 .variacao-boa{color:var(--verde);font-weight:400}
 .variacao-ruim{color:var(--terracota);font-weight:400}
@@ -189,9 +204,9 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .ind-tendencia{width:62px;height:22px;flex:none;opacity:.75}
 .ind-tendencia path{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-.tom-verde .ind-icone{background:#E3E9D4;color:#4A5726}
+.tom-verde .ind-icone{background:#E4E3D2;color:var(--oliva)}
 .tom-verde .ind-tendencia path{stroke:var(--g-lucro)}
-.tom-terra .ind-icone{background:#F4E4D9;color:#8E4E31}
+.tom-terra .ind-icone{background:#F3E2D5;color:var(--terracota)}
 .tom-terra .ind-tendencia path{stroke:var(--g-gastos)}
 .tom-neutro .ind-icone{background:var(--creme-col);color:var(--texto-suave)}
 .tom-neutro .ind-tendencia path{stroke:var(--pedra)}
@@ -199,7 +214,7 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .cartao-titulo.tit-icone{display:flex;align-items:center;gap:9px}
 .cartao-titulo.tit-icone .icone{width:18px;height:18px;color:var(--verde);flex:none}
 
-.g-grade{stroke:var(--areia);stroke-width:1;stroke-opacity:.75}
+.g-grade{stroke:var(--areia-fria);stroke-width:1;stroke-opacity:.75}
 .g-eixo{font-size:12px;fill:var(--pedra);font-family:var(--fonte-texto)}
 .g-valor{font-size:12px;fill:var(--texto-suave);font-family:var(--fonte-texto)}
 .g-nota{font-size:11.5px;fill:var(--pedra);font-family:var(--fonte-texto)}
@@ -242,7 +257,7 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .situacoes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:16px}
 .situacao{background:var(--creme-col);border-radius:var(--raio-s);padding:12px 10px;text-align:center;
   text-decoration:none;color:inherit;transition:background .16s}
-.situacao:hover{background:var(--areia);color:inherit}
+.situacao:hover{background:var(--areia-fria);color:inherit}
 .situacao-num{display:block;font-family:var(--fonte-titulo);font-size:25px;font-weight:500;line-height:1}
 .situacao-nome{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--texto-suave);margin-top:6px}
 
@@ -252,9 +267,9 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .destaque-rotulo{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--texto-suave);margin-bottom:5px}
 .destaque strong{font-family:var(--fonte-titulo);font-size:21px;font-weight:500;display:block}
 .destaque p{font-size:14.5px;color:var(--texto-suave);margin-top:5px;max-width:760px}
-.destaque-atencao{background:#F6EDE4;border:1px solid #E6D2C2;color:#6B4330}
-.destaque-bom{background:#E8EDDC;border:1px solid #CBD4B2;color:#3F4A24}
-.destaque-neutro{background:var(--creme-col);border:1px solid var(--areia)}
+.destaque-atencao{background:#F6EDE4;border:1px solid var(--areia);color:#6B4330}
+.destaque-bom{background:#E8EDDC;border:1px solid #C8C9AE;color:var(--oliva)}
+.destaque-neutro{background:var(--creme-col);border:1px solid var(--areia-fria)}
 
 /* dica dos gráficos */
 .dica-grafico{position:fixed;pointer-events:none;opacity:0;transition:opacity .12s;z-index:70;
@@ -266,7 +281,7 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 
 /* ---------- atendimento ---------- */
 .previa-zap{
-  margin-top:14px;background:var(--creme-col);border:1px solid var(--areia);
+  margin-top:14px;background:var(--creme-col);border:1px solid var(--areia-fria);
   border-radius:var(--raio);padding:14px 16px;font-size:15px;line-height:1.5;
   max-width:460px;
 }
@@ -282,7 +297,7 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 /* ---------- compra de insumos ---------- */
 .compra-cabecalho{
   display:grid;grid-template-columns:1fr 120px 130px 140px 34px;gap:10px;
-  margin-top:20px;padding-bottom:8px;border-bottom:1px solid var(--areia);
+  margin-top:20px;padding-bottom:8px;border-bottom:1px solid var(--areia-fria);
   font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--texto-suave);
 }
 .compra-cabecalho .num{text-align:right}
@@ -293,7 +308,7 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
   width:34px;height:34px;border-radius:var(--raio-s);display:grid;place-items:center;
   font-size:18px;line-height:1;color:var(--texto-suave);border:1px solid transparent;
 }
-.linha-compra .rm-item:hover{color:var(--terracota);border-color:var(--areia)}
+.linha-compra .rm-item:hover{color:var(--terracota);border-color:var(--areia-fria)}
 
 .conf-lista{display:flex;flex-direction:column;gap:2px;margin-top:4px}
 .conf-linha{
@@ -314,7 +329,7 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 /* ---------- paginação ---------- */
 .paginacao{
   display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-  margin-top:14px;padding-top:12px;border-top:1px solid var(--areia);
+  margin-top:14px;padding-top:12px;border-top:1px solid var(--areia-fria);
 }
 .pag-contagem{font-size:13px;color:var(--texto-suave)}
 .pag-botoes{display:flex;align-items:center;gap:10px}
@@ -338,13 +353,13 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .diag-acoes .botao-perigo:hover{background:var(--terracota-cl)}
 
 /* ---------- abas ---------- */
-.abas{display:flex;gap:4px;border-bottom:1px solid var(--areia)}
+.abas{display:flex;gap:4px;border-bottom:1px solid var(--areia-fria)}
 .abas button{min-height:44px;padding:0 18px;font-size:15px;color:var(--texto-suave);border-bottom:3px solid transparent}
 .abas button.ativa{color:var(--texto);font-weight:400;border-bottom-color:var(--terracota)}
 
 .rodape-proto{
   margin-top:10px;font-size:13px;color:var(--texto-suave);line-height:1.6;
-  border-top:1px solid var(--areia);padding-top:16px;
+  border-top:1px solid var(--areia-fria);padding-top:16px;
 }
 
 @media (max-width:1150px){

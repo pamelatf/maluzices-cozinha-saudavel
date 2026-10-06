@@ -46,7 +46,7 @@ export function legenda(series) {
 export function graficoFaturamentoLucro(serie) {
   if (!serie.length) return '<p class="cartao-nota">Sem dados no período.</p>';
 
-  const L = 62, R = 26, T = 30, B = 32, W = 820, H = 270;
+  const L = 62, R = 26, T = 30, B = 32, W = 680, H = 320;
   const n = serie.length;
   const max = tetoDaEscala(Math.max(...serie.map((m) => m.faturamento)));
   const x = (i) => (n === 1 ? (W - L - R) / 2 + L : L + (i * (W - L - R)) / (n - 1));
@@ -111,7 +111,7 @@ function valorDe(mes, campo) {
 
 /** Barras verticais do faturamento médio por dia da semana. */
 export function graficoDiaDaSemana(dias) {
-  const L = 58, R = 16, T = 26, B = 30, W = 820, H = 220;
+  const L = 58, R = 16, T = 26, B = 32, W = 560, H = 300;
   const max = tetoDaEscala(Math.max(...dias.map((d) => d.media), 1));
   const y = (v) => T + (1 - v / max) * (H - T - B);
   const faixa = (W - L - R) / dias.length;
