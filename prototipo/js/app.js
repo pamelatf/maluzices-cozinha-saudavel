@@ -1797,18 +1797,6 @@ function telaLogin() {
 
         <p class="auth-rodape">${esc(marca.rodape)}</p>
       </div>
-      <div class="auth-lado">
-        <div class="auth-lado-conteudo">
-          <h2>Gestão simples para uma cozinha saudável</h2>
-          <p>Fichas técnicas, custos e pedidos num só lugar.</p>
-          <ul class="auth-recursos">
-            <li>Custo por porção calculado automaticamente</li>
-            <li>Painel de pedidos em tempo real</li>
-            <li>Controle de insumos e precificação</li>
-            <li>Visão financeira completa do negócio</li>
-          </ul>
-        </div>
-      </div>
     </div>`;
 }
 
@@ -1842,18 +1830,6 @@ function telaRecuperarSenha() {
         </div>
 
         <p class="auth-rodape">${esc(marca.rodape)}</p>
-      </div>
-      <div class="auth-lado">
-        <div class="auth-lado-conteudo">
-          <h2>Gestão simples para uma cozinha saudável</h2>
-          <p>Fichas técnicas, custos e pedidos num só lugar.</p>
-          <ul class="auth-recursos">
-            <li>Custo por porção calculado automaticamente</li>
-            <li>Painel de pedidos em tempo real</li>
-            <li>Controle de insumos e precificação</li>
-            <li>Visão financeira completa do negócio</li>
-          </ul>
-        </div>
       </div>
     </div>`;
 }
@@ -1910,18 +1886,6 @@ function telaCadastro() {
         </div>
 
         <p class="auth-rodape">${esc(marca.rodape)}</p>
-      </div>
-      <div class="auth-lado">
-        <div class="auth-lado-conteudo">
-          <h2>Gestão simples para uma cozinha saudável</h2>
-          <p>Fichas técnicas, custos e pedidos num só lugar.</p>
-          <ul class="auth-recursos">
-            <li>Custo por porção calculado automaticamente</li>
-            <li>Painel de pedidos em tempo real</li>
-            <li>Controle de insumos e precificação</li>
-            <li>Visão financeira completa do negócio</li>
-          </ul>
-        </div>
       </div>
     </div>`;
 }
