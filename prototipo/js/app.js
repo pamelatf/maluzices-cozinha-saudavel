@@ -4,7 +4,7 @@ import {
   faturamentoPorDiaDaSemana, produtosVendidos, destaqueDoPeriodo,
   vendasDoIntervalo, custosDoIntervalo
 } from './indicadores.js';
-import { graficoFaturamentoLucro, graficoDiaDaSemana, barrasHorizontais } from './graficos.js';
+import { graficoFaturamentoLucro, graficoDiaDaSemana, barrasHorizontais, legenda } from './graficos.js';
 import {
   telaPedidos, pedidosIniciais, aplicarAcaoNoPedido, validarPedido, criarPedido, totalDoPedido,
   ehFinal, telefoneValido, linkWhatsapp, montarMensagem, formatarTelefone, rotuloSituacao
@@ -230,14 +230,16 @@ function telaInicio() {
 
   const porSituacao = {};
   estado.pedidos.forEach((p) => { porSituacao[p.status] = (porSituacao[p.status] || 0) + 1; });
-  // a cor é a mesma do quadro de pedidos, para a bolinha aqui e o cartão lá
-  // falarem a mesma língua
+  // cores da referência do painel, uma por situação. O quadro de pedidos tem a
+  // própria cor por coluna; aqui o que importa é distinguir cinco estados num
+  // espaço pequeno, e os tons terrosos do quadro ficam parecidos demais nesse
+  // tamanho.
   const SITUACOES = [
-    { chave: 'RECEBIDO', nome: 'Recebidos', cor: 'var(--taupe)' },
-    { chave: 'EM_PREPARO', nome: 'Em preparo', cor: 'var(--terracota)' },
-    { chave: 'PRONTO', nome: 'Prontos', cor: 'var(--verde)' },
-    { chave: 'ENTREGUE', nome: 'Entregues', cor: 'var(--oliva)' },
-    { chave: 'CANCELADO', nome: 'Cancelados', cor: 'var(--pedra)' }
+    { chave: 'RECEBIDO', nome: 'Recebidos', cor: '#A3A39A' },
+    { chave: 'EM_PREPARO', nome: 'Em preparo', cor: '#3B6FD4' },
+    { chave: 'PRONTO', nome: 'Prontos', cor: '#E08A3C' },
+    { chave: 'ENTREGUE', nome: 'Entregues', cor: '#2C6B4E' },
+    { chave: 'CANCELADO', nome: 'Cancelados', cor: '#D14F4F' }
   ];
 
   const topQuantidade = produtos.porQuantidade[0];
@@ -269,18 +271,29 @@ function telaInicio() {
 
     <section class="grade grade-painel">
       <div class="cartao">
-        <h2 class="cartao-titulo tit-icone">${icone('grafico')}Faturamento x Lucro</h2>
-        <p class="cartao-nota">O valor de cada mês está escrito no gráfico. Quando a linha do lucro se aproxima da de gastos, a margem apertou, mesmo com o faturamento subindo.</p>
-        ${graficoFaturamentoLucro(serie)}
+        <div class="cartao-cabecalho">
+          <div>
+            <h2 class="cartao-titulo tit-icone">${icone('grafico')}Faturamento x Lucro</h2>
+            <p class="cartao-nota">Quando a linha do lucro encosta na de gastos, a margem apertou.</p>
+          </div>
+          ${legenda([
+            { nome: 'Faturamento', cor: 'var(--g-faturamento)' },
+            { nome: 'Gastos', cor: 'var(--g-gastos)' },
+            { nome: 'Lucro', cor: 'var(--g-lucro)' }
+          ])}
+        </div>
+        <div class="cartao-corpo">${graficoFaturamentoLucro(serie)}</div>
       </div>
 
       <div class="cartao">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
-          <h2 class="cartao-titulo tit-icone">${icone('carteira')}Gastos por categoria</h2>
+        <div class="cartao-cabecalho">
+          <div>
+            <h2 class="cartao-titulo tit-icone">${icone('carteira')}Gastos por categoria</h2>
+            <p class="cartao-nota">Para onde foi o dinheiro no período.</p>
+          </div>
           <a class="atalho" href="#/custos/${estado.periodoPainel}">ver lançamentos</a>
         </div>
-        <p class="cartao-nota">Para onde foi o dinheiro no período.</p>
-        <div style="margin-top:16px">
+        <div class="cartao-corpo">
           ${barrasHorizontais(categorias, { apoio: (c) => formatarPercentual(c.fatia) })}
         </div>
       </div>
@@ -288,18 +301,24 @@ function telaInicio() {
 
     <section class="grade grade-2 painel-linha">
       <div class="cartao">
-        <h2 class="cartao-titulo tit-icone">${icone('comanda')}Faturamento por dia da semana</h2>
-        <p class="cartao-nota">Média por dia no período, para o dia que apareceu mais vezes não levar vantagem.</p>
-        ${graficoDiaDaSemana(dias)}
+        <div class="cartao-cabecalho">
+          <div>
+            <h2 class="cartao-titulo tit-icone">${icone('comanda')}Faturamento por dia da semana</h2>
+            <p class="cartao-nota">Média por dia, para o dia que apareceu mais vezes não levar vantagem.</p>
+          </div>
+        </div>
+        <div class="cartao-corpo">${graficoDiaDaSemana(dias)}</div>
       </div>
 
       <div class="cartao">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
-          <h2 class="cartao-titulo tit-icone">${icone('livro')}Produtos mais vendidos</h2>
+        <div class="cartao-cabecalho">
+          <div>
+            <h2 class="cartao-titulo tit-icone">${icone('livro')}Produtos mais vendidos</h2>
+            <p class="cartao-nota">Quantidade vendida, com a margem de cada um ao lado.</p>
+          </div>
           <a class="atalho" href="#/fichas">ver fichas</a>
         </div>
-        <p class="cartao-nota">Quantidade vendida, com a margem de contribuição de cada um ao lado. Produto que vende muito com margem baixa aparece marcado.</p>
-        <div style="margin-top:16px">
+        <div class="cartao-corpo">
           ${barrasHorizontais(
             produtos.porQuantidade.map((p) => ({ nome: p.nome, valor: p.unidades, alerta: p.acimaDaMeta })),
             { formatar: (v) => `${v} un.`, apoio: (item) => {
@@ -318,12 +337,14 @@ function telaInicio() {
 
     <section class="grade grade-2 painel-linha">
       <div class="cartao">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">
-          <h2 class="cartao-titulo tit-icone">${icone('comanda')}Pedidos de hoje</h2>
+        <div class="cartao-cabecalho">
+          <div>
+            <h2 class="cartao-titulo tit-icone">${icone('comanda')}Pedidos de hoje</h2>
+            <p class="cartao-nota">Situação do que está no quadro agora.</p>
+          </div>
           <a class="atalho" href="#/pedidos">abrir o quadro</a>
         </div>
-        <p class="cartao-nota">Situação do que está no quadro agora.</p>
-        <div class="situacoes">
+        <div class="situacoes cartao-corpo">
           ${SITUACOES.map((s) => `
             <a class="situacao" href="#/pedidos">
               <span class="situacao-num">${porSituacao[s.chave] || 0}</span>

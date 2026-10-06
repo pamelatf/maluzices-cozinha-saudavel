@@ -36,13 +36,27 @@
   --fonte-texto:  'Quicksand', system-ui, -apple-system, sans-serif;
   --fonte-slogan: 'Source Serif 4', Georgia, serif;
 
-  /* Gráficos: três das quatro cores do manual, sem inventar nada. Elas se
-     separam mais por claridade do que por matiz, e é por isso que cada ponto
-     carrega o valor escrito e existe legenda: ninguém precisa distinguir as
-     linhas pela cor para ler o gráfico. */
-  --g-faturamento: var(--oliva);      /* #454027 */
-  --g-gastos:      var(--terracota);  /* #AB5F44 */
-  --g-lucro:       var(--verde);      /* #786847 */
+  /* Gráficos: cores da referência, e só os gráficos. O resto do sistema
+     segue o manual de marca.
+
+     O motivo é prático. As quatro cores do manual são todas terrosas e de
+     claridade parecida, o que é ótimo em embalagem e ruim em gráfico de três
+     séries: as linhas encostam umas nas outras e deixam de ser legíveis.
+     O verde e o laranja daqui se separam de longe.
+
+     A referência só tem duas séries, então o terceiro tom é escolha nossa:
+     faturamento e lucro ficam no mesmo verde, em claridades bem diferentes,
+     porque na referência verde é o que entra e laranja é o que sai. */
+  --g-faturamento: #2C6B4E;  /* verde escuro */
+  --g-gastos:      #E08A3C;  /* laranja */
+  --g-lucro:       #5FAE84;  /* verde claro */
+  --g-barra:       #4A8A68;  /* barras e listas */
+  --g-barra-forte: #2C6B4E;  /* o item em destaque */
+  --g-trilho:      #EAEAE6;  /* o fundo da barra */
+
+  /* As medidas que mantêm os cartões do painel alinhados entre si. */
+  --altura-grafico:    300px;
+  --cabecalho-cartao:  62px;
 
   --raio:  14px;
   --raio-s: 9px;
@@ -178,10 +192,26 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 
 /* ---------- visão geral ---------- */
 .grade-painel{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}
-/* Cada cartão do painel tem a altura do próprio conteúdo. Esticados para a
-   altura do vizinho, os que têm menos conteúdo ficam com um vão branco
-   embaixo do gráfico, que é o que mais denuncia layout montado na pressa. */
-.grade-painel,.painel-linha{align-items:start}
+/* ---------- o padrão dos cartões do painel ----------
+   Três medidas fixas, e os cartões de uma linha passam a terminar juntos:
+
+   1. O cabeçalho tem altura mínima, então o gráfico de um cartão começa na
+      mesma altura do gráfico do vizinho, mesmo que um título ocupe duas
+      linhas e o outro uma.
+   2. O gráfico tem teto de altura, então ele para de crescer junto com a
+      largura da tela. Sem isso, em monitor largo o cartão do gráfico fica
+      bem mais alto que o da lista ao lado.
+   3. A linha estica os dois cartões para a mesma altura, e o conteúdo se
+      distribui dentro: o que sobra vira respiro no rodapé do cartão, não um
+      degrau entre um cartão e outro.
+*/
+.grade-painel,.painel-linha{align-items:stretch}
+.grade-painel > .cartao,.painel-linha > .cartao{display:flex;flex-direction:column}
+.cartao-cabecalho{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+  flex-wrap:wrap;min-height:var(--cabecalho-cartao);
+}
+.cartao-corpo{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:14px}
 .indicador-variacao{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;font-size:13px;margin-top:8px}
 .variacao-boa{color:var(--verde);font-weight:400}
 .variacao-ruim{color:var(--terracota);font-weight:400}
@@ -192,7 +222,7 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .atalho:hover{color:var(--oliva);text-decoration:underline}
 
 /* gráficos */
-.grafico{display:block;width:100%;height:auto;margin-top:16px;overflow:visible}
+.grafico{display:block;width:100%;height:auto;max-height:var(--altura-grafico);overflow:visible}
 /* ---------- cartões de indicador ---------- */
 .ind-topo{display:flex;align-items:center;gap:10px}
 .ind-topo .rotulo{flex:1;min-width:0}
@@ -204,9 +234,9 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .ind-tendencia{width:62px;height:22px;flex:none;opacity:.75}
 .ind-tendencia path{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-.tom-verde .ind-icone{background:#E4E3D2;color:var(--oliva)}
+.tom-verde .ind-icone{background:#E4F0E8;color:var(--g-faturamento)}
 .tom-verde .ind-tendencia path{stroke:var(--g-lucro)}
-.tom-terra .ind-icone{background:#F3E2D5;color:var(--terracota)}
+.tom-terra .ind-icone{background:#FBEEDF;color:#B8671F}
 .tom-terra .ind-tendencia path{stroke:var(--g-gastos)}
 .tom-neutro .ind-icone{background:var(--creme-col);color:var(--texto-suave)}
 .tom-neutro .ind-tendencia path{stroke:var(--pedra)}
@@ -238,18 +268,18 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--verde);cursor:poi
 .g-tracejado{stroke:var(--pedra);stroke-width:1;stroke-dasharray:2 3}
 .g-guia{stroke:var(--taupe-claro);stroke-width:1;stroke-dasharray:3 3;opacity:0}
 .g-alvo{fill:transparent;cursor:crosshair}
-.g-barra{fill:var(--taupe-claro);fill-opacity:.42;transition:fill-opacity .16s}
+.g-barra{fill:var(--g-barra);fill-opacity:.55;transition:fill-opacity .16s}
 .g-barra:hover{fill-opacity:.7}
-.g-barra-forte{fill:var(--verde);fill-opacity:.85}
+.g-barra-forte{fill:var(--g-barra-forte);fill-opacity:.95}
 .g-barra-forte:hover{fill-opacity:1}
 
 /* barras horizontais */
 .barras-h{display:flex;flex-direction:column;gap:13px}
 .barra-h{display:grid;grid-template-columns:minmax(96px,1.1fr) minmax(0,2.4fr) minmax(92px,auto);gap:12px;align-items:center}
 .barra-h-nome{font-size:14px;line-height:1.3}
-.barra-h-trilho{height:10px;background:var(--creme-col);border-radius:99px;overflow:hidden}
-.barra-h-trilho div{height:100%;background:var(--verde);border-radius:99px}
-.barra-h.alerta .barra-h-trilho div{background:var(--terracota)}
+.barra-h-trilho{height:10px;background:var(--g-trilho);border-radius:99px;overflow:hidden}
+.barra-h-trilho div{height:100%;background:var(--g-barra);border-radius:99px}
+.barra-h.alerta .barra-h-trilho div{background:var(--g-gastos)}
 .barra-h-valor{text-align:right;font-size:14px;line-height:1.25}
 .barra-h-valor span{display:block;font-size:12px;color:var(--texto-suave)}
 
@@ -363,7 +393,10 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 }
 
 @media (max-width:1150px){
-  .grade-painel{grid-template-columns:1fr}
+  /* As três linhas do painel quebram juntas. Antes a primeira virava uma
+     coluna aos 1150 e as outras duas só aos 860, e no meio do caminho o
+     painel ficava com uma linha larga e duas estreitas. */
+  .grade-painel,.painel-linha{grid-template-columns:1fr}
   .grade-4{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 

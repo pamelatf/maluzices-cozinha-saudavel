@@ -86,12 +86,9 @@ export function graficoFaturamentoLucro(serie) {
       width="${(W - L - R) / Math.max(n - 1, 1)}" height="${H - T - B}"
       data-grafico="mes" data-indice="${i}"></rect>`).join('');
 
+  // a legenda mora no cabeçalho do cartão, para o gráfico começar na mesma
+  // altura do conteúdo do cartão vizinho
   return `
-    ${legenda([
-      { nome: 'Faturamento', cor: 'var(--g-faturamento)' },
-      { nome: 'Gastos', cor: 'var(--g-gastos)' },
-      { nome: 'Lucro', cor: 'var(--g-lucro)' }
-    ])}
     <svg class="grafico" viewBox="0 0 ${W} ${H}" role="img"
          aria-label="Faturamento, gastos e lucro por mês, com o valor de cada mês escrito no gráfico.">
       ${grade}
