@@ -78,6 +78,7 @@ a{color:var(--terracota)}
 a:hover{color:var(--oliva)}
 :focus-visible{outline:2px solid var(--terracota);outline-offset:2px;border-radius:4px}
 .icone{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.icone-cheio{fill:currentColor;stroke:none}
 
 /* ---------- estrutura ---------- */
 .app{display:flex;flex-wrap:wrap;min-height:100%}
@@ -323,6 +324,25 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .acao-icone .icone{font-size:16px}
 .acao-icone:hover{background:var(--creme-col);color:var(--texto)}
 .acao-icone.perigo:hover{background:#F6EDE4;color:#9C5C42}
+
+/* ---------- cartão de pedidos ----------
+   Mesmo recorte da referência: o total de um lado, as situações do outro,
+   cada uma com a bolinha da cor, a contagem e a fatia do total. */
+.pedidos-resumo{display:flex;flex-direction:row;justify-content:flex-start;gap:26px;align-items:center;flex-wrap:wrap}
+.pr-total{flex:none;min-width:130px;padding-right:26px;border-right:1px solid var(--areia-fria)}
+.pr-rotulo{font-size:13px;color:var(--texto-suave)}
+.pr-numero{font-family:var(--fonte-titulo);font-size:38px;font-weight:600;line-height:1.1;margin-top:2px}
+.pr-apoio{font-size:12.5px;color:var(--pedra);margin-top:3px}
+.pr-situacoes{flex:1;min-width:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:16px 14px}
+.pr-item{display:block;text-decoration:none;color:inherit}
+.pr-item:hover .pr-valor{color:var(--g-faturamento)}
+.pr-nome{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--texto-suave)}
+.pr-valor{display:block;font-family:var(--fonte-titulo);font-size:22px;font-weight:600;line-height:1.2;margin-top:4px}
+.pr-fatia{display:block;font-size:12px;color:var(--pedra)}
+
+@media (max-width:620px){
+  .pr-total{border-right:none;border-bottom:1px solid var(--areia-fria);padding:0 0 16px;width:100%}
+}
 
 /* ---------- compra de insumos ---------- */
 .compra-cabecalho{

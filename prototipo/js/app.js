@@ -53,15 +53,21 @@ const PAGINAS = [
   { rota: 'config', titulo: 'Configurações', icone: 'engrenagem' }
 ];
 
+/* Ícones do painel, preenchidos, no vocabulário da referência: moedas no
+   faturamento, carteira nos gastos, seta subindo no lucro, porcentagem na
+   margem, calendário no gráfico de meses, pizza na divisão por categoria,
+   prancheta no dia da semana e nos pedidos, etiqueta nos produtos e lâmpada
+   no destaque.
+
+   Os de ação (editar, excluir, alerta) continuam em traço: preenchidos,
+   ficariam pesados no tamanho miúdo de uma linha de tabela. */
 const ICONES = {
   casa: '<path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M9.5 21v-6h5v6"/>',
   conversa: '<path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.3 8.7 8.7 0 0 1-3.9-.9L3.5 20.5l1.6-4.9a8.1 8.1 0 0 1-1.1-4.1A8.4 8.4 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"/>',
   grafico: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   comanda: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
   livro: '<path d="M4 4h7a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H4zM20 4h-6"/><path d="M20 4v16h-6"/>',
-  etiqueta: '<path d="M3 11V4h7l10 10-7 7z"/><circle cx="7.5" cy="7.5" r="1.3"/>',
   cesta: '<path d="M3 9h18l-2 11H5z"/><path d="M8 9 12 3l4 6"/>',
-  carteira: '<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/><circle cx="17" cy="14.5" r="1.2"/>',
   engrenagem: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
   alerta: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5h.01"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
@@ -69,7 +75,23 @@ const ICONES = {
   excluir: '<path d="M4 7h16"/><path d="M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7"/><path d="M6.4 7l.9 12.4A2.2 2.2 0 0 0 9.5 21.5h5a2.2 2.2 0 0 0 2.2-2.1L17.6 7"/><path d="M10.3 11v6.2M13.7 11v6.2"/>'
 };
 
-const icone = (nome) => `<svg class="icone" viewBox="0 0 24 24" aria-hidden="true">${ICONES[nome] || ''}</svg>`;
+/* Preenchidos. Cada um é desenhado inteiro, sem contorno. */
+const ICONES_CHEIOS = {
+  moedas: '<ellipse cx="12" cy="5.8" rx="7.2" ry="2.9"/><path d="M4.8 9.1v2.6c0 1.6 3.2 2.9 7.2 2.9s7.2-1.3 7.2-2.9V9.1c-1.5 1.2-4.2 1.9-7.2 1.9s-5.7-.7-7.2-1.9z"/><path d="M4.8 15v2.6c0 1.6 3.2 2.9 7.2 2.9s7.2-1.3 7.2-2.9V15c-1.5 1.2-4.2 1.9-7.2 1.9S6.3 16.2 4.8 15z"/>',
+  carteira: '<path d="M5.5 5h11a2 2 0 0 1 2 2v1H6.2a1 1 0 0 1 0-2H17V5.2A2.2 2.2 0 0 0 14.8 3H5.5A2.5 2.5 0 0 0 3 5.5v12A2.5 2.5 0 0 0 5.5 20h13a2.5 2.5 0 0 0 2.5-2.5v-7A2.5 2.5 0 0 0 18.5 8H5.5z"/><circle cx="17" cy="14" r="1.5" fill="#fff"/>',
+  'seta-cresce': '<path d="M21 6.6a1.2 1.2 0 0 0-1.2-1.2h-5.6a1.2 1.2 0 0 0 0 2.4h2.7l-5.3 5.3-3.1-3.1a1.2 1.2 0 0 0-1.7 0l-5.3 5.3a1.2 1.2 0 0 0 1.7 1.7l4.5-4.5 3.1 3.1a1.2 1.2 0 0 0 1.7 0l6.1-6.1v2.7a1.2 1.2 0 0 0 2.4 0z"/>',
+  percentual: '<circle cx="7.4" cy="7.4" r="3.4"/><circle cx="16.6" cy="16.6" r="3.4"/><path d="M18.4 4.1a1.3 1.3 0 0 1 1.8 1.8L5.6 20.5a1.3 1.3 0 0 1-1.8-1.8z"/>',
+  calendario: '<path d="M8 2.2a1.1 1.1 0 0 1 1.1 1.1V4.5h5.8V3.3a1.1 1.1 0 0 1 2.2 0v1.2h.9A3 3 0 0 1 21 7.5v1.1H3V7.5a3 3 0 0 1 3-3h.9V3.3A1.1 1.1 0 0 1 8 2.2z"/><path d="M3 10.7h18V18a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/>',
+  pizza: '<path d="M11 3.1A9.1 9.1 0 1 0 20.9 13H11z"/><path d="M13.2 2.9V10.8h7.9a8.9 8.9 0 0 0-7.9-7.9z"/>',
+  prancheta: '<path d="M9.2 2h5.6a1.6 1.6 0 0 1 1.6 1.6v.7h.6A3 3 0 0 1 20 7.3V19a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7.3a3 3 0 0 1 3-3h.6v-.7A1.6 1.6 0 0 1 9.2 2z"/><path d="M8 10.8h8M8 14.6h5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>',
+  etiqueta: '<path d="M11.1 2.6H4.8A2.2 2.2 0 0 0 2.6 4.8v6.3c0 .6.2 1.1.6 1.6l8.1 8.1a2.2 2.2 0 0 0 3.1 0l6.3-6.3a2.2 2.2 0 0 0 0-3.1l-8.1-8.1a2.2 2.2 0 0 0-1.5-.7z"/><circle cx="7.6" cy="7.6" r="1.7" fill="#fff"/>',
+  lampada: '<path d="M12 2.2A6.6 6.6 0 0 0 8.1 14.1c.5.4.7.8.7 1.3v.5a1 1 0 0 0 1 1h4.4a1 1 0 0 0 1-1v-.5c0-.5.2-.9.7-1.3A6.6 6.6 0 0 0 12 2.2z"/><path d="M9.8 18.4h4.4a1 1 0 0 1 0 2H9.8a1 1 0 0 1 0-2z"/><path d="M10.6 21.3h2.8a1 1 0 0 1 0 2h-2.8a1 1 0 0 1 0-2z"/>'
+};
+
+
+const icone = (nome) => (ICONES_CHEIOS[nome]
+  ? `<svg class="icone icone-cheio" viewBox="0 0 24 24" aria-hidden="true">${ICONES_CHEIOS[nome]}</svg>`
+  : `<svg class="icone" viewBox="0 0 24 24" aria-hidden="true">${ICONES[nome] || ''}</svg>`);
 const esc = (texto) => String(texto).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 /* ------------------------------------------------------------------
@@ -230,6 +252,7 @@ function telaInicio() {
 
   const porSituacao = {};
   estado.pedidos.forEach((p) => { porSituacao[p.status] = (porSituacao[p.status] || 0) + 1; });
+  const totalDePedidos = estado.pedidos.length;
   // cores da referência do painel, uma por situação. O quadro de pedidos tem a
   // própria cor por coluna; aqui o que importa é distinguir cinco estados num
   // espaço pequeno, e os tons terrosos do quadro ficam parecidos demais nesse
@@ -260,20 +283,20 @@ function telaInicio() {
 
     <section class="grade grade-4">
       ${cartaoIndicador({ rotulo: 'Faturamento', valor: formatarMoeda(i.faturamento.valor), variacao: i.faturamento.variacao,
-        simbolo: 'carteira', tom: 'tom-verde', tendencia: serie.map((m) => m.faturamento) })}
+        simbolo: 'moedas', tom: 'tom-verde', tendencia: serie.map((m) => m.faturamento) })}
       ${cartaoIndicador({ rotulo: 'Gastos', valor: formatarMoeda(i.gastos.valor), variacao: i.gastos.variacao, bomSeSobe: false,
-        destino: `#/custos/${estado.periodoPainel}`, simbolo: 'cesta', tom: 'tom-terra', tendencia: serie.map((m) => m.gastos) })}
+        destino: `#/custos/${estado.periodoPainel}`, simbolo: 'carteira', tom: 'tom-terra', tendencia: serie.map((m) => m.gastos) })}
       ${cartaoIndicador({ rotulo: 'Lucro', valor: formatarMoeda(i.lucro.valor), variacao: i.lucro.variacao,
-        simbolo: 'grafico', tom: 'tom-verde', tendencia: serie.map((m) => m.faturamento - m.gastos) })}
+        simbolo: 'seta-cresce', tom: 'tom-verde', tendencia: serie.map((m) => m.faturamento - m.gastos) })}
       ${cartaoIndicador({ rotulo: 'Margem', valor: formatarPercentual(i.margem.valor), diferenca: i.margem.diferenca,
-        simbolo: 'etiqueta', tom: 'tom-verde', tendencia: serie.map((m) => (m.faturamento ? (m.faturamento - m.gastos) / m.faturamento : 0)) })}
+        simbolo: 'percentual', tom: 'tom-verde', tendencia: serie.map((m) => (m.faturamento ? (m.faturamento - m.gastos) / m.faturamento : 0)) })}
     </section>
 
     <section class="grade grade-painel">
       <div class="cartao">
         <div class="cartao-cabecalho">
           <div>
-            <h2 class="cartao-titulo tit-icone">${icone('grafico')}Faturamento x Lucro</h2>
+            <h2 class="cartao-titulo tit-icone">${icone('calendario')}Faturamento x Lucro</h2>
             <p class="cartao-nota">Quando a linha do lucro encosta na de gastos, a margem apertou.</p>
           </div>
           ${legenda([
@@ -288,7 +311,7 @@ function telaInicio() {
       <div class="cartao">
         <div class="cartao-cabecalho">
           <div>
-            <h2 class="cartao-titulo tit-icone">${icone('carteira')}Gastos por categoria</h2>
+            <h2 class="cartao-titulo tit-icone">${icone('pizza')}Gastos por categoria</h2>
             <p class="cartao-nota">Para onde foi o dinheiro no período.</p>
           </div>
           <a class="atalho" href="#/custos/${estado.periodoPainel}">ver lançamentos</a>
@@ -303,7 +326,7 @@ function telaInicio() {
       <div class="cartao">
         <div class="cartao-cabecalho">
           <div>
-            <h2 class="cartao-titulo tit-icone">${icone('comanda')}Faturamento por dia da semana</h2>
+            <h2 class="cartao-titulo tit-icone">${icone('prancheta')}Faturamento por dia da semana</h2>
             <p class="cartao-nota">Média por dia, para o dia que apareceu mais vezes não levar vantagem.</p>
           </div>
         </div>
@@ -313,7 +336,7 @@ function telaInicio() {
       <div class="cartao">
         <div class="cartao-cabecalho">
           <div>
-            <h2 class="cartao-titulo tit-icone">${icone('livro')}Produtos mais vendidos</h2>
+            <h2 class="cartao-titulo tit-icone">${icone('etiqueta')}Produtos mais vendidos</h2>
             <p class="cartao-nota">Quantidade vendida, com a margem de cada um ao lado.</p>
           </div>
           <a class="atalho" href="#/fichas">ver fichas</a>
@@ -339,22 +362,33 @@ function telaInicio() {
       <div class="cartao">
         <div class="cartao-cabecalho">
           <div>
-            <h2 class="cartao-titulo tit-icone">${icone('comanda')}Pedidos de hoje</h2>
+            <h2 class="cartao-titulo tit-icone">${icone('prancheta')}Pedidos de hoje</h2>
             <p class="cartao-nota">Situação do que está no quadro agora.</p>
           </div>
           <a class="atalho" href="#/pedidos">abrir o quadro</a>
         </div>
-        <div class="situacoes cartao-corpo">
-          ${SITUACOES.map((s) => `
-            <a class="situacao" href="#/pedidos">
-              <span class="situacao-num">${porSituacao[s.chave] || 0}</span>
-              <span class="situacao-nome"><i class="g-ponto-cor" style="background:${s.cor}"></i>${s.nome}</span>
-            </a>`).join('')}
+        <div class="cartao-corpo pedidos-resumo">
+          <div class="pr-total">
+            <div class="pr-rotulo">Total de pedidos</div>
+            <div class="pr-numero">${totalDePedidos}</div>
+            <div class="pr-apoio">no quadro agora</div>
+          </div>
+          <div class="pr-situacoes">
+            ${SITUACOES.map((s) => {
+              const n = porSituacao[s.chave] || 0;
+              const fatia = totalDePedidos ? n / totalDePedidos : 0;
+              return `<a class="pr-item" href="#/pedidos">
+                <span class="pr-nome"><i class="g-ponto-cor" style="background:${s.cor}"></i>${s.nome}</span>
+                <span class="pr-valor">${n}</span>
+                <span class="pr-fatia">${formatarPercentual(fatia)}</span>
+              </a>`;
+            }).join('')}
+          </div>
         </div>
       </div>
 
       <div class="destaque destaque-${destaque.tom}">
-        ${icone(destaque.tom === 'atencao' ? 'alerta' : 'info')}
+        ${icone(destaque.tom === 'atencao' ? 'alerta' : 'lampada')}
         <div>
           <div class="destaque-rotulo">Destaque do período</div>
           <strong>${esc(destaque.titulo)}</strong>
