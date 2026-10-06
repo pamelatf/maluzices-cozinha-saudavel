@@ -91,25 +91,39 @@ a:hover{color:var(--oliva)}
 /* ---------- estrutura ---------- */
 .app{display:flex;flex-wrap:wrap;min-height:100%}
 
+/* Barra lateral clara, nos tons da logo (oliva e areia), sem verde.
+   As cores ficam aqui, no escopo da barra, para não mexer na paleta do
+   resto do sistema. */
 .lateral{
+  --lat-fundo:#FFFFFF;
+  --lat-borda:#E8DFD0;
+  --lat-texto:#786847;
+  --lat-hover-fundo:#F4EFE4;
+  --lat-hover-texto:#454027;
+  --lat-ativo-fundo:#786847;
+  --lat-ativo-texto:#FFFFFF;
+
   flex:1 1 240px;max-width:270px;min-width:220px;
-  background:var(--oliva);color:var(--creme);
+  background:var(--lat-fundo);color:var(--lat-texto);
+  border-right:1px solid var(--lat-borda);
   padding:26px 18px;display:flex;flex-direction:column;gap:26px;
 }
 .marca{display:flex;flex-direction:column;gap:2px;line-height:1;padding-left:6px}
-.marca-nome{display:flex;align-items:flex-end;font-size:24px;font-weight:300;letter-spacing:.2em}
+.marca-logo{display:block;height:auto;max-width:100%}
+.marca-nome{display:flex;align-items:flex-end;font-size:24px;font-weight:300;letter-spacing:.2em;color:var(--lat-hover-texto)}
 .marca-nome .colher-i{width:11px;height:24px;margin:0 .1em -1px .04em;stroke:var(--terracota-cl);fill:none;stroke-width:1.6;stroke-linecap:round}
-.marca-tag{font-family:var(--fonte-slogan);font-size:13px;letter-spacing:.14em;color:var(--verde-suave)}
+.marca-tag{font-family:var(--fonte-slogan);font-size:13px;letter-spacing:.14em;color:var(--lat-texto)}
 
 .menu{display:flex;flex-direction:column;gap:3px}
 .menu div{display:flex;flex-direction:column;gap:3px}
 .menu a{
   display:flex;align-items:center;gap:11px;
   padding:11px 14px;border-radius:var(--raio-s);
-  color:var(--verde-suave);text-decoration:none;font-size:15px;
+  color:var(--lat-texto);text-decoration:none;font-size:15px;
 }
-.menu a:hover{background:rgba(255,255,255,.07);color:var(--creme)}
-.menu a.ativo{background:var(--oliva-claro);color:var(--creme);font-weight:400}
+.menu a:hover{background:var(--lat-hover-fundo);color:var(--lat-hover-texto)}
+.menu a.ativo{background:var(--lat-ativo-fundo);color:var(--lat-ativo-texto);font-weight:500}
+.menu a.ativo:hover{background:var(--lat-ativo-fundo);color:var(--lat-ativo-texto)}
 .menu .icone{font-size:17px}
 
 .conteudo{flex:999 1 620px;min-width:0;padding:30px 34px 60px;display:flex;flex-direction:column;gap:22px}
@@ -150,7 +164,7 @@ th.calculada{background:var(--verde-suave)}
 
 /* ---------- formulário ---------- */
 .campo{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--texto-suave)}
-input[type=text],input[type=number],input[type=search],input[type=date],select{
+input[type=text],input[type=email],input[type=password],input[type=number],input[type=search],input[type=date],select{
   min-height:44px;padding:0 13px;border:1px solid var(--areia-fria);border-radius:var(--raio-s);
   background:var(--branco);font-size:15px;font-weight:300;width:100%;
 }
@@ -444,7 +458,25 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
    Telas de autenticação (login e recuperação de senha)
    Layout full-screen, fora da casca com sidebar.
    ============================================================ */
-#auth-container{position:fixed;inset:0;z-index:1000;background:var(--fundo)}
+#auth-container{
+  /* Cores do manual de marca, só para estas telas: oliva, areia e terracota. */
+  --auth-oliva-escuro:#454027;
+  --auth-oliva:#786847;
+  --auth-oliva-hover:#5E5738;
+  --auth-areia:#E8DFD0;
+  --auth-terracota:#AB5F44;
+  --auth-terracota-hover:#8A4A33;
+
+  position:fixed;inset:0;z-index:1000;overflow-y:auto;
+  background:var(--fundo) url('../img/fundo-auth.png') center/cover no-repeat;
+}
+#auth-container input{border-color:var(--auth-areia)}
+#auth-container input:focus{border-color:var(--auth-oliva)}
+#auth-container :focus-visible{outline-color:var(--auth-oliva)}
+#auth-container input[type=checkbox]{accent-color:var(--auth-oliva)}
+#auth-container .botao{background:var(--auth-oliva-escuro);color:#FFFFFF}
+#auth-container .botao:hover{background:var(--auth-oliva-hover)}
+#auth-container .aviso-neutro{background:#F6F1E7;border-color:var(--auth-areia)}
 
 .auth-fundo{
   display:flex;align-items:center;justify-content:center;
@@ -455,21 +487,22 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
 .auth-cartao{
   width:100%;max-width:480px;padding:48px 52px;
   display:flex;flex-direction:column;
-  background:var(--branco);
-  border:1px solid var(--verde-suave);
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  border:1px solid var(--auth-areia);
   border-radius:var(--raio);
   box-shadow:var(--sombra);
-  overflow-y:auto;
 }
 
 .auth-marca{
-  display:flex;flex-direction:column;gap:2px;margin-bottom:40px;
+  display:flex;justify-content:center;margin-bottom:32px;
 }
+.auth-logo{display:block;width:250px;max-width:85%;height:auto}
 
 .auth-titulo{
   font-family:var(--fonte-titulo);
   font-size:26px;font-weight:600;
-  color:var(--verde-escuro);
+  color:var(--auth-oliva-escuro);
   margin:0 0 8px;
 }
 
@@ -489,7 +522,7 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
   display:flex;align-items:center;
 }
 .btn-ver-senha svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.btn-ver-senha:hover{color:var(--verde)}
+.btn-ver-senha:hover{color:var(--auth-oliva)}
 
 .auth-opcoes{
   display:flex;justify-content:space-between;align-items:center;
@@ -501,19 +534,19 @@ code{background:var(--creme-col);border-radius:5px;padding:1px 5px;font-size:13p
   color:var(--texto-suave);
 }
 
-.auth-link{color:var(--verde);text-decoration:none;font-size:14px}
-.auth-link:hover{color:var(--verde-escuro);text-decoration:underline}
+.auth-link{color:var(--auth-terracota);text-decoration:none;font-size:14px}
+.auth-link:hover{color:var(--auth-terracota-hover);text-decoration:underline}
 
 .auth-botao-entrar{
   width:100%;min-height:46px;font-size:16px;font-weight:500;
 }
 
-.auth-voltar{margin-top:24px}
+.auth-voltar{margin-top:24px;margin-bottom:8px}
 
 .auth-rodape{
   margin-top:auto;padding-top:32px;
   font-size:12px;color:var(--texto-suave);line-height:1.6;
-  border-top:1px solid var(--verde-suave);
+  border-top:1px solid var(--auth-areia);
 }
 
 @media (max-width:560px){

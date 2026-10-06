@@ -22,10 +22,11 @@ export const marca = {
      texto: é a logo oficial do cliente, e não uma imitação feita em CSS.
      `largura` é em pixels, na barra lateral.
 
-     O ideal é um SVG, que fica perfeito em qualquer tela. Este PNG saiu do
-     PDF do manual e está em 560px de largura, três vezes o tamanho de
-     exibição, para não borrar em tela de alta densidade. */
-  logo: 'img/logo-oliva.png',
+     O ideal é um SVG, que fica perfeito em qualquer tela. Este PNG tem fundo
+     transparente e é o mesmo das telas de login e cadastro, em cerca de
+     quatro vezes o tamanho de exibição, para não borrar em tela de alta
+     densidade. */
+  logo: 'img/logo-maluzices-horizontal.png',
   logoLargura: 186,
 
   /* Usados só quando não há logo em imagem: o nome vira texto e esta letra
