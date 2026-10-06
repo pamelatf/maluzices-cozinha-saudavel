@@ -1790,6 +1790,11 @@ function telaLogin() {
           <button type="submit" class="botao auth-botao-entrar">Entrar</button>
         </form>
 
+        <div class="auth-voltar" style="text-align:center;margin-top:20px">
+          <span style="color:var(--texto-suave);font-size:.9rem">Ainda não tem conta? </span>
+          <a href="#/cadastro" class="auth-link">Criar conta</a>
+        </div>
+
         <p class="auth-rodape">${esc(marca.rodape)}</p>
       </div>
       <div class="auth-lado">
@@ -1853,7 +1858,75 @@ function telaRecuperarSenha() {
     </div>`;
 }
 
-const ROTAS_SEM_SIDEBAR = ['login', 'recuperar-senha'];
+function telaCadastro() {
+  return `
+    <div class="auth-fundo">
+      <div class="auth-cartao">
+        <div class="auth-marca">
+          <span class="marca-nome">
+            MALU<svg class="colher-i" viewBox="0 0 11 24" aria-hidden="true">
+              <path d="M5.5 2 C3 2 1.5 4 1.5 7 C1.5 10 3.5 12 5.5 12 C7.5 12 9.5 10 9.5 7 C9.5 4 8 2 5.5 2Z M5.5 12 L5.5 22" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>ICES
+          </span>
+          <span class="marca-tag">cozinha saudável</span>
+        </div>
+
+        <h1 class="auth-titulo">Criar conta</h1>
+        <p class="auth-subtitulo">Preencha os dados para criar o seu acesso ao sistema.</p>
+
+        <form class="auth-form" data-acao="form-cadastro" novalidate>
+          <label class="campo">
+            Nome completo
+            <input type="text" id="cadastro-nome" placeholder="Seu nome" autocomplete="name" required>
+          </label>
+          <label class="campo" style="margin-top:14px">
+            E-mail
+            <input type="email" id="cadastro-email" placeholder="seuemail@exemplo.com" autocomplete="email" required>
+          </label>
+          <label class="campo" style="margin-top:14px">
+            Senha
+            <div class="campo-senha">
+              <input type="password" id="cadastro-senha" placeholder="Crie uma senha" autocomplete="new-password" required>
+              <button type="button" class="btn-ver-senha" data-acao="alternar-senha" aria-label="Mostrar senha">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </label>
+          <label class="campo" style="margin-top:14px">
+            Confirmar senha
+            <div class="campo-senha">
+              <input type="password" id="cadastro-confirmar" placeholder="Repita a senha" autocomplete="new-password" required>
+              <button type="button" class="btn-ver-senha" data-acao="alternar-senha" aria-label="Mostrar senha">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </label>
+
+          <button type="submit" class="botao auth-botao-entrar" style="margin-top:24px">Criar conta</button>
+        </form>
+
+        <div class="auth-voltar">
+          <a href="#/login" class="auth-link">← Voltar para o login</a>
+        </div>
+
+        <p class="auth-rodape">${esc(marca.rodape)}</p>
+      </div>
+      <div class="auth-lado">
+        <div class="auth-lado-conteudo">
+          <h2>Gestão simples para uma cozinha saudável</h2>
+          <p>Fichas técnicas, custos e pedidos num só lugar.</p>
+          <ul class="auth-recursos">
+            <li>Custo por porção calculado automaticamente</li>
+            <li>Painel de pedidos em tempo real</li>
+            <li>Controle de insumos e precificação</li>
+            <li>Visão financeira completa do negócio</li>
+          </ul>
+        </div>
+      </div>
+    </div>`;
+}
+
+const ROTAS_SEM_SIDEBAR = ['login', 'recuperar-senha', 'cadastro'];
 
 function renderizar() {
   const { pagina, parametro } = rotaAtual();
@@ -1870,7 +1943,8 @@ function renderizar() {
       authEl.id = 'auth-container';
       document.body.insertBefore(authEl, document.querySelector('.diag-fundo'));
     }
-    const telaAuth = pagina === 'login' ? telaLogin : telaRecuperarSenha;
+    const mapaAuth = { login: telaLogin, 'recuperar-senha': telaRecuperarSenha, cadastro: telaCadastro };
+    const telaAuth = mapaAuth[pagina] || telaLogin;
     authEl.innerHTML = telaAuth();
     window.scrollTo(0, 0);
     return;
@@ -2194,13 +2268,28 @@ document.addEventListener('submit', (evento) => {
     }
     return;
   }
+  if (acao === 'form-cadastro') {
+    evento.preventDefault();
+    const senha = document.getElementById('cadastro-senha');
+    const confirmar = document.getElementById('cadastro-confirmar');
+    if (senha && confirmar && senha.value && senha.value !== confirmar.value) {
+      confirmar.setCustomValidity('As senhas não coincidem');
+      confirmar.reportValidity();
+      confirmar.setCustomValidity('');
+      return;
+    }
+    // Protótipo: qualquer dado leva ao sistema
+    location.hash = '#/inicio';
+    return;
+  }
 });
 
 document.addEventListener('click', (evento) => {
-  // Toggle de visibilidade da senha no login
+  // Toggle de visibilidade da senha nos formulários de auth
   const btnSenha = evento.target.closest('[data-acao="alternar-senha"]');
   if (btnSenha) {
-    const input = document.getElementById('login-senha');
+    const campo = btnSenha.closest('.campo-senha');
+    const input = campo && campo.querySelector('input[type="password"], input[type="text"]');
     if (input) {
       input.type = input.type === 'password' ? 'text' : 'password';
       btnSenha.setAttribute('aria-label', input.type === 'password' ? 'Mostrar senha' : 'Ocultar senha');
